@@ -19,7 +19,7 @@ pages from the keyboard.
 
 from __future__ import annotations
 
-from PySide6.QtCore import QByteArray, Qt
+from PySide6.QtCore import QByteArray, QSettings, Qt
 from PySide6.QtGui import QCloseEvent, QGuiApplication, QKeySequence, QResizeEvent, QShortcut
 from PySide6.QtWidgets import (
     QApplication,
@@ -131,6 +131,7 @@ class MainWindow(QMainWindow):
             shortcut.activated.connect(lambda i=index: self._nav.set_current(i))
         QGuiApplication.styleHints().colorSchemeChanged.connect(self._on_system_scheme)
         self._apply_breakpoint(breakpoint_for_width(self.width()))
+        self._restore_forms()
 
     # --- construction ---------------------------------------------------
 
@@ -271,9 +272,22 @@ class MainWindow(QMainWindow):
             self.restoreGeometry(saved)
 
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802 - Qt override
-        """Save the window geometry, then close as usual."""
-        settings_store().setValue(_GEOMETRY_KEY, self.saveGeometry())
+        """Save the window geometry and the form values, then close as usual."""
+        store = settings_store()
+        store.setValue(_GEOMETRY_KEY, self.saveGeometry())
+        self.save_forms(store)
         super().closeEvent(event)
+
+    def save_forms(self, store: QSettings) -> None:
+        """Write the Search, Enrich and Deck fields so the next start has them."""
+        for page in (self._search_page, self._enrich_page, self._deck_page):
+            page.save_form(store)
+        store.sync()
+
+    def _restore_forms(self) -> None:
+        store = settings_store()
+        for page in (self._search_page, self._enrich_page, self._deck_page):
+            page.restore_form(store)
 
     # --- accessors used by tests ----------------------------------------
 

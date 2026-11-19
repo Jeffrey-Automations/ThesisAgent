@@ -81,9 +81,31 @@ venues) and **Snowball and library**.
 Press **Search**, or Enter in the query field. The query runs on a worker
 thread so the UI stays responsive. The status bar shows the progress
 indicator and the results table populates when the run finishes.
-Double-click a row to open the paper's page in your browser (only
-`http` / `https` links are opened, a link of any other kind from a
-source record is ignored).
+While it runs, **Cancel** stops it at its next network wait. A
+cancelled search changes nothing: the table keeps the previous results
+and the status line says so.
+
+**Working with the results:**
+
+- **Sort** by clicking a column header. Until you do, the table keeps
+  the ranked order of the search. Years and citation counts sort as
+  numbers, and a missing value sorts after every real one when
+  descending.
+- **Filter** with the box above the table (it matches every word you
+  type against the title, authors, venue and DOI) and the source
+  picker beside it. Filtering only hides rows. A hidden paper keeps its
+  tick and is still sent on.
+- **Tick** the papers to send on. Every paper of a new result starts
+  ticked. **Enrich**, **Deck** and **Export…** receive only the ticked
+  papers, and the line above the table counts them
+  (`12 of 25 ticked`). **Tick shown** and **Untick shown** act on the
+  rows the filter currently shows, so "filter, then untick shown" drops
+  a whole group at once.
+- **Right-click** a row for *Open paper page*, *Open PDF* (greyed out
+  when the paper has no PDF link), *Copy DOI* and *Copy BibTeX* (one
+  entry under the paper's own BibTeX key). Double-clicking a row also
+  opens the paper's page. Only `http` / `https` links are opened, a
+  link of any other kind from a source record is ignored.
 
 When the run finishes the status line reports the number of papers and
 what each source returned, for example
@@ -104,10 +126,25 @@ diagnostics".
 **Citation snowball** expands the top results along their citation
 links before they are shown: *References* adds the papers they cite,
 *Cited by* the papers that cite them, *Both* does both. It is off by
-default and uses the CLI's bounds (the top 5 results, one step, at
-most 20 new papers). The papers it finds are appended to the table
-and the status line adds `Snowball: 3 new.` Same as the CLI
-`--snowball` flag, see [`cli.md`](cli.md) "Citation snowballing".
+default. The papers it finds are appended to the table and the status
+line adds `Snowball: 3 new.` Same as the CLI `--snowball` flag, see
+[`cli.md`](cli.md) "Citation snowballing".
+
+Tick **Advanced snowball settings** to change its bounds. The fields
+start at the CLI's defaults, so leaving the section closed gives the
+same expansion as the CLI:
+
+| Field | CLI flag | Default | Range |
+|---|---|---|---|
+| Top results to expand | `--snowball-seeds` | 5 | 1 – 200 |
+| Steps from each result | `--snowball-depth` | 1 | 1 – 3 |
+| Papers per result and direction | `--snowball-max-per-seed` | 20 | 1 – 100 |
+| New papers in all (at most) | `--snowball-max-total` | 20 | 1 – 1000 |
+| Minimum relevance | `--snowball-min-relevance` | — (off) | 0 – 1 |
+
+The minimum relevance drops found papers whose relevance to the query
+is below that fraction of the best the keywords allow. A dash (0) keeps
+every paper found.
 
 **Library** names a literature library, an SQLite file that keeps
 papers between sessions (see [`cli.md`](cli.md) "Literature
@@ -131,7 +168,7 @@ exist yet is created the first time papers are added to it.
   verified is not checked again for 30 days.
 
 Press **Export…**, pick an output directory, and the standard
-`.pptx` + `.xlsx` + `.bib` triple lands there.
+`.pptx` + `.xlsx` + `.bib` triple of the ticked papers lands there.
 
 ### Settings
 
@@ -206,6 +243,14 @@ at a time on a worker thread (each call already takes several seconds,
 running them in parallel would only hit the rate limit). A failed paper
 keeps its search record, so the Deck page still renders it in the
 lightweight tier.
+
+**Cancel** stops the run. A paper whose PDF is still downloading is
+stopped at once, one already in the summary call finishes first and its
+summary is dropped. Papers not reached are marked *not run (stopped)*
+and keep their search record, so the Deck page still gets every paper.
+If the Search page sends new results (a new search, or changed ticks)
+while a run is going, they are held and shown once the run ends,
+because swapping them in mid-run would point the run at the wrong rows.
 
 When the run finishes the enriched collection is sent to the Deck
 page, so its **Export** picks up the rich-tier layout automatically.
@@ -352,11 +397,20 @@ through QSettings), and the adaptive shell (`test_responsive.py`,
 `test_theme_and_shell.py`: size classes, sidebar collapse, split
 orientation, re-flowing grids, theme contrast, busy indicator).
 
+## Remembered form values
+
+Closing the window saves the Search, Enrich and Deck fields to QSettings
+(groups `form/search`, `form/enrich`, `form/deck`), and the next start
+fills them back in: the query, ticked sources, filters, snowball
+direction and bounds, library file, summary language and model, output
+folder, deck language, formats and deck options. The Deck page's
+filename stem is not saved on purpose: it names one export, and a
+remembered stem would make the next export overwrite the last one. A
+value that is missing or no longer valid (a source that was removed)
+leaves that field at its default.
+
 ## Known limitations
 
-- The snowball on the Search page always uses the default bounds (top
-  5 results, one step, 20 new papers). Other bounds, and a relevance
-  floor, are CLI (`--snowball-*`) and MCP (`snowball`) options.
 - A library is searched from the Search page. There is no view of its
   runs, citation links or statistics in the GUI: use the MCP
   `library_stats` tool or the Python API.
@@ -368,7 +422,7 @@ orientation, re-flowing grids, theme contrast, busy indicator).
   relevant source plugin.
 - Changing the interface language still needs a restart. The theme
   applies at once.
-- A running search, enrichment or export cannot be cancelled from the
-  GUI yet.
+- An export cannot be cancelled: stopping it half-way would leave
+  partial files behind. A search and an enrichment run can.
 
 Planned GUI work is tracked in `progress.md` (items #19 – #28).

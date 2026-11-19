@@ -391,22 +391,22 @@ def _glyph_rules(p: Palette, assets: dict[str, str]) -> str:
     """Check-box, combo-box and spin-box sub-controls drawn with ``assets``."""
     s = p.shape
     return f"""
-QCheckBox::indicator {{
+QCheckBox::indicator, QTableView::indicator {{
     width: 16px;
     height: 16px;
     border: {2 if p.style == STYLE_MATERIAL else 1}px solid {p.muted};
     border-radius: {s.check_radius}px;
     background: transparent;
 }}
-QCheckBox::indicator:hover {{
+QCheckBox::indicator:hover, QTableView::indicator:hover {{
     border-color: {p.accent};
 }}
-QCheckBox::indicator:checked {{
+QCheckBox::indicator:checked, QTableView::indicator:checked {{
     background: {p.accent};
     border-color: {p.accent};
     image: url({assets["check"]});
 }}
-QCheckBox::indicator:disabled {{
+QCheckBox::indicator:disabled, QTableView::indicator:disabled {{
     background: {p.surface_alt};
     border-color: {p.border};
 }}

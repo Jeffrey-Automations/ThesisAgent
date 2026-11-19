@@ -311,6 +311,19 @@ def test_pptx_exporter_single_paper_skips_agenda_and_divider(sample_papers, tmp_
     assert "References" in titles
 
 
+def test_bibtex_entry_matches_the_exported_entry(sample_papers, tmp_path):
+    """One copied entry is the same text the .bib export writes for that paper."""
+    from thesisagents.exporters.bibtex import bibtex_entry
+
+    paper = sample_papers[0]
+    entry = bibtex_entry(paper)
+    assert entry.startswith("@")
+    assert "{" + paper.bibtex_key() + "," in entry
+    options = ExportOptions(formats=("bib",), out_dir=str(tmp_path), filename_stem="one")
+    written = export_collection(_collection((paper,)), options)
+    assert entry in written["bib"].read_text(encoding="utf-8")
+
+
 def test_pptx_own_thesis_drops_source_slide_bibtex_and_self_reference(tmp_path):
     """A candidate's own thesis (source=local, no external ids) renders no
     source/overview slide, no BibTeX cite-key, and no references-of-self slide.

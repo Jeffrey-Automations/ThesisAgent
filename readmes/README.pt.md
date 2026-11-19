@@ -585,7 +585,7 @@ barra lateral se recolhe em ícones e os rótulos dos formulários passam para
 cima dos campos. A janela redimensiona até 640×480, com escalonamento HiDPI
 ativado por padrão. **Settings → Theme** escolhe claro, escuro ou seguir o
 sistema, aplicado na hora e independente do modo escuro da própria
-apresentação. **Settings → Style** alterna entre o visual clássico azul-marinho e o Material 3. `Ctrl+1` … `Ctrl+4` alternam entre as páginas.
+apresentação. Os resultados podem ser ordenados, filtrados e marcados para que só alguns artigos sigam para Enrich, Deck e Export, os limites da bola de neve são ajustáveis, uma pesquisa ou um enriquecimento em andamento pode ser cancelado, e o formulário é lembrado entre execuções. **Settings → Style** alterna entre o visual clássico azul-marinho e o Material 3. `Ctrl+1` … `Ctrl+4` alternam entre as páginas.
 
 Referência completa: [`docs/gui.md`](../docs/gui.md).
 

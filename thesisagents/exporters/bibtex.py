@@ -35,6 +35,18 @@ class BibtexExporter(Exporter):
         return "\n\n".join(entries) + "\n"
 
 
+def bibtex_entry(paper: Paper) -> str:
+    """One paper as a BibTeX entry under its own ``bibtex_key()``.
+
+    For copying a single citation (the GUI's *Copy BibTeX*). A ``.bib``
+    export goes through :class:`BibtexExporter` instead, which also makes
+    keys unique across the whole collection.
+
+    Example: ``bibtex_entry(paper)`` → ``"@article{vaswani2017attention, ..."``.
+    """
+    return _render_entry(paper.bibtex_key(), paper)
+
+
 def _render_entry(key: str, paper: Paper) -> str:
     entry_type = "article" if paper.venue else "misc"
     fields: list[tuple[str, str]] = []

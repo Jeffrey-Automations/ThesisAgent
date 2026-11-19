@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QThreadPool, QUrl, Signal
+from PySide6.QtCore import QSettings, Qt, QThreadPool, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -65,6 +65,8 @@ _FORMAT_CHOICES: tuple[tuple[str, str], ...] = (
 )
 _DEFAULT_FORMATS: frozenset[str] = frozenset({"pptx", "xlsx", "bib"})
 _DEFAULT_MAX_SLIDES = 25
+#: QSettings group the form is saved under when the window closes.
+_FORM_GROUP = "form/deck"
 
 
 class DeckPage(QWidget):
@@ -284,6 +286,62 @@ class DeckPage(QWidget):
 
     def set_template_path(self, path: str) -> None:
         self._template_input.setText(path)
+
+    def save_form(self, store: QSettings) -> None:
+        """Write the output, format and option fields to ``store``.
+
+        The filename stem is left out on purpose: it names one export, and a
+        remembered stem would make the next export overwrite the last one.
+        """
+        values: dict[str, object] = {
+            "out_dir": self._out_dir_input.text(),
+            "language": self._language_combo.currentData() or "en",
+            "formats": ",".join(self._selected_formats()),
+            "max_slides": self._max_slides_spin.value(),
+            "include_abstract": self._include_abstract_check.isChecked(),
+            "dark_mode": self._dark_mode_check.isChecked(),
+            "verify_identifiers": self._verify_identifiers_check.isChecked(),
+            "template": self._template_input.text(),
+            "template_config": self._template_config_input.text(),
+        }
+        for key, value in values.items():
+            store.setValue(f"{_FORM_GROUP}/{key}", value)
+
+    def restore_form(self, store: QSettings) -> None:
+        """Fill the fields from ``store``; missing values keep the defaults."""
+
+        def stored(key: str, kind: type) -> object | None:
+            full = f"{_FORM_GROUP}/{key}"
+            return store.value(full, type=kind) if store.contains(full) else None
+
+        for key, field in (
+            ("out_dir", self._out_dir_input),
+            ("template", self._template_input),
+            ("template_config", self._template_config_input),
+        ):
+            text = stored(key, str)
+            # An empty saved output folder would leave Export with nowhere to write.
+            if text is not None and (text or key != "out_dir"):
+                field.setText(str(text))
+        language = stored("language", str)
+        if language is not None and self._language_combo.findData(language) >= 0:
+            self._language_combo.setCurrentIndex(self._language_combo.findData(language))
+        formats = stored("formats", str)
+        if formats is not None:
+            wanted = set(str(formats).split(","))
+            for fmt, check in self._format_checks.items():
+                check.setChecked(fmt in wanted)
+        max_slides = stored("max_slides", int)
+        if max_slides is not None:
+            self._max_slides_spin.setValue(int(max_slides))
+        for key, check in (
+            ("include_abstract", self._include_abstract_check),
+            ("dark_mode", self._dark_mode_check),
+            ("verify_identifiers", self._verify_identifiers_check),
+        ):
+            flag = stored(key, bool)
+            if flag is not None:
+                check.setChecked(bool(flag))
 
     def set_template_config_path(self, path: str) -> None:
         self._template_config_input.setText(path)
