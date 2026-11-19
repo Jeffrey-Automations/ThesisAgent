@@ -570,7 +570,7 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-La finestra ha una barra laterale con quattro pagine: **Search**, **Enrich**
+La finestra ha una barra laterale con cinque pagine: **Search**, **Library** (una vista in sola lettura di un file di biblioteca: panoramica, i suoi articoli con i legami di citazione e le verifiche degli identificatori, e le ricerche che l'hanno riempito), **Enrich**
 (pilota l'arricchimento LLM-as-agent / pipeline Python su un segnale
 `collection_ready`), **Deck** (il toggle della modalità scura, il tetto di
 slide, il controllo degli identificatori e il modello del deck confluiscono in
@@ -593,7 +593,7 @@ una media sopra di essi, e sotto i 760 px la barra laterale si riduce a icone e
 le etichette dei form passano sopra i loro campi. La finestra si ridimensiona
 fino a 640×480, con lo scaling HiDPI attivo di default. **Settings → Theme**
 sceglie chiaro, scuro o segui il sistema, si applica subito ed è indipendente
-dalla modalità scura propria del deck. I risultati si possono ordinare, filtrare e selezionare perché solo alcuni articoli passino a Enrich, Deck ed Export, i limiti della palla di neve sono regolabili, una ricerca o un arricchimento in corso si può annullare, e il modulo viene ricordato tra un avvio e l'altro. **Settings → Style** passa dall'aspetto classico blu navy a Material 3 e viceversa. `Ctrl+1` … `Ctrl+4` cambiano pagina.
+dalla modalità scura propria del deck. I risultati si possono ordinare, filtrare e selezionare perché solo alcuni articoli passino a Enrich, Deck ed Export, i limiti della palla di neve sono regolabili, una ricerca o un arricchimento in corso si può annullare, e il modulo viene ricordato tra un avvio e l'altro. **Settings → Style** passa dall'aspetto classico blu navy a Material 3 e viceversa. `Ctrl+1` … `Ctrl+5` cambiano pagina.
 
 Riferimento completo: [`docs/gui.md`](../docs/gui.md).
 

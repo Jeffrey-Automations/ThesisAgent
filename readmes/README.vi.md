@@ -558,7 +558,7 @@ pip install thesisagents[gui]
 thesisagents-gui                 # hoặc: thesisagents gui
 ```
 
-Cửa sổ có một thanh bên với bốn trang: **Search**, **Enrich** (điều
+Cửa sổ có một thanh bên với năm trang: **Search**, **Library** (chế độ xem chỉ đọc một tệp thư viện: tổng quan, các bài báo cùng liên kết trích dẫn và kết quả kiểm tra định danh, và các lần tìm kiếm đã bổ sung vào nó), **Enrich** (điều
 khiển làm giàu LLM-as-agent / Python-pipeline qua một tín hiệu
 `collection_ready`), **Deck** (nút bật Dark mode, giới hạn slide, kiểm tra
 định danh và mẫu deck luồng vào `ExportOptions`), và **Settings** (duy trì
@@ -581,7 +581,7 @@ rộng vừa thì nằm phía trên kết quả, và dưới 760 px thanh bên t
 biểu tượng, nhãn của form chuyển lên trên ô nhập. Cửa sổ thu nhỏ xuống
 640×480, với HiDPI scaling bật theo mặc định. **Settings → Theme** chọn sáng,
 tối hoặc theo hệ thống, áp dụng ngay và độc lập với chế độ tối riêng của
-deck. Kết quả có thể sắp xếp, lọc và đánh dấu để chỉ gửi một số bài báo sang Enrich, Deck và Export, giới hạn lăn cầu tuyết có thể điều chỉnh, có thể hủy tìm kiếm hoặc quá trình làm giàu đang chạy, và biểu mẫu được ghi nhớ giữa các lần khởi động. **Settings → Style** chuyển giữa giao diện cổ điển màu xanh navy và Material 3. `Ctrl+1` … `Ctrl+4` chuyển trang.
+deck. Kết quả có thể sắp xếp, lọc và đánh dấu để chỉ gửi một số bài báo sang Enrich, Deck và Export, giới hạn lăn cầu tuyết có thể điều chỉnh, có thể hủy tìm kiếm hoặc quá trình làm giàu đang chạy, và biểu mẫu được ghi nhớ giữa các lần khởi động. **Settings → Style** chuyển giữa giao diện cổ điển màu xanh navy và Material 3. `Ctrl+1` … `Ctrl+5` chuyển trang.
 
 Tham chiếu đầy đủ: [`docs/gui.md`](../docs/gui.md).
 

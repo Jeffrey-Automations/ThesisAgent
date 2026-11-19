@@ -56,6 +56,19 @@ def _deck(painter: QPainter) -> None:
     painter.drawLine(QPointF(7, 12), QPointF(16, 12))
 
 
+def _library(painter: QPainter) -> None:
+    # Three book spines on a shelf, the last one leaning.
+    painter.drawRect(QRectF(4, 5, 3.5, 14))
+    painter.drawRect(QRectF(9, 3, 3.5, 16))
+    path = QPainterPath(QPointF(15, 6.5))
+    path.lineTo(QPointF(18.4, 5.6))
+    path.lineTo(QPointF(21, 18.2))
+    path.lineTo(QPointF(17.6, 19))
+    path.closeSubpath()
+    painter.drawPath(path)
+    painter.drawLine(QPointF(3, 21), QPointF(21, 21))
+
+
 def _settings(painter: QPainter) -> None:
     # Three sliders: reads as "preferences" and stays legible at 16 px,
     # where a gear's teeth blur together.
@@ -92,6 +105,7 @@ def _chevron_up(painter: QPainter) -> None:
 
 _PAINTERS: Final[dict[str, Callable[[QPainter], None]]] = {
     "search": _search,
+    "library": _library,
     "enrich": _enrich,
     "deck": _deck,
     "settings": _settings,

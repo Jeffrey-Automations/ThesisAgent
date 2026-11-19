@@ -143,7 +143,7 @@ def test_main_window_constructs_in_every_supported_language(qtbot, language):
     """A missing key in one language would crash a label at construction."""
     window = MainWindow(ui_language=language)
     qtbot.addWidget(window)
-    assert window.page_count() == 4
+    assert window.page_count() == 5
 
 
 # --- building blocks ----------------------------------------------------

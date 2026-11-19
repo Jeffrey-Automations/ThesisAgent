@@ -458,7 +458,7 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-視窗有一個側邊欄,含四個頁面:**Search**、**Enrich**(透過一個
+視窗有一個側邊欄,含五個頁面:**Search**、**Library**(文獻庫檔案的唯讀檢視：概況、收錄論文及其引用關係與識別碼檢查，以及累積它的歷次搜尋)、**Enrich**(透過一個
 `collection_ready` 訊號驅動 LLM-as-agent / Python-pipeline 加值)、
 **Deck**(深色模式切換、投影片上限、識別碼檢查與投影片範本會流向
 `ExportOptions`),以及 **Settings**(透過 QSettings 保存 API 金鑰)。
@@ -474,7 +474,7 @@ Tiếng Việt、हिन्दी、Bahasa Indonesia)—— 首次執行會從
 結果旁邊,中等寬度時放在結果上方,寬度低於 760 px 時側邊欄收合成圖示,
 表單標籤移到欄位上方。視窗可以縮小到 640×480,並預設開啟 HiDPI 縮放。
 **Settings → Theme** 可選淺色、深色或跟隨系統,立即套用,且與投影片本身的
-深色模式無關。結果可以排序、篩選並勾選，只把勾選的論文交給 Enrich、Deck 與匯出，滾雪球的範圍可以調整，執行中的搜尋或豐富化可以取消，表單內容在下次啟動時會保留。**Settings → Style** 可在經典海軍藍外觀與 Material 3 之間切換。`Ctrl+1` … `Ctrl+4` 切換頁面。
+深色模式無關。結果可以排序、篩選並勾選，只把勾選的論文交給 Enrich、Deck 與匯出，滾雪球的範圍可以調整，執行中的搜尋或豐富化可以取消，表單內容在下次啟動時會保留。**Settings → Style** 可在經典海軍藍外觀與 Material 3 之間切換。`Ctrl+1` … `Ctrl+5` 切換頁面。
 
 完整參考:[`docs/gui.md`](../docs/gui.md)。
 

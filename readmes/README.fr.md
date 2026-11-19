@@ -577,7 +577,7 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-La fenêtre a une barre latérale avec quatre pages : **Search**, **Enrich**
+La fenêtre a une barre latérale avec cinq pages : **Search**, **Library** (une vue en lecture seule d'un fichier de bibliothèque : vue d'ensemble, ses articles avec leurs liens de citation et vérifications d'identifiants, et les recherches qui l'ont rempli), **Enrich**
 (pilote l'enrichissement LLM-as-agent / pipeline Python via un signal
 `collection_ready`), **Deck** (le bouton Dark mode, le plafond de diapositives,
 la vérification des identifiants et le modèle de présentation se répercutent
@@ -604,7 +604,7 @@ formulaires passent au-dessus de leurs champs. La fenêtre se redimensionne
 jusqu'à 640×480, avec la mise à l'échelle HiDPI activée par défaut.
 **Settings → Theme** choisit clair, sombre ou suivre le système, s'applique
 immédiatement et reste indépendant du mode sombre propre à la présentation.
-Les résultats se trient, se filtrent et se cochent pour n'envoyer que certains articles vers Enrich, Deck et l'export, les limites de la boule de neige sont réglables, une recherche ou un enrichissement en cours peut être annulé, et le formulaire est mémorisé d'un lancement à l'autre. **Settings → Style** bascule entre l'apparence classique bleu marine et Material 3. `Ctrl+1` … `Ctrl+4` changent de page.
+Les résultats se trient, se filtrent et se cochent pour n'envoyer que certains articles vers Enrich, Deck et l'export, les limites de la boule de neige sont réglables, une recherche ou un enrichissement en cours peut être annulé, et le formulaire est mémorisé d'un lancement à l'autre. **Settings → Style** bascule entre l'apparence classique bleu marine et Material 3. `Ctrl+1` … `Ctrl+5` changent de page.
 
 Référence complète : [`docs/gui.md`](../docs/gui.md).
 

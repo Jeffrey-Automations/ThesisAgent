@@ -601,6 +601,33 @@ QPushButton[primary="true"]:disabled {{
     color: {p.muted};
 }}
 
+/* Tabs and read-only text --------------------------------------------- */
+QTabWidget::pane {{
+    border: none;
+    border-top: 1px solid {p.border};
+}}
+QTabBar::tab {{
+    background: transparent;
+    color: {p.muted};
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 6px 14px;
+}}
+QTabBar::tab:hover {{
+    color: {p.text};
+}}
+QTabBar::tab:selected {{
+    color: {p.text};
+    border-bottom: 2px solid {p.accent};
+    font-weight: 600;
+}}
+QTextBrowser {{
+    background: {p.surface};
+    border: {card_border};
+    border-radius: {s.card_radius - 2}px;
+    padding: 4px;
+}}
+
 /* Tables ----------------------------------------------------------- */
 QTableView {{
     background: {p.surface};

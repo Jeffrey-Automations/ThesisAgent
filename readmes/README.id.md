@@ -569,7 +569,7 @@ pip install thesisagents[gui]
 thesisagents-gui                 # atau: thesisagents gui
 ```
 
-Jendela memiliki sidebar dengan empat halaman: **Search**, **Enrich**
+Jendela memiliki sidebar dengan lima halaman: **Search**, **Library** (tampilan hanya-baca sebuah berkas pustaka: ikhtisar, makalahnya beserta tautan sitasi dan pemeriksaan pengenalnya, serta pencarian yang mengisinya), **Enrich**
 (menggerakkan pengayaan LLM-as-agent / Python-pipeline lewat sinyal
 `collection_ready`), **Deck** (toggle Dark mode, batas slide, pemeriksaan
 identifier, dan templat deck mengalir ke `ExportOptions`), dan
@@ -593,7 +593,7 @@ sidebar menciut menjadi ikon dan label form pindah ke atas field-nya.
 Jendela mengecil hingga 640×480, dengan penskalaan HiDPI aktif secara
 default. **Settings → Theme** memilih terang, gelap, atau mengikuti sistem,
 langsung diterapkan dan tidak bergantung pada mode gelap milik deck itu
-sendiri. Hasil dapat diurutkan, disaring, dan dicentang agar hanya sebagian makalah yang diteruskan ke Enrich, Deck, dan Export, batas bola salju dapat diatur, pencarian atau pengayaan yang sedang berjalan dapat dibatalkan, dan isian formulir diingat antar-peluncuran. **Settings → Style** beralih antara tampilan klasik biru dongker dan Material 3. `Ctrl+1` … `Ctrl+4` berpindah halaman.
+sendiri. Hasil dapat diurutkan, disaring, dan dicentang agar hanya sebagian makalah yang diteruskan ke Enrich, Deck, dan Export, batas bola salju dapat diatur, pencarian atau pengayaan yang sedang berjalan dapat dibatalkan, dan isian formulir diingat antar-peluncuran. **Settings → Style** beralih antara tampilan klasik biru dongker dan Material 3. `Ctrl+1` … `Ctrl+5` berpindah halaman.
 
 Referensi lengkap: [`docs/gui.md`](../docs/gui.md).
 

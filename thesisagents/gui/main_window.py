@@ -1,4 +1,4 @@
-"""Main application window: a sidebar, the four pages, and a status bar.
+"""Main application window: a sidebar, the five pages, and a status bar.
 
 Layout, from left to right: the :class:`NavRail` sidebar, then a stack
 holding one page at a time. Each page has a title and a one-line subtitle
@@ -13,8 +13,8 @@ The window adapts to its width (see ``widgets/responsive.py``):
 * **Expanded** (>= 1180 px): controls in a side column beside the results.
 
 The pages are told when the size class changes (``apply_breakpoint``), so
-each one decides how to re-arrange itself. ``Ctrl+1`` ... ``Ctrl+4`` switch
-pages from the keyboard.
+each one decides how to re-arrange itself. ``Ctrl+1`` ... ``Ctrl+5`` switch
+pages from the keyboard (Search, Library, Enrich, Deck, Settings).
 """
 
 from __future__ import annotations
@@ -39,6 +39,7 @@ from thesisagents.core.models import PaperCollection
 from thesisagents.gui.i18n import t
 from thesisagents.gui.pages.deck import DeckPage
 from thesisagents.gui.pages.enrich import EnrichPage
+from thesisagents.gui.pages.library import LibraryPage
 from thesisagents.gui.pages.search import SearchPage
 from thesisagents.gui.pages.settings import (
     SettingsPage,
@@ -61,10 +62,12 @@ _DEFAULT_HEIGHT = 800
 _GEOMETRY_KEY = "window/geometry"
 
 # Page order: (icon, nav label key, subtitle key). The index is the
-# sidebar index, the stack index and the Ctrl+N shortcut.
-_SEARCH, _ENRICH, _DECK, _SETTINGS = range(4)
+# sidebar index, the stack index and the Ctrl+N shortcut. The Library sits
+# beside Search: both are where papers come from.
+_SEARCH, _LIBRARY, _ENRICH, _DECK, _SETTINGS = range(5)
 _PAGE_META: tuple[tuple[str, str, str], ...] = (
     ("search", "nav.search", "page.search_subtitle"),
+    ("library", "nav.library", "page.library_subtitle"),
     ("enrich", "nav.enrich", "page.enrich_subtitle"),
     ("deck", "nav.deck", "page.deck_subtitle"),
     ("settings", "nav.settings", "page.settings_subtitle"),
@@ -89,6 +92,7 @@ class MainWindow(QMainWindow):
         self._restore_geometry()
 
         self._search_page = SearchPage(ui_language=ui_language)
+        self._library_page = LibraryPage(ui_language=ui_language)
         self._enrich_page = EnrichPage(ui_language=ui_language)
         self._deck_page = DeckPage(ui_language=ui_language)
         self._settings_page = SettingsPage(ui_language=ui_language)
@@ -101,6 +105,7 @@ class MainWindow(QMainWindow):
         self._headers: list[QWidget] = []
         bodies: tuple[QWidget, ...] = (
             self._search_page,
+            self._library_page,
             self._enrich_page,
             self._deck_page,
             self._scrollable(self._settings_page),
@@ -193,9 +198,16 @@ class MainWindow(QMainWindow):
         self._search_page.library_path_changed.connect(self._deck_page.set_library_path)
         self._enrich_page.collection_ready.connect(self._deck_page.set_collection)
         self._search_page.collection_ready.connect(self._on_search_collection)
+        # The Library page follows the Search page's library file, and hands
+        # its papers on to Enrich and Deck the same way a search does.
+        self._search_page.library_path_changed.connect(self._library_page.set_library_path)
+        self._library_page.collection_ready.connect(self._enrich_page.set_collection)
+        self._library_page.collection_ready.connect(self._deck_page.set_collection)
+        self._library_page.collection_ready.connect(self._on_search_collection)
         self._enrich_page.collection_ready.connect(self._on_enriched_collection)
         for key, page in (
             ("search", self._search_page),
+            ("library", self._library_page),
             ("enrich", self._enrich_page),
             ("deck", self._deck_page),
         ):
@@ -218,7 +230,8 @@ class MainWindow(QMainWindow):
         for frame in self._headers:
             frame.layout().setContentsMargins(margin, 14, margin, 10)
         for page in (
-            self._search_page, self._enrich_page, self._deck_page, self._settings_page,
+            self._search_page, self._library_page, self._enrich_page,
+            self._deck_page, self._settings_page,
         ):
             page.apply_breakpoint(breakpoint)
 
@@ -279,15 +292,20 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
     def save_forms(self, store: QSettings) -> None:
-        """Write the Search, Enrich and Deck fields so the next start has them."""
-        for page in (self._search_page, self._enrich_page, self._deck_page):
+        """Write the Search, Library, Enrich and Deck fields for the next start."""
+        for page in self._form_pages():
             page.save_form(store)
         store.sync()
 
     def _restore_forms(self) -> None:
         store = settings_store()
-        for page in (self._search_page, self._enrich_page, self._deck_page):
+        for page in self._form_pages():
             page.restore_form(store)
+
+    def _form_pages(self) -> tuple[SearchPage | LibraryPage | EnrichPage | DeckPage, ...]:
+        # The Library page restores after Search, so its own saved path wins
+        # over the one the Search page's restore just echoed to it.
+        return (self._search_page, self._library_page, self._enrich_page, self._deck_page)
 
     # --- accessors used by tests ----------------------------------------
 
@@ -302,6 +320,9 @@ class MainWindow(QMainWindow):
 
     def deck_page(self) -> DeckPage:
         return self._deck_page
+
+    def library_page(self) -> LibraryPage:
+        return self._library_page
 
     def nav_rail(self) -> NavRail:
         return self._nav

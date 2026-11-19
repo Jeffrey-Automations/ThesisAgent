@@ -522,7 +522,7 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-창에는 사이드바와 네 개의 페이지가 있습니다: **Search**,
+창에는 사이드바와 다섯 개의 페이지가 있습니다: **Search**, **Library** (라이브러리 파일의 읽기 전용 보기: 개요, 논문과 그 인용 관계·식별자 검사, 라이브러리를 채운 검색 기록),
 **Enrich**(`collection_ready` 시그널을 통해 LLM-as-agent / Python
 파이프라인 보강을 구동), **Deck**(Dark mode 토글, 슬라이드 상한, 식별자
 검사, 덱 템플릿이 `ExportOptions` 로 흘러 들어감), 그리고
@@ -543,7 +543,7 @@ Italiano, Tiếng Việt, हिन्दी, Bahasa Indonesia) — 첫 실행�
 640×480 까지 줄어들며, HiDPI 스케일링이 기본으로 켜져 있습니다.
 **Settings → Theme** 에서 라이트, 다크, 시스템 따르기 중 하나를 고르면
 바로 적용되며, 덱 자체의 다크 모드와는 별개입니다. 결과를 정렬·필터링하고 체크해 일부 논문만 Enrich, Deck, Export 로 보낼 수 있고, 스노볼 범위를 조정할 수 있으며, 실행 중인 검색이나 보강은 취소할 수 있고, 폼 내용은 다음 실행 때도 유지됩니다. **Settings → Style** 에서 클래식 네이비 스타일과 Material 3 를 전환합니다. `Ctrl+1` …
-`Ctrl+4` 로 페이지를 전환합니다.
+`Ctrl+5` 로 페이지를 전환합니다.
 
 전체 레퍼런스: [`docs/gui.md`](../docs/gui.md).
 

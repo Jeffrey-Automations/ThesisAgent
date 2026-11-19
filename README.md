@@ -553,7 +553,7 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-The window has a sidebar with four pages: **Search**, **Enrich** (drives
+The window has a sidebar with five pages: **Search**, **Library** (a read-only view of a library file: an overview, its papers with their citation links and identifier checks, and the searches that filled it), **Enrich** (drives
 the LLM-as-agent / Python-pipeline enrichment over a `collection_ready`
 signal), **Deck** (the Dark mode toggle, slide cap, identifier check and
 deck template flow through to `ExportOptions`) and **Settings** (persists
@@ -576,7 +576,7 @@ medium one above them, and below 760 px the sidebar collapses to icons
 and form labels move above their fields. The window resizes down to
 640×480, with HiDPI scaling on by default. **Settings → Theme** picks
 light, dark or follow-the-system, applied at once and independent of
-the deck's own dark mode. Results can be sorted, filtered and ticked so only some papers go on to Enrich, Deck and Export, the snowball bounds can be adjusted, a running search or enrichment can be cancelled, and the form is remembered between starts. **Settings → Style** switches between the classic navy look and Material 3. `Ctrl+1` … `Ctrl+4` switch pages.
+the deck's own dark mode. Results can be sorted, filtered and ticked so only some papers go on to Enrich, Deck and Export, the snowball bounds can be adjusted, a running search or enrichment can be cancelled, and the form is remembered between starts. **Settings → Style** switches between the classic navy look and Material 3. `Ctrl+1` … `Ctrl+5` switch pages.
 
 Full reference: [`docs/gui.md`](docs/gui.md).
 

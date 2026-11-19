@@ -233,9 +233,10 @@ def test_search_results_put_a_paper_count_on_the_next_steps(qtbot):
     qtbot.addWidget(window)
     window.search_page()._on_search_finished(_collection(3))  # noqa: SLF001
     rail = window.nav_rail()
-    assert rail.button_tooltip(1) == "Enrich  ·  3"
-    assert rail.button_tooltip(2) == "Deck  ·  3"
+    assert rail.button_tooltip(2) == "Enrich  ·  3"
+    assert rail.button_tooltip(3) == "Deck  ·  3"
     assert rail.button_tooltip(0) == "Search"
+    assert rail.button_tooltip(1) == "Library"
 
 
 # --- busy indicator ---------------------------------------------------------

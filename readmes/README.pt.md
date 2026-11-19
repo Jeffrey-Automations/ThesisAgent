@@ -562,7 +562,7 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-A janela tem uma barra lateral com quatro páginas: **Search**, **Enrich**
+A janela tem uma barra lateral com cinco páginas: **Search**, **Library** (uma visão somente leitura de um arquivo de biblioteca: visão geral, seus artigos com vínculos de citação e verificações de identificadores, e as pesquisas que o preencheram), **Enrich**
 (conduz o enriquecimento LLM-como-agente / pipeline-Python sobre um sinal
 `collection_ready`), **Deck** (o toggle de modo escuro, o limite de slides, a
 verificação de identificadores e o modelo da apresentação fluem para
@@ -585,7 +585,7 @@ barra lateral se recolhe em ícones e os rótulos dos formulários passam para
 cima dos campos. A janela redimensiona até 640×480, com escalonamento HiDPI
 ativado por padrão. **Settings → Theme** escolhe claro, escuro ou seguir o
 sistema, aplicado na hora e independente do modo escuro da própria
-apresentação. Os resultados podem ser ordenados, filtrados e marcados para que só alguns artigos sigam para Enrich, Deck e Export, os limites da bola de neve são ajustáveis, uma pesquisa ou um enriquecimento em andamento pode ser cancelado, e o formulário é lembrado entre execuções. **Settings → Style** alterna entre o visual clássico azul-marinho e o Material 3. `Ctrl+1` … `Ctrl+4` alternam entre as páginas.
+apresentação. Os resultados podem ser ordenados, filtrados e marcados para que só alguns artigos sigam para Enrich, Deck e Export, os limites da bola de neve são ajustáveis, uma pesquisa ou um enriquecimento em andamento pode ser cancelado, e o formulário é lembrado entre execuções. **Settings → Style** alterna entre o visual clássico azul-marinho e o Material 3. `Ctrl+1` … `Ctrl+5` alternam entre as páginas.
 
 Referência completa: [`docs/gui.md`](../docs/gui.md).
 

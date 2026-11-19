@@ -37,14 +37,17 @@ install is needed.
 ## Window layout
 
 The window has a sidebar on the left and one page at a time on the right.
-The sidebar lists the three steps of the workflow, **Search**, **Enrich**
-and **Deck**, with **Settings** pinned at the bottom. Each page opens with
-its title and a one-line subtitle saying what the step does.
+The sidebar lists where papers come from, **Search** and **Library**, then
+the two steps that work on them, **Enrich** and **Deck**, with **Settings**
+pinned at the bottom. Each page opens with its title and a one-line
+subtitle saying what it does.
 
-- After a search, the Enrich and Deck entries show the number of papers
-  waiting for them (`Enrich · 25`), so you can see that the next step has
-  data without opening it.
-- `Ctrl+1` … `Ctrl+4` switch to Search, Enrich, Deck and Settings.
+- After a search (or **Send to Enrich and Deck** on the Library page),
+  the Enrich and Deck entries show the number of papers waiting for them
+  (`Enrich · 25`), so you can see that the next step has data without
+  opening it.
+- `Ctrl+1` … `Ctrl+5` switch to Search, Library, Enrich, Deck and
+  Settings.
 - While a search, an enrichment run or an export is working, the status
   bar at the bottom shows `Working…` and a moving progress bar. The page
   that started the work keeps its own detailed status line.
@@ -169,6 +172,36 @@ exist yet is created the first time papers are added to it.
 
 Press **Export…**, pick an output directory, and the standard
 `.pptx` + `.xlsx` + `.bib` triple of the ticked papers lands there.
+
+### Library
+
+A read-only view of a literature library file, the SQLite file the
+Search page's **Library** field and the CLI `--library` flag fill. The
+path follows the Search page's library field, and **Browse…** picks
+another file. Press **Open library** (or Enter in either field) to read
+it. The file is opened read-only and is never created: a path with no
+library behind it reports `Could not open the library: …` instead of
+making an empty one.
+
+- The **find** box narrows the list the way **Search library** does
+  (the search ranker, stemming and phrases included). Empty lists every
+  paper, most recently seen first.
+- **Overview** counts the papers, the searches that filled the library,
+  the citation links between its papers, the year span, the papers each
+  source returned and the stored identifier checks per status (`ok 20,
+  invalid 1`).
+- The **Papers** tab lists the papers with their sources, how often they
+  were seen and when last. Select one to see, below the list, the
+  library papers it cites and that cite it, and its stored DOI / URL
+  checks with their date. Every value there is shown as plain text, a
+  title with markup in it is not rendered.
+- The **Searches** tab lists every import, newest first: date, kind,
+  keywords and how many papers it brought.
+- **Send to Enrich and Deck** hands the listed papers (with the citation
+  links between them) on, as a search result would be.
+
+The page never writes to the file. Adding papers stays on the Search
+page (**Add results to the library**), the CLI and MCP.
 
 ### Settings
 
@@ -411,9 +444,8 @@ leaves that field at its default.
 
 ## Known limitations
 
-- A library is searched from the Search page. There is no view of its
-  runs, citation links or statistics in the GUI: use the MCP
-  `library_stats` tool or the Python API.
+- The Library page only reads. Removing a paper from a library, or
+  editing one, is not possible from the GUI.
 - The Deck page does not preview a template check. A template that
   cannot be used is reported when the export starts.
 - The Settings page does not validate keys against the live API —
