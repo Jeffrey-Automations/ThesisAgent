@@ -746,19 +746,37 @@ def _add_overview_slide(
         font_pt=_SECTION_TITLE_PT,
     )
     meta_text = _overview_meta(paper, ctx)
+    # Authors, year / venue and source: a long author list wraps, and the
+    # fixed 1.1" box overflowed for an eight-author paper (found by the DoD
+    # smoke of U-20261119-10). Sized like the content-slide meta line; the
+    # body list (at most six short lines) moves down and keeps its bottom.
+    meta_height_in, meta_overflows = _wrapped_box_height_in(
+        meta_text, font_pt=_OVERVIEW_META_PT,
+        min_in=_OVERVIEW_META_MIN_IN, max_lines=_OVERVIEW_META_MAX_LINES,
+    )
     _add_textbox(
         slide, name="meta", text=meta_text,
         left=_MARGIN_X, top=_BODY_TOP,
-        width=_BODY_WIDTH, height=Inches(1.1),
-        font_pt=_BODY_PT - 1, colour=_BRAND_GREY,
+        width=_BODY_WIDTH, height=Inches(meta_height_in),
+        font_pt=_OVERVIEW_META_PT, colour=_BRAND_GREY,
+        shrink_to_fit=meta_overflows,
     )
     bullets = list(_overview_bullets(paper, ctx))
+    body_top = _BODY_TOP + Inches(meta_height_in + _CONTENT_META_GAP_IN)
     _add_bullet_box(
         slide, name="body", bullets=bullets,
-        left=_MARGIN_X, top=_BODY_TOP + Inches(1.2),
-        width=_BODY_WIDTH, height=Inches(4.3),
+        left=_MARGIN_X, top=body_top,
+        width=_BODY_WIDTH, height=_OVERVIEW_BODY_BOTTOM - body_top,
         font_pt=_BODY_PT,
     )
+
+
+#: The overview slide's authors / year / source block.
+_OVERVIEW_META_PT = _BODY_PT - 1
+_OVERVIEW_META_MIN_IN = 1.1
+_OVERVIEW_META_MAX_LINES = 6
+#: Bottom edge of the overview body list, as before (top 2.7" + height 4.3").
+_OVERVIEW_BODY_BOTTOM = Inches(7.0)
 
 
 def _add_references_slide(
@@ -857,18 +875,20 @@ def _add_pain_points_slide(
         # it is still shown — _add_research_question_slide stays skipped because
         # pain_points is non-empty, so there is no duplicate.
         if summary.research_question:
-            rq_slide = _new_section_slide(
-                prs, layout, t(ctx.language, "section_research_question"),
-            )
-            _add_paper_subtitle(rq_slide, paper, ctx)
-            _add_rq_callout(
-                rq_slide, summary.research_question,
-                left=_MARGIN_X, top=Inches(2.5), width=_BODY_WIDTH, height=Inches(2.0),
-            )
+            _add_research_question_lead_slide(prs, layout, paper, summary, ctx)
         _add_paginated_bullet_sections(
             prs, layout, paper, ctx, title=title, sections=tuple(sections),
         )
         return
+    # The inline callout under the quadrant has 0.8" before the footer
+    # guard. A question that needs more gets its own lead slide instead of
+    # overflowing the box (progress #16), the same lead slide the over-cap
+    # branch above uses, so it is never truncated.
+    rq_on_own_slide = bool(summary.research_question) and (
+        _callout_height_in(summary.research_question) > _INLINE_RQ_HEIGHT_IN
+    )
+    if rq_on_own_slide:
+        _add_research_question_lead_slide(prs, layout, paper, summary, ctx)
     per_slide = _pain_points_per_slide(sections)
     chunks = [
         sections[i : i + per_slide]
@@ -888,11 +908,11 @@ def _add_pain_points_slide(
             columns=2,
             language=ctx.language,
         )
-        if chunk_index == 0 and summary.research_question:
+        if chunk_index == 0 and summary.research_question and not rq_on_own_slide:
             _add_rq_callout(
                 slide, summary.research_question,
-                left=_MARGIN_X, top=Inches(6.2),
-                width=_BODY_WIDTH, height=Inches(0.8),
+                left=_MARGIN_X, top=Inches(_INLINE_RQ_TOP_IN),
+                width=_BODY_WIDTH, height=Inches(_INLINE_RQ_HEIGHT_IN),
             )
 
 
@@ -904,13 +924,58 @@ def _add_research_question_slide(
     # its own slide.
     if summary.pain_points:
         return
-    title = t(ctx.language, "section_research_question")
-    slide = _new_section_slide(prs, layout, title)
+    _add_research_question_lead_slide(prs, layout, paper, summary, ctx)
+
+
+#: The research-question callout under the pain-point grid: from 6.2" to the
+#: 7.0" footer guard.
+_INLINE_RQ_TOP_IN = 6.2
+_INLINE_RQ_HEIGHT_IN = 0.8
+#: The callout on a slide of its own starts at 2.5" and is at least 2.0" tall.
+_LEAD_RQ_TOP_IN = 2.5
+_LEAD_RQ_MIN_HEIGHT_IN = 2.0
+#: ``_add_rq_callout``'s inner margins: 0.2" left and right, 0.1" top and bottom.
+_CALLOUT_SIDE_MARGIN_IN = 0.2
+_CALLOUT_VERTICAL_MARGINS_IN = 0.2
+
+
+def _callout_height_in(text: str) -> float:
+    """Height (inches) a research-question callout needs for ``text``.
+
+    Same estimate as the overflow inspector (``_estimate_wrapped_lines``),
+    at the callout's bold body size and its own 0.2" side margins. Used to
+    decide whether a question fits the 0.8" inline box (``progress.md``
+    #16: a 170-character question rendered at 0.95" there) and to size the
+    lead-slide box.
+
+    Example: a one-line question needs about 0.52", a three-line one 1.15".
+    """
+    plain = _strip_math_markup(" ".join((text or "").split()))
+    # _estimate_wrapped_lines takes off the default 0.1" per side, the
+    # callout's margins are 0.2", so hand it a width 0.2" narrower.
+    extra_margin = 2 * (_CALLOUT_SIDE_MARGIN_IN - _TEXTBOX_SIDE_MARGIN_IN)
+    width_in = Emu(_BODY_WIDTH).inches - extra_margin
+    lines = _estimate_wrapped_lines(plain, width_in=width_in, font_pt=_BODY_PT)
+    return lines * _BODY_LINE_HEIGHT_IN + _CALLOUT_VERTICAL_MARGINS_IN
+
+
+def _add_research_question_lead_slide(
+    prs: Presentation, layout, paper: Paper, summary: PaperSummary, ctx: _BuildContext,
+) -> None:
+    """The research question on a slide of its own, in a box sized to it.
+
+    At least 2.0" tall as before, taller when the question needs it, never
+    past the 7.0" footer guard.
+    """
+    slide = _new_section_slide(prs, layout, t(ctx.language, "section_research_question"))
     _add_paper_subtitle(slide, paper, ctx)
+    room = Emu(_FOOTER_GUARD).inches - _LEAD_RQ_TOP_IN
+    needed = _callout_height_in(summary.research_question)
+    height = min(room, max(_LEAD_RQ_MIN_HEIGHT_IN, needed))
     _add_rq_callout(
         slide, summary.research_question,
-        left=_MARGIN_X, top=Inches(2.5),
-        width=_BODY_WIDTH, height=Inches(2.0),
+        left=_MARGIN_X, top=Inches(_LEAD_RQ_TOP_IN),
+        width=_BODY_WIDTH, height=Inches(height),
     )
 
 
@@ -1429,27 +1494,85 @@ def _add_content_slide(
 ) -> None:
     section_title = t(ctx.language, section_key)
     slide = _new_section_slide(prs, layout, section_title)
+    meta_text = (
+        f"{_clean(paper.title)} · "
+        f"{t(ctx.language, 'paper_n_of_m', n=index, m=total)}"
+    )
+    meta_height_in, meta_overflows = _content_meta_height_in(meta_text)
     _add_textbox(
-        slide, name="meta",
-        text=(
-            f"{_clean(paper.title)} · "
-            f"{t(ctx.language, 'paper_n_of_m', n=index, m=total)}"
-        ),
+        slide, name="meta", text=meta_text,
         left=_MARGIN_X, top=_BODY_TOP,
-        width=_BODY_WIDTH, height=Inches(0.5),
-        font_pt=_BODY_PT - 4, colour=_BRAND_GREY,
+        width=_BODY_WIDTH, height=Inches(meta_height_in),
+        font_pt=_CONTENT_META_PT, colour=_BRAND_GREY,
+        shrink_to_fit=meta_overflows,
     )
     fallback = [_clean(paper.abstract)]
     raw_bullets = _sentences_to_bullets(sentences) or fallback
     bullets = _cap_bullets(
         raw_bullets, max_count=6, max_chars=_BULLET_MAX_CHARS, language=ctx.language,
     )
+    # The body starts below however many lines the meta needed and keeps its
+    # bottom edge, so a two-line title costs the body 0.1" instead of
+    # overflowing the meta box (progress #11).
+    body_top = _BODY_TOP + Inches(meta_height_in + _CONTENT_META_GAP_IN)
     _add_bullet_box(
         slide, name="body", bullets=bullets,
-        left=_MARGIN_X, top=_BODY_TOP + Inches(0.6),
-        width=_BODY_WIDTH, height=Inches(4.7),
+        left=_MARGIN_X, top=body_top,
+        width=_BODY_WIDTH, height=_CONTENT_BODY_BOTTOM - body_top,
         font_pt=_BODY_PT,
     )
+
+
+#: The "<paper title> · Paper N of M" line on a lightweight content slide.
+_CONTENT_META_PT = _BODY_PT - 4
+_CONTENT_META_MIN_IN = 0.5
+_CONTENT_META_MAX_LINES = 2
+_CONTENT_META_GAP_IN = 0.1
+#: Bottom edge of the content slide's body box, the same as before the meta
+#: line became adaptive (top 2.1" + height 4.7").
+_CONTENT_BODY_BOTTOM = Inches(6.8)
+#: python-pptx's default top + bottom inner margin of a textbox (0.05" each).
+_TEXTBOX_VERTICAL_MARGINS_IN = 0.1
+
+
+def _content_meta_height_in(text: str) -> tuple[float, bool]:
+    """Height (inches) of the content-slide meta box, and whether it overflows.
+
+    The boundary this guards: a paper title long enough to wrap. The box was
+    a fixed 0.5" (one line at 15 pt), so a 112-character title rendered at
+    0.6" and failed the overflow check on every content slide of a
+    lightweight deck (``progress.md`` #11). The height now follows the
+    estimated wrapped line count, the inspector's own model, up to two
+    lines. A title needing more than two lines (well over 200 characters)
+    gets shrink-to-fit instead, because the body below has no more room.
+
+    Example: a 40-character title gives ``(0.5, False)``, a 112-character
+    one ``(0.6, False)``.
+    """
+    return _wrapped_box_height_in(
+        text, font_pt=_CONTENT_META_PT,
+        min_in=_CONTENT_META_MIN_IN, max_lines=_CONTENT_META_MAX_LINES,
+    )
+
+
+def _wrapped_box_height_in(
+    text: str, *, font_pt: int, min_in: float, max_lines: int
+) -> tuple[float, bool]:
+    """Height (inches) of a full-width textbox for ``text``, and whether it overflows.
+
+    Sized from the overflow inspector's wrapped-line estimate, never below
+    ``min_in`` and never above ``max_lines`` lines. The second value is true
+    when the text needs more than ``max_lines`` lines, in which case the
+    caller turns on shrink-to-fit because the slide has no more room.
+
+    Example: ``_wrapped_box_height_in("one line", font_pt=15, min_in=0.5,
+    max_lines=2)`` gives ``(0.5, False)``.
+    """
+    lines = _estimate_wrapped_lines(text, width_in=Emu(_BODY_WIDTH).inches, font_pt=font_pt)
+    shown = min(lines, max_lines)
+    line_in = font_pt * 1.2 / 72
+    height = max(min_in, shown * line_in + _TEXTBOX_VERTICAL_MARGINS_IN)
+    return round(height, 3), lines > max_lines
 
 
 # ---------------------------------------------------------------------------

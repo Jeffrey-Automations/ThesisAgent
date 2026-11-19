@@ -117,7 +117,8 @@ Sources (up to 25 requested from each):
 | What the table shows | Cause | What to do |
 |---|---|---|
 | `failed: ...` | The source raised an error: a block page, a changed response format, a network failure. | Read the message. For `ieee` and `scholar`, check that a Chrome window opened and that VPN / institutional access is active. |
-| `rate_limited: ...` | The source answered HTTP 429 through every retry. | Wait and run again, or set the source's API key (`THESISAGENTS_S2_API_KEY` for Semantic Scholar). |
+| `rate_limited: ...` | The source answered HTTP 429 through every retry. DBLP is also counted here when it answers with an empty body or an HTML page instead of results (`[dblp] answered with a page instead of results, not JSON (status 200, text/html): …`). | Wait and run again, or set the source's API key (`THESISAGENTS_S2_API_KEY` for Semantic Scholar). |
+| `failed: [dblp] DBLP is showing a bot-check page …` | DBLP put its search behind a "Making sure you're not a bot!" check (seen 2026-11-19, HTTP 202). It needs a JavaScript browser, so the API request cannot pass it and is not retried. | Try again later, or leave `dblp` out of `--source` for now. The other sources still answer. |
 | `disabled: ...` | The plugin could not be loaded, usually a missing API key (`springer`, `core`). | Set the variable named in the message, or ignore the source. |
 | `0 returned, 0 after dedup` | The source answered and had nothing for this query. | Nothing is wrong. Try broader keywords. |
 | `returned` far above `after dedup` | Most of the source's records duplicated an earlier source's. | Nothing is wrong. The source adds little for this query. |

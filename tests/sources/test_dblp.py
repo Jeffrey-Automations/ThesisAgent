@@ -7,7 +7,7 @@ from pathlib import Path
 import httpx
 import pytest
 
-from thesisagents.core.exceptions import ParseError, RateLimitError
+from thesisagents.core.exceptions import ParseError, RateLimitError, SourceUnavailableError
 from thesisagents.core.models import Query
 from thesisagents.fetchers import http as http_module
 from thesisagents.sources.dblp.fetcher import DblpFetcher
@@ -120,13 +120,44 @@ async def test_search_treats_5xx_as_rate_limit(monkeypatch):
         )
 
 
-async def test_search_raises_on_bad_json(monkeypatch):
-    transport = _CannedTransport(b"<html>not json</html>", status=200)
-    _install(monkeypatch, transport)
-    with pytest.raises(ParseError):
+@pytest.mark.parametrize(
+    "body",
+    [b"", b"   ", b"<html><body>Service temporarily unavailable</body></html>"],
+    ids=["empty", "blank", "html"],
+)
+async def test_a_page_instead_of_results_is_retried_as_a_rate_limit(monkeypatch, body):
+    """progress #12: an empty body or an HTML page with status 200 is what an
+    overloaded DBLP serves, so the pipeline retries it with backoff."""
+    _install(monkeypatch, _CannedTransport(body, status=200))
+    with pytest.raises(RateLimitError, match="status 200") as caught:
         await DblpFetcher().search(
             Query(keywords="x", sources=("dblp",), max_results=1)
         )
+    assert "not JSON" in str(caught.value)
+
+
+async def test_the_bot_check_page_fails_at_once_instead_of_retrying(monkeypatch):
+    """The page DBLP served on 2026-11-19 (an Anubis bot check, HTTP 202):
+    a retry cannot pass it, so it is a failure that names the cause."""
+    page = (
+        b"<!doctype html><html><head><title>Making sure you&#39;re not a bot!</title>"
+        b'<link rel="stylesheet" href="/.within.website/x/xess/xess.min.css"></head></html>'
+    )
+    _install(monkeypatch, _CannedTransport(page, status=202))
+    with pytest.raises(SourceUnavailableError, match="bot-check page") as caught:
+        await DblpFetcher().search(
+            Query(keywords="x", sources=("dblp",), max_results=1)
+        )
+    assert "status 202" in str(caught.value)
+
+
+async def test_a_broken_json_body_is_a_parse_error_that_says_what_came(monkeypatch):
+    _install(monkeypatch, _CannedTransport(b'{"result": {"hits": ', status=200))
+    with pytest.raises(ParseError, match=r'invalid JSON, not JSON \(status 200') as caught:
+        await DblpFetcher().search(
+            Query(keywords="x", sources=("dblp",), max_results=1)
+        )
+    assert '{"result": {"hits":' in str(caught.value)
 
 
 # ---------------------------------------------------------------------------
