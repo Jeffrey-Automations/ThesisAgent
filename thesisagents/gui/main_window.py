@@ -303,3 +303,15 @@ class MainWindow(QMainWindow):
     def tab_count(self) -> int:
         """Kept for callers of the tabbed window: the number of pages."""
         return self.page_count()
+
+
+if __name__ == "__main__":
+    # Run this module directly for a quick look at the window while
+    # developing: ``python -m thesisagents.gui.main_window``. It goes through
+    # ``app.main`` rather than building ``MainWindow`` here, because ``main``
+    # also pins the HiDPI policy, loads the saved API keys into the
+    # environment, applies the saved theme and picks the interface language.
+    # A bare ``MainWindow()`` would skip all four and open unstyled, in English.
+    from thesisagents.gui.app import main
+
+    raise SystemExit(main())
