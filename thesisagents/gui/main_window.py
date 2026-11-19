@@ -200,6 +200,7 @@ class MainWindow(QMainWindow):
         self._search_page.collection_ready.connect(self._enrich_page.set_collection)
         self._search_page.collection_ready.connect(self._deck_page.set_collection)
         self._search_page.library_path_changed.connect(self._deck_page.set_library_path)
+        self._search_page.set_output_dir_provider(self._deck_page.output_dir)
         self._enrich_page.collection_ready.connect(self._deck_page.set_collection)
         self._search_page.collection_ready.connect(self._on_search_collection)
         # The Library page follows the Search page's library file, and hands

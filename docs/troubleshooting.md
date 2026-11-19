@@ -236,12 +236,14 @@ run. Name a library (`--library thesis.db`, or `library=` on the MCP
 same way. A failed check is made again on every run by design, so an
 export that failed while the network was down succeeds once it is back.
 
-### `error: --pdf file is empty / not a PDF / encrypted`
+### `error: PDF file is empty / not a PDF file / PDF is encrypted`
 
-The pre-flight check rejected the file. Encrypted PDFs need
-decryption first (`qpdf --decrypt in.pdf out.pdf` or
-`pdftk in.pdf input_pw=password output out.pdf`); empty / 0-byte
-files indicate a failed prior download.
+The pre-flight check of a local PDF (the CLI's `--pdf`, or **Use local
+PDFs…** on the GUI Search page) rejected the file, and the message names
+it. Encrypted PDFs need decryption first (`qpdf --decrypt in.pdf
+out.pdf` or `pdftk in.pdf input_pw=password output out.pdf`). An empty
+or 0-byte file usually means an earlier download failed. Files over
+100 MB are refused as well.
 
 ## MCP errors
 

@@ -95,6 +95,17 @@ While it runs, **Cancel** stops it at its next network wait. A
 cancelled search changes nothing: the table keeps the previous results
 and the status line says so.
 
+**Use local PDFs…** (in the *What to search* card) reads PDF files from
+your disk instead of searching, the GUI form of the CLI's `--pdf` mode
+(`thesisagents/core/local_pdf.py`, needs the `[intelligence]` extra for
+`pypdf`). Each file's own front matter gives its title, authors, year,
+DOI and abstract, and a copy goes to the `pdfs` folder of the Deck
+page's output folder, next to the deck you will build from it. The
+papers then fill the table like search results (`Read 3 local PDF(s).
+Copies are in …`), so they can be ticked, enriched and exported. An
+empty, encrypted, oversized or non-PDF file stops the read with its name
+on the status line.
+
 **Working with the results:**
 
 - **Sort** by clicking a column header. Until you do, the table keeps

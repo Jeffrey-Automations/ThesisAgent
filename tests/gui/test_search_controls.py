@@ -383,3 +383,36 @@ def test_closing_the_window_remembers_the_query(qtbot):
     second = MainWindow(ui_language="en")
     qtbot.addWidget(second)
     assert second.search_page()._query_input.text() == "graph neural networks"  # noqa: SLF001
+
+
+# --- #29 local PDFs ------------------------------------------------------------
+
+
+def test_local_pdfs_fill_the_results_and_copy_into_the_deck_folder(qtbot, tmp_path):
+    pytest.importorskip("pypdf", reason="install thesisagents[intelligence]")
+    from tests.test_local_pdf import _pdf
+
+    pdf = _pdf(tmp_path / "chapter.pdf", "Graph Attention in Practice", "Abstract", "Text.")
+    window = MainWindow(ui_language="en")
+    qtbot.addWidget(window)
+    window.deck_page()._out_dir_input.setText(str(tmp_path / "out"))  # noqa: SLF001
+    page = window.search_page()
+    with qtbot.waitSignal(page.collection_ready, timeout=10000) as signal:
+        page.read_local_pdfs([str(pdf)])
+    assert [p.source for p in signal.args[0].papers] == ["local"]
+    assert page.papers_model().rowCount() == 1
+    assert page.status_text().startswith("Read 1 local PDF(s).")
+    assert list((tmp_path / "out" / "pdfs").glob("*.pdf"))
+    assert window.enrich_page().table_model().rowCount() == 1
+    assert page._local_button.isEnabled()  # noqa: SLF001
+
+
+def test_an_unreadable_local_pdf_is_reported(qtbot, tmp_path):
+    bad = tmp_path / "bad.pdf"
+    bad.write_bytes(b"not a pdf")
+    page = SearchPage(ui_language="en")
+    qtbot.addWidget(page)
+    page.set_output_dir_provider(lambda: str(tmp_path / "out"))
+    page.read_local_pdfs([str(bad)])
+    qtbot.waitUntil(lambda: "not a PDF" in page.status_text(), timeout=10000)
+    assert page._search_button.isEnabled()  # noqa: SLF001

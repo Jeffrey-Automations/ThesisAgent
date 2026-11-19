@@ -541,6 +541,11 @@ class DeckPage(QWidget):
                 parts.append(t("deck.pdfs_ieee_held", language, count=pdfs.held))
         return " ".join(parts)
 
+    def output_dir(self) -> str:
+        """The export folder typed on this page (the Search page copies
+        local PDFs into its ``pdfs`` subfolder)."""
+        return self._out_dir_input.text().strip()
+
     def download_pdfs_checkbox(self) -> QCheckBox:
         return self._download_pdfs_check
 

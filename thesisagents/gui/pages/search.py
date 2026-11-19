@@ -20,6 +20,7 @@ across threads is queue-routed automatically.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from pathlib import Path
 
@@ -58,6 +59,7 @@ from thesisagents.core.constants import (
     SNOWBALL_MAX_TOTAL,
 )
 from thesisagents.core.diagnostics import SourceStatus
+from thesisagents.core.local_pdf import build_local_collection
 from thesisagents.core.models import ExportOptions, Paper, PaperCollection, Query
 from thesisagents.core.pipeline import run_search
 from thesisagents.core.query import normalize_query
@@ -157,6 +159,8 @@ class _SearchOutcome:
     discovered: int | None = None
     library: AddReport | None = None
     library_total: int | None = None
+    #: Export folder the local PDFs were copied into (``None`` for a search).
+    local_folder: str | None = None
 
 
 class SearchPage(QWidget):
@@ -183,6 +187,10 @@ class SearchPage(QWidget):
         self._proxy = PaperFilterProxy(self)
         self._proxy.setSourceModel(self._papers_model)
         self._worker: AsyncWorker | None = None
+        # Where local PDFs are copied (``{folder}/pdfs``). The main window
+        # points it at the Deck page's output folder, so the copies sit next
+        # to the deck built from them.
+        self._output_dir: Callable[[], str] = lambda: str(Path.cwd() / "exports")
         # Set while a fresh result is loaded into the model, so the
         # ``checks_changed`` that loading fires does not send it on twice.
         self._loading = False
@@ -223,6 +231,12 @@ class SearchPage(QWidget):
         self._ieee_note.setObjectName("Muted")
         self._ieee_note.setWordWrap(True)
         query_layout.addWidget(self._ieee_note)
+        local_row = QHBoxLayout()
+        self._local_button = QPushButton(t("search.local_button", language), self)
+        self._local_button.clicked.connect(self._on_local_clicked)
+        local_row.addWidget(self._local_button)
+        local_row.addStretch(1)
+        query_layout.addLayout(local_row)
         controls_layout.addWidget(query_card)
 
         filters_card, filters_layout = make_card(t("search.card_filters", language), controls)
@@ -542,6 +556,42 @@ class SearchPage(QWidget):
 
     # --- remembered form ------------------------------------------------
 
+    # --- local PDFs (progress #29) -----------------------------------------
+
+    def set_output_dir_provider(self, provider: Callable[[], str]) -> None:
+        """Where local PDFs are copied: ``provider()`` names the export folder."""
+        self._output_dir = provider
+
+    def _on_local_clicked(self) -> None:
+        paths, _ = QFileDialog.getOpenFileNames(
+            self, t("search.local_dialog_title", self._ui_language),
+            str(Path.cwd()), "PDF (*.pdf);;All files (*)",
+        )
+        if paths:
+            self.read_local_pdfs(paths)
+
+    def read_local_pdfs(self, paths: list[str]) -> None:
+        """Read local PDFs on a worker thread and show them as the result.
+
+        The GUI form of the CLI's ``--pdf`` mode
+        (``core.local_pdf.build_local_collection``): each file's own front
+        matter gives its title, authors, year, DOI and abstract, and a copy
+        goes to ``{export folder}/pdfs``. The papers then behave like search
+        results, so they can be ticked, enriched and built into a deck.
+        """
+        out_dir = self._output_dir() or str(Path.cwd() / "exports")
+        self._set_busy()
+        self._local_button.setEnabled(False)
+        self._set_status(t("search.local_running", self._ui_language))
+
+        def call() -> _SearchOutcome:
+            return _SearchOutcome(build_local_collection(paths, out_dir), local_folder=out_dir)
+
+        worker = BlockingWorker(call)
+        worker.signals.finished.connect(self._on_search_finished)
+        worker.signals.failed.connect(self._on_worker_failed)
+        QThreadPool.globalInstance().start(worker)
+
     def apply_access(self, vpn_access: bool) -> None:
         """Lock the ``ieee`` source while VPN / institutional access is not declared.
 
@@ -769,6 +819,7 @@ class SearchPage(QWidget):
         self._cancel_button.setEnabled(True)
         self._search_button.setEnabled(True)
         self._library_search_button.setEnabled(True)
+        self._local_button.setEnabled(True)
         subset = self.selected_collection()
         self._export_button.setEnabled(bool(subset and subset.papers))
         self.busy_changed.emit(False)
@@ -800,6 +851,12 @@ class SearchPage(QWidget):
     ) -> str:
         """The status line after a run: counts, sources, snowball, library."""
         language = self._ui_language
+        if outcome is not None and outcome.local_folder is not None:
+            return t(
+                "search.local_done", language,
+                count=len(collection.papers),
+                folder=str(Path(outcome.local_folder) / "pdfs"),
+            )
         if outcome is not None and outcome.library_total is not None:
             return t(
                 "search.library_found", language,
