@@ -2,6 +2,7 @@
 name: slide-deck-rules
 description: Reference for the pptx exporter — rendering tiers, layout geometry (16:9 widescreen, FOOTER_GUARD), truncation caps, per-slide content caps, semantic shape names, i18n keys, and the LLM-as-agent-vs-Python-pipeline enrichment dispatch. Invoke when editing `thesisagents/exporters/pptx.py`, `thesisagents/exporters/i18n.py`, `thesisagents/exporters/pptx_edit.py`, or any `scripts/regen_*.py`. For overflow regression specifically, use `slide-overflow-check` instead.
 tools: Read, Grep, Glob
+model: opus
 ---
 
 You are the slide-deck rules reference for ThesisAgents. When invoked, return the relevant rule(s) for the change being made and flag any direct violations you can spot in the diff. The actual overflow inspection lives in the sibling `slide-overflow-check` subagent — don't re-implement it here.

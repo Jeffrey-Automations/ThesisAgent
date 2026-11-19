@@ -419,6 +419,15 @@ two kinds of subagent this project uses:
 - **`tasks/`** — task-running agents, dispatched to *do* work and able to run
   in the background / in parallel (the "multi-tasking" set).
 
+Every agent file sets `model: opus` in its frontmatter. **Why**: with no
+`model:` line an agent inherits whatever model the parent session runs, so a
+gate run like `dod-verify` or a deck audit could run on a smaller model
+whenever the session did. The `opus` alias always means the newest Opus, so
+it never needs a version bump. **How to apply**: give a new agent file the
+same line (example: `name: dod-verify`, `tools: Bash, Read, Grep, Glob`,
+`model: opus`). A reference file with no frontmatter, such as
+`rules/thesis-authoring-lessons.md`, is not an agent and takes no `model:`.
+
 ```
 .claude/agents/
 ├── rules/   code-quality-reviewer · compliance-auditor · slide-deck-rules ·

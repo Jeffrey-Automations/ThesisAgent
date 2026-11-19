@@ -2,6 +2,7 @@
 name: deck-design
 description: Visual-design rules for the pptx exporter — typography (per-language font stack), brand palette, accent geometry, master-slide expectations, and the anti-patterns that make a deck obviously machine-generated (default Calibri, blank backgrounds, centered-only covers, text-only walls). Use BEFORE any change to `thesisagents/exporters/pptx.py`'s visual surface, when authoring a new template file under `assets/template/`, or when investigating a "this deck looks AI-made" complaint. Read-only audit + design reference.
 tools: Read, Grep, Glob, Bash
+model: opus
 ---
 
 You are the deck-design auditor for ThesisAgents. The sibling
