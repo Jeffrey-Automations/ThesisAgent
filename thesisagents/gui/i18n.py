@@ -2362,58 +2362,61 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
     },
     "page.enrich_subtitle": {
         "en": (
-            "Read each paper's PDF and write a thesis-structured summary. Needs an Anthropic API "
-            "key in Settings."
+            "Read each paper's PDF and write a thesis-structured summary, with an Anthropic API "
+            "key from Settings or by handing the papers to an LLM agent."
         ),
         "zh-tw": (
-            "讀取每篇論文的 PDF，產生依論文章節編排的摘要。需在「設定」填入 Anthropic API 金鑰。"
+            "讀取每篇論文的 PDF，產生依論文章節編排的摘要。可使用「設定」中的 Anthropic API 金鑰，"
+            "或把論文交給 LLM 代理處理。"
         ),
         "zh-cn": (
-            "读取每篇论文的 PDF，生成按论文章节编排的摘要。需在“设置”中填写 Anthropic API 密钥。"
+            "读取每篇论文的 PDF，生成按论文章节编排的摘要。可使用“设置”中的 Anthropic API 密钥，"
+            "或把论文交给 LLM 代理处理。"
         ),
         "ja": (
-            "各論文の PDF を読み、論文の章立てに沿った要約を作成します。設定で Anthropic API "
-            "キーが必要です。"
+            "各論文の PDF を読み、論文の章立てに沿った要約を作成します。設定の Anthropic API "
+            "キーを使うか、論文を LLM エージェントに渡します。"
         ),
         "es": (
-            "Lee el PDF de cada artículo y redacta un resumen con estructura de tesis. Requiere "
-            "una clave de API de Anthropic en Ajustes."
+            "Lee el PDF de cada artículo y redacta un resumen con estructura de tesis, con una "
+            "clave de API de Anthropic en Ajustes o pasando los artículos a un agente LLM."
         ),
         "fr": (
-            "Lit le PDF de chaque article et rédige un résumé structuré comme une thèse. Nécessite "
-            "une clé API Anthropic dans les Paramètres."
+            "Lit le PDF de chaque article et rédige un résumé structuré comme une thèse, avec une "
+            "clé API Anthropic dans les Paramètres ou en confiant les articles à un agent LLM."
         ),
         "de": (
             "Liest das PDF jedes Artikels und schreibt eine Zusammenfassung im Aufbau einer "
-            "Abschlussarbeit. Benötigt einen Anthropic-API-Schlüssel in den Einstellungen."
+            "Abschlussarbeit, mit einem Anthropic-API-Schlüssel aus den Einstellungen oder über "
+            "einen LLM-Agenten."
         ),
         "ko": (
-            "각 논문의 PDF를 읽고 학위논문 구조에 맞춘 요약을 작성합니다. 설정에 Anthropic API "
-            "키가 필요합니다."
+            "각 논문의 PDF를 읽고 학위논문 구조에 맞춘 요약을 작성합니다. 설정의 Anthropic API "
+            "키를 쓰거나 논문을 LLM 에이전트에게 넘깁니다."
         ),
         "pt": (
-            "Lê o PDF de cada artigo e escreve um resumo com estrutura de tese. Requer uma chave "
-            "de API da Anthropic em Configurações."
+            "Lê o PDF de cada artigo e escreve um resumo com estrutura de tese, com uma chave de "
+            "API da Anthropic em Configurações ou passando os artigos a um agente LLM."
         ),
         "ru": (
-            "Читает PDF каждой статьи и составляет резюме по структуре диссертации. Нужен ключ API "
-            "Anthropic в настройках."
+            "Читает PDF каждой статьи и составляет резюме по структуре диссертации, с ключом API "
+            "Anthropic из настроек или через LLM-агента."
         ),
         "it": (
-            "Legge il PDF di ogni articolo e scrive un riassunto con la struttura di una tesi. "
-            "Richiede una chiave API Anthropic nelle Impostazioni."
+            "Legge il PDF di ogni articolo e scrive un riassunto con la struttura di una tesi, con "
+            "una chiave API Anthropic nelle Impostazioni o affidando gli articoli a un agente LLM."
         ),
         "vi": (
-            "Đọc PDF của từng bài báo và viết bản tóm tắt theo cấu trúc luận văn. Cần khóa API "
-            "Anthropic trong Cài đặt."
+            "Đọc PDF của từng bài báo và viết bản tóm tắt theo cấu trúc luận văn, bằng khóa API "
+            "Anthropic trong Cài đặt hoặc giao các bài báo cho một tác tử LLM."
         ),
         "hi": (
-            "हर शोध-पत्र की PDF पढ़कर थीसिस-संरचना वाला सारांश लिखता है। सेटिंग्स में Anthropic "
-            "API कुंजी चाहिए।"
+            "हर शोध-पत्र की PDF पढ़कर थीसिस-संरचना वाला सारांश लिखता है, सेटिंग्स की Anthropic API "
+            "कुंजी से या शोध-पत्र किसी LLM एजेंट को सौंपकर।"
         ),
         "id": (
-            "Membaca PDF setiap makalah dan menulis ringkasan berstruktur tesis. Memerlukan kunci "
-            "API Anthropic di Pengaturan."
+            "Membaca PDF setiap makalah dan menulis ringkasan berstruktur tesis, dengan kunci API "
+            "Anthropic di Pengaturan atau dengan menyerahkan makalah ke agen LLM."
         ),
     },
     "page.deck_subtitle": {
@@ -3548,6 +3551,412 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "vi": "Không mở được thư viện: {error}",
         "hi": "लाइब्रेरी नहीं खुल सकी: {error}",
         "id": "Tidak dapat membuka pustaka: {error}",
+    },
+    # Stage C: template check, deck review, agent hand-off ----------------
+    "action.copy": {
+        "en": "Copy",
+        "zh-tw": "複製",
+        "zh-cn": "复制",
+        "ja": "コピー",
+        "es": "Copiar",
+        "fr": "Copier",
+        "de": "Kopieren",
+        "ko": "복사",
+        "pt": "Copiar",
+        "ru": "Копировать",
+        "it": "Copia",
+        "vi": "Sao chép",
+        "hi": "कॉपी करें",
+        "id": "Salin",
+    },
+    "action.close": {
+        "en": "Close",
+        "zh-tw": "關閉",
+        "zh-cn": "关闭",
+        "ja": "閉じる",
+        "es": "Cerrar",
+        "fr": "Fermer",
+        "de": "Schließen",
+        "ko": "닫기",
+        "pt": "Fechar",
+        "ru": "Закрыть",
+        "it": "Chiudi",
+        "vi": "Đóng",
+        "hi": "बंद करें",
+        "id": "Tutup",
+    },
+    "deck.check_template_button": {
+        "en": "Check template",
+        "zh-tw": "檢查範本",
+        "zh-cn": "检查模板",
+        "ja": "テンプレートを確認",
+        "es": "Comprobar la plantilla",
+        "fr": "Vérifier le modèle",
+        "de": "Vorlage prüfen",
+        "ko": "템플릿 검사",
+        "pt": "Verificar o modelo",
+        "ru": "Проверить шаблон",
+        "it": "Verifica il modello",
+        "vi": "Kiểm tra mẫu",
+        "hi": "टेम्पलेट जाँचें",
+        "id": "Periksa templat",
+    },
+    "deck.error_no_template": {
+        "en": "Choose a template (.pptx) first.",
+        "zh-tw": "請先選擇範本(.pptx)。",
+        "zh-cn": "请先选择模板(.pptx)。",
+        "ja": "先にテンプレート(.pptx)を選んでください。",
+        "es": "Elija primero una plantilla (.pptx).",
+        "fr": "Choisissez d'abord un modèle (.pptx).",
+        "de": "Wählen Sie zuerst eine Vorlage (.pptx).",
+        "ko": "먼저 템플릿(.pptx)을 선택하세요.",
+        "pt": "Escolha primeiro um modelo (.pptx).",
+        "ru": "Сначала выберите шаблон (.pptx).",
+        "it": "Scegli prima un modello (.pptx).",
+        "vi": "Hãy chọn mẫu (.pptx) trước.",
+        "hi": "पहले एक टेम्पलेट (.pptx) चुनें।",
+        "id": "Pilih templat (.pptx) terlebih dahulu.",
+    },
+    "deck.template_ok": {
+        "en": "Template check: usable.",
+        "zh-tw": "範本檢查：可以使用。",
+        "zh-cn": "模板检查：可以使用。",
+        "ja": "テンプレートの確認: 使用できます。",
+        "es": "Comprobación de la plantilla: utilizable.",
+        "fr": "Vérification du modèle : utilisable.",
+        "de": "Vorlagenprüfung: verwendbar.",
+        "ko": "템플릿 검사: 사용 가능.",
+        "pt": "Verificação do modelo: utilizável.",
+        "ru": "Проверка шаблона: можно использовать.",
+        "it": "Verifica del modello: utilizzabile.",
+        "vi": "Kiểm tra mẫu: dùng được.",
+        "hi": "टेम्पलेट जाँच: उपयोग योग्य।",
+        "id": "Pemeriksaan templat: dapat dipakai.",
+    },
+    "deck.template_not_usable": {
+        "en": "Template check: not usable, {errors} problem(s). See the report.",
+        "zh-tw": "範本檢查：無法使用，共 {errors} 個問題，詳見報告。",
+        "zh-cn": "模板检查：无法使用，共 {errors} 个问题，详见报告。",
+        "ja": "テンプレートの確認: 使用できません。問題 {errors} 件、詳しくはレポートを参照。",
+        "es": "Comprobación de la plantilla: no utilizable, {errors} problema(s). Vea el informe.",
+        "fr": "Vérification du modèle : inutilisable, {errors} problème(s). Voir le rapport.",
+        "de": "Vorlagenprüfung: nicht verwendbar, {errors} Problem(e). Siehe Bericht.",
+        "ko": "템플릿 검사: 사용 불가, 문제 {errors}건. 보고서를 확인하세요.",
+        "pt": "Verificação do modelo: não utilizável, {errors} problema(s). Veja o relatório.",
+        "ru": "Проверка шаблона: нельзя использовать, проблем: {errors}. См. отчёт.",
+        "it": "Verifica del modello: non utilizzabile, {errors} problema/i. Vedi il rapporto.",
+        "vi": "Kiểm tra mẫu: không dùng được, {errors} vấn đề. Xem báo cáo.",
+        "hi": "टेम्पलेट जाँच: उपयोग योग्य नहीं, {errors} समस्या। रिपोर्ट देखें।",
+        "id": "Pemeriksaan templat: tidak dapat dipakai, {errors} masalah. Lihat laporan.",
+    },
+    "deck.review_button": {
+        "en": "Review a deck…",
+        "zh-tw": "審查投影片…",
+        "zh-cn": "审查幻灯片…",
+        "ja": "スライドをレビュー…",
+        "es": "Revisar una presentación…",
+        "fr": "Contrôler un diaporama…",
+        "de": "Foliensatz prüfen …",
+        "ko": "슬라이드 검토…",
+        "pt": "Revisar uma apresentação…",
+        "ru": "Проверить презентацию…",
+        "it": "Controlla una presentazione…",
+        "vi": "Rà soát slide…",
+        "hi": "स्लाइड की समीक्षा करें…",
+        "id": "Tinjau slide…",
+    },
+    "deck.review_dialog_title": {
+        "en": "Choose a deck to review",
+        "zh-tw": "選擇要審查的投影片",
+        "zh-cn": "选择要审查的幻灯片",
+        "ja": "レビューするスライドを選択",
+        "es": "Elija la presentación que revisar",
+        "fr": "Choisissez le diaporama à contrôler",
+        "de": "Zu prüfenden Foliensatz wählen",
+        "ko": "검토할 슬라이드 선택",
+        "pt": "Escolha a apresentação a revisar",
+        "ru": "Выберите презентацию для проверки",
+        "it": "Scegli la presentazione da controllare",
+        "vi": "Chọn slide cần rà soát",
+        "hi": "समीक्षा के लिए स्लाइड चुनें",
+        "id": "Pilih slide yang ditinjau",
+    },
+    "deck.review_pass": {
+        "en": "Deck review: PASS.",
+        "zh-tw": "投影片審查：通過。",
+        "zh-cn": "幻灯片审查：通过。",
+        "ja": "スライドのレビュー: 合格。",
+        "es": "Revisión de la presentación: APROBADA.",
+        "fr": "Contrôle du diaporama : RÉUSSI.",
+        "de": "Foliensatzprüfung: BESTANDEN.",
+        "ko": "슬라이드 검토: 통과.",
+        "pt": "Revisão da apresentação: APROVADA.",
+        "ru": "Проверка презентации: ПРОЙДЕНА.",
+        "it": "Controllo della presentazione: SUPERATO.",
+        "vi": "Rà soát slide: ĐẠT.",
+        "hi": "स्लाइड समीक्षा: पास।",
+        "id": "Tinjauan slide: LULUS.",
+    },
+    "deck.review_fail": {
+        "en": "Deck review: FAIL, {problems} problem(s). See the report.",
+        "zh-tw": "投影片審查：未通過，共 {problems} 個問題，詳見報告。",
+        "zh-cn": "幻灯片审查：未通过，共 {problems} 个问题，详见报告。",
+        "ja": "スライドのレビュー: 不合格。問題 {problems} 件、詳しくはレポートを参照。",
+        "es": "Revisión de la presentación: FALLA, {problems} problema(s). Vea el informe.",
+        "fr": "Contrôle du diaporama : ÉCHEC, {problems} problème(s). Voir le rapport.",
+        "de": "Foliensatzprüfung: NICHT BESTANDEN, {problems} Problem(e). Siehe Bericht.",
+        "ko": "슬라이드 검토: 실패, 문제 {problems}건. 보고서를 확인하세요.",
+        "pt": "Revisão da apresentação: FALHOU, {problems} problema(s). Veja o relatório.",
+        "ru": "Проверка презентации: НЕ ПРОЙДЕНА, проблем: {problems}. См. отчёт.",
+        "it": (
+            "Controllo della presentazione: NON SUPERATO, {problems} problema/i. Vedi il rapporto."
+        ),
+        "vi": "Rà soát slide: KHÔNG ĐẠT, {problems} vấn đề. Xem báo cáo.",
+        "hi": "स्लाइड समीक्षा: फ़ेल, {problems} समस्या। रिपोर्ट देखें।",
+        "id": "Tinjauan slide: GAGAL, {problems} masalah. Lihat laporan.",
+    },
+    "deck.report_template_title": {
+        "en": "Template check",
+        "zh-tw": "範本檢查",
+        "zh-cn": "模板检查",
+        "ja": "テンプレートの確認",
+        "es": "Comprobación de la plantilla",
+        "fr": "Vérification du modèle",
+        "de": "Vorlagenprüfung",
+        "ko": "템플릿 검사",
+        "pt": "Verificação do modelo",
+        "ru": "Проверка шаблона",
+        "it": "Verifica del modello",
+        "vi": "Kiểm tra mẫu",
+        "hi": "टेम्पलेट जाँच",
+        "id": "Pemeriksaan templat",
+    },
+    "deck.report_review_title": {
+        "en": "Deck review",
+        "zh-tw": "投影片審查",
+        "zh-cn": "幻灯片审查",
+        "ja": "スライドのレビュー",
+        "es": "Revisión de la presentación",
+        "fr": "Contrôle du diaporama",
+        "de": "Foliensatzprüfung",
+        "ko": "슬라이드 검토",
+        "pt": "Revisão da apresentação",
+        "ru": "Проверка презентации",
+        "it": "Controllo della presentazione",
+        "vi": "Rà soát slide",
+        "hi": "स्लाइड समीक्षा",
+        "id": "Tinjauan slide",
+    },
+    "enrich.card_agent": {
+        "en": "No API key? Hand off to an agent",
+        "zh-tw": "沒有 API 金鑰？交給 AI 代理",
+        "zh-cn": "没有 API 密钥？交给 AI 代理",
+        "ja": "API キーがない場合: エージェントに任せる",
+        "es": "¿Sin clave de API? Páselo a un agente",
+        "fr": "Pas de clé API ? Confiez-le à un agent",
+        "de": "Kein API-Schlüssel? An einen Agenten übergeben",
+        "ko": "API 키가 없나요? 에이전트에게 맡기기",
+        "pt": "Sem chave de API? Passe para um agente",
+        "ru": "Нет ключа API? Передайте агенту",
+        "it": "Nessuna chiave API? Affidalo a un agente",
+        "vi": "Không có khóa API? Giao cho tác tử",
+        "hi": "API कुंजी नहीं है? किसी एजेंट को सौंपें",
+        "id": "Tanpa kunci API? Serahkan ke agen",
+    },
+    "enrich.agent_hint": {
+        "en": (
+            "Export the papers to a JSON file, let an MCP-aware LLM agent fill in each summary, "
+            "then import the file to send the summaries to the Deck page."
+        ),
+        "zh-tw": (
+            "把論文匯出成 JSON 檔，讓支援 MCP 的 LLM 代理填入每篇摘要，再匯入該檔案，"
+            "把摘要送往投影片頁面。"
+        ),
+        "zh-cn": (
+            "把论文导出成 JSON 文件，让支持 MCP 的 LLM 代理填写每篇摘要，再导入该文件，"
+            "把摘要发送到幻灯片页面。"
+        ),
+        "ja": (
+            "論文を JSON ファイルに書き出し、MCP 対応の LLM エージェントに各要約を書いてもらい、"
+            "そのファイルを読み込むと要約がスライドページへ送られます。"
+        ),
+        "es": (
+            "Exporte los artículos a un archivo JSON, deje que un agente LLM compatible con MCP "
+            "rellene cada resumen y luego importe el archivo para enviar los resúmenes a la página "
+            "Diapositivas."
+        ),
+        "fr": (
+            "Exportez les articles dans un fichier JSON, laissez un agent LLM compatible MCP "
+            "remplir chaque résumé, puis importez le fichier pour envoyer les résumés à la page "
+            "Diapos."
+        ),
+        "de": (
+            "Artikel als JSON-Datei exportieren, einen MCP-fähigen LLM-Agenten jede "
+            "Zusammenfassung ausfüllen lassen und die Datei importieren, um die Zusammenfassungen "
+            "an die Seite Folien zu senden."
+        ),
+        "ko": (
+            "논문을 JSON 파일로 내보내고 MCP를 지원하는 LLM 에이전트가 각 요약을 채우게 한 뒤, "
+            "파일을 가져오면 요약이 슬라이드 페이지로 전달됩니다."
+        ),
+        "pt": (
+            "Exporte os artigos para um arquivo JSON, deixe um agente LLM compatível com MCP "
+            "preencher cada resumo e depois importe o arquivo para enviar os resumos à página "
+            "Slides."
+        ),
+        "ru": (
+            "Экспортируйте статьи в JSON-файл, дайте LLM-агенту с поддержкой MCP заполнить резюме, "
+            "затем импортируйте файл, чтобы передать резюме на страницу Слайды."
+        ),
+        "it": (
+            "Esporta gli articoli in un file JSON, lascia che un agente LLM compatibile con MCP "
+            "compili ogni riassunto, poi importa il file per inviare i riassunti alla pagina "
+            "Diapositive."
+        ),
+        "vi": (
+            "Xuất các bài báo ra tệp JSON, để một tác tử LLM hỗ trợ MCP điền từng bản tóm tắt, rồi "
+            "nhập tệp để gửi các bản tóm tắt sang trang Slide."
+        ),
+        "hi": (
+            "शोध-पत्रों को JSON फ़ाइल में निर्यात करें, किसी MCP-सक्षम LLM एजेंट से हर सारांश "
+            "भरवाएँ, फिर फ़ाइल आयात करें ताकि सारांश स्लाइड पेज पर जाएँ।"
+        ),
+        "id": (
+            "Ekspor makalah ke berkas JSON, biarkan agen LLM yang mendukung MCP mengisi setiap "
+            "ringkasan, lalu impor berkasnya untuk mengirim ringkasan ke halaman Slide."
+        ),
+    },
+    "enrich.agent_export_button": {
+        "en": "Export for an agent…",
+        "zh-tw": "匯出給代理…",
+        "zh-cn": "导出给代理…",
+        "ja": "エージェント用に書き出す…",
+        "es": "Exportar para un agente…",
+        "fr": "Exporter pour un agent…",
+        "de": "Für einen Agenten exportieren …",
+        "ko": "에이전트용으로 내보내기…",
+        "pt": "Exportar para um agente…",
+        "ru": "Экспорт для агента…",
+        "it": "Esporta per un agente…",
+        "vi": "Xuất cho tác tử…",
+        "hi": "एजेंट के लिए निर्यात करें…",
+        "id": "Ekspor untuk agen…",
+    },
+    "enrich.agent_import_button": {
+        "en": "Import summaries…",
+        "zh-tw": "匯入摘要…",
+        "zh-cn": "导入摘要…",
+        "ja": "要約を読み込む…",
+        "es": "Importar resúmenes…",
+        "fr": "Importer les résumés…",
+        "de": "Zusammenfassungen importieren …",
+        "ko": "요약 가져오기…",
+        "pt": "Importar resumos…",
+        "ru": "Импорт резюме…",
+        "it": "Importa i riassunti…",
+        "vi": "Nhập bản tóm tắt…",
+        "hi": "सारांश आयात करें…",
+        "id": "Impor ringkasan…",
+    },
+    "enrich.agent_exported": {
+        "en": "Wrote {count} papers for an agent to {path}.",
+        "zh-tw": "已將 {count} 篇論文寫入 {path}，可交給代理處理。",
+        "zh-cn": "已将 {count} 篇论文写入 {path}，可交给代理处理。",
+        "ja": "{count} 件の論文をエージェント用に {path} へ書き出しました。",
+        "es": "Se escribieron {count} artículos para un agente en {path}.",
+        "fr": "{count} articles écrits pour un agent dans {path}.",
+        "de": "{count} Artikel für einen Agenten nach {path} geschrieben.",
+        "ko": "에이전트용 논문 {count}편을 {path}에 저장했습니다.",
+        "pt": "{count} artigos gravados para um agente em {path}.",
+        "ru": "Статей для агента записано в {path}: {count}.",
+        "it": "{count} articoli scritti per un agente in {path}.",
+        "vi": "Đã ghi {count} bài báo cho tác tử vào {path}.",
+        "hi": "एजेंट के लिए {count} शोध-पत्र {path} में लिखे गए।",
+        "id": "{count} makalah untuk agen ditulis ke {path}.",
+    },
+    "enrich.agent_imported": {
+        "en": (
+            "Imported {count} summaries ({unmatched} entries matched no paper here). Sent to the "
+            "Deck page."
+        ),
+        "zh-tw": "已匯入 {count} 篇摘要(另有 {unmatched} 筆對不上目前的論文)，已送往投影片頁面。",
+        "zh-cn": "已导入 {count} 篇摘要(另有 {unmatched} 条对不上当前的论文)，已发送到幻灯片页面。",
+        "ja": (
+            "要約 {count} 件を読み込みました(現在の論文と一致しない項目 {unmatched} 件)。"
+            "スライドページへ送りました。"
+        ),
+        "es": (
+            "Se importaron {count} resúmenes ({unmatched} entradas no coinciden con ningún "
+            "artículo). Enviados a la página Diapositivas."
+        ),
+        "fr": (
+            "{count} résumés importés ({unmatched} entrées sans article correspondant). Envoyés à "
+            "la page Diapos."
+        ),
+        "de": (
+            "{count} Zusammenfassungen importiert ({unmatched} Einträge ohne passenden Artikel). "
+            "An die Seite Folien gesendet."
+        ),
+        "ko": (
+            "요약 {count}편을 가져왔습니다 (일치하는 논문이 없는 항목 {unmatched}개). 슬라이드 "
+            "페이지로 보냈습니다."
+        ),
+        "pt": (
+            "{count} resumos importados ({unmatched} entradas sem artigo correspondente). Enviados "
+            "à página Slides."
+        ),
+        "ru": (
+            "Импортировано резюме: {count} (записей без подходящей статьи: {unmatched}). Переданы "
+            "на страницу Слайды."
+        ),
+        "it": (
+            "Importati {count} riassunti ({unmatched} voci senza articolo corrispondente). Inviati "
+            "alla pagina Diapositive."
+        ),
+        "vi": (
+            "Đã nhập {count} bản tóm tắt ({unmatched} mục không khớp bài báo nào). Đã gửi sang "
+            "trang Slide."
+        ),
+        "hi": (
+            "{count} सारांश आयात किए गए ({unmatched} प्रविष्टियाँ किसी शोध-पत्र से मेल नहीं "
+            "खातीं)। स्लाइड पेज पर भेजे गए।"
+        ),
+        "id": (
+            "{count} ringkasan diimpor ({unmatched} entri tidak cocok dengan makalah mana pun). "
+            "Dikirim ke halaman Slide."
+        ),
+    },
+    "enrich.agent_error": {
+        "en": "Hand-off failed: {error}",
+        "zh-tw": "交接失敗：{error}",
+        "zh-cn": "交接失败：{error}",
+        "ja": "引き渡しに失敗しました: {error}",
+        "es": "Error en la entrega: {error}",
+        "fr": "Échec du transfert : {error}",
+        "de": "Übergabe fehlgeschlagen: {error}",
+        "ko": "넘겨주기 실패: {error}",
+        "pt": "Falha na entrega: {error}",
+        "ru": "Ошибка передачи: {error}",
+        "it": "Passaggio non riuscito: {error}",
+        "vi": "Bàn giao thất bại: {error}",
+        "hi": "हस्तांतरण विफल: {error}",
+        "id": "Serah terima gagal: {error}",
+    },
+    "deck.check_failed": {
+        "en": "Check failed: {error}",
+        "zh-tw": "檢查失敗：{error}",
+        "zh-cn": "检查失败：{error}",
+        "ja": "確認に失敗しました: {error}",
+        "es": "La comprobación falló: {error}",
+        "fr": "Échec de la vérification : {error}",
+        "de": "Prüfung fehlgeschlagen: {error}",
+        "ko": "검사 실패: {error}",
+        "pt": "A verificação falhou: {error}",
+        "ru": "Проверка не удалась: {error}",
+        "it": "Verifica non riuscita: {error}",
+        "vi": "Kiểm tra thất bại: {error}",
+        "hi": "जाँच विफल: {error}",
+        "id": "Pemeriksaan gagal: {error}",
     },
 }
 

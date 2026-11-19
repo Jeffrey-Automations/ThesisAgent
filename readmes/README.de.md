@@ -595,7 +595,7 @@ Seitenleiste auf Symbole zusammen und die Formularbeschriftungen rücken über
 ihre Felder. Das Fenster lässt sich bis auf 640×480 verkleinern, mit
 standardmäßig aktivierter HiDPI-Skalierung. **Settings → Theme** wählt hell,
 dunkel oder dem System folgend, wirkt sofort und ist unabhängig vom eigenen
-Dunkelmodus des Foliensatzes. Ergebnisse lassen sich sortieren, filtern und anhaken, damit nur ausgewählte Artikel an Enrich, Deck und Export gehen, die Schneeball-Grenzen sind einstellbar, eine laufende Suche oder Anreicherung lässt sich abbrechen, und das Formular bleibt zwischen Starts erhalten. **Settings → Style** wechselt zwischen dem klassischen Marineblau-Look und Material 3. `Ctrl+1` … `Ctrl+5` wechseln die Seiten.
+Dunkelmodus des Foliensatzes. Ergebnisse lassen sich sortieren, filtern und anhaken, damit nur ausgewählte Artikel an Enrich, Deck und Export gehen, die Schneeball-Grenzen sind einstellbar, eine laufende Suche oder Anreicherung lässt sich abbrechen, und das Formular bleibt zwischen Starts erhalten. Die Seite Deck kann eine Vorlage vor dem Export prüfen und jeden fertigen Foliensatz kontrollieren, und ohne API-Schlüssel übergibt die Seite Enrich die Artikel als JSON-Datei an einen LLM-Agenten und importiert seine Zusammenfassungen. **Settings → Style** wechselt zwischen dem klassischen Marineblau-Look und Material 3. `Ctrl+1` … `Ctrl+5` wechseln die Seiten.
 
 Vollständige Referenz: [`docs/gui.md`](../docs/gui.md).
 

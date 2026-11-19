@@ -287,8 +287,29 @@ because swapping them in mid-run would point the run at the wrong rows.
 
 When the run finishes the enriched collection is sent to the Deck
 page, so its **Export** picks up the rich-tier layout automatically.
-Without an API key, the LLM-as-agent path (an MCP-aware LLM authoring
-the summaries) runs outside the GUI, see the main README.
+**No API key? Hand off to an agent.** Without an Anthropic key the
+project's other enrichment path is LLM-as-agent: an MCP-aware LLM reads
+each PDF and writes the summary itself. The card of that name connects
+the GUI to it:
+
+1. **Export for an agent…** writes a JSON hand-off file: the papers with
+   their PDF links, the summary language, an empty summary listing every
+   field (`summary_template`), and plain instructions saying which thesis
+   section each field feeds. Papers already enriched keep their summary
+   in the file.
+2. Give the file to the agent. It fills `papers[i].paper.summary` for
+   each paper it could read and leaves the rest `null`.
+3. **Import summaries…** reads the file back and attaches each summary
+   to the paper with the same `key` (`Paper.dedup_key()`), so a reordered
+   or shortened file still lands on the right papers. The table marks
+   them *ok*, the status line counts them, and the result goes to the
+   Deck page. An entry whose key matches no paper here is counted and
+   skipped, and a paper with no summary in the file keeps the one it had.
+
+A file that is not a hand-off, from a newer version, larger than 20 MB
+or with a summary that cannot be read is refused with the reason on the
+status line, and nothing changes. Format: `thesisagents/gui/handoff.py`
+(`format: "thesisagents-agent-handoff"`, `version: 1`).
 
 ### Deck
 
@@ -321,9 +342,23 @@ They wire `ExportOptions` fields behind Qt widgets:
   CLI `--pptx-template` and `--pptx-template-config` flags. The
   template is checked before anything is rendered, and one that does
   not meet the template contract stops the export with every problem
-  in the status line. To read the same report at leisure, run
-  `thesisagents validate-template FILE`. Contract:
+  in the status line. **Check template** runs the same check without
+  exporting (it takes a second, where a failed export may come after a
+  whole search), and opens the full report, the same text as
+  `thesisagents validate-template FILE`: the slide size, the layout each
+  kind of slide resolves to, every error and warning. The status line
+  says *usable* or *not usable, N problem(s)*. With **Dark mode** ticked
+  it adds the warnings that apply to a dark export. Contract:
   [`pptx_templates.md`](pptx_templates.md).
+
+**Review a deck…**, above the written-files table, audits any `.pptx`
+the way `thesisagents review` does: text overflowing its box, the colour
+contracts (invisible, red or light-on-light text) and, for a
+thesis-style deck, the `paper_rule` sections it is missing. The file
+picker starts at the deck the last export wrote. The full report opens
+in a window you can copy from, and the status line reads `Deck review:
+PASS` or `FAIL, N problem(s)`. Reports are in English, like the CLI's,
+because they quote shape names and measurements.
 
 The PPTX inspector / editor surface (drives `pptx_inspect` /
 `pptx_update_slide` / `pptx_reorder_slides` / `pptx_delete_slide` /
@@ -446,8 +481,6 @@ leaves that field at its default.
 
 - The Library page only reads. Removing a paper from a library, or
   editing one, is not possible from the GUI.
-- The Deck page does not preview a template check. A template that
-  cannot be used is reported when the export starts.
 - The Settings page does not validate keys against the live API —
   validation would leak the key into HTTP logs and slow down save.
   An invalid key surfaces later as a `ConfigError` / 401 from the

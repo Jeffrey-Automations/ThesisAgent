@@ -604,7 +604,7 @@ formulaires passent au-dessus de leurs champs. La fenêtre se redimensionne
 jusqu'à 640×480, avec la mise à l'échelle HiDPI activée par défaut.
 **Settings → Theme** choisit clair, sombre ou suivre le système, s'applique
 immédiatement et reste indépendant du mode sombre propre à la présentation.
-Les résultats se trient, se filtrent et se cochent pour n'envoyer que certains articles vers Enrich, Deck et l'export, les limites de la boule de neige sont réglables, une recherche ou un enrichissement en cours peut être annulé, et le formulaire est mémorisé d'un lancement à l'autre. **Settings → Style** bascule entre l'apparence classique bleu marine et Material 3. `Ctrl+1` … `Ctrl+5` changent de page.
+Les résultats se trient, se filtrent et se cochent pour n'envoyer que certains articles vers Enrich, Deck et l'export, les limites de la boule de neige sont réglables, une recherche ou un enrichissement en cours peut être annulé, et le formulaire est mémorisé d'un lancement à l'autre. La page Deck peut vérifier un modèle avant l'export et contrôler n'importe quel diaporama terminé, et sans clé API la page Enrich confie les articles à un agent LLM sous forme de fichier JSON puis importe ses résumés. **Settings → Style** bascule entre l'apparence classique bleu marine et Material 3. `Ctrl+1` … `Ctrl+5` changent de page.
 
 Référence complète : [`docs/gui.md`](../docs/gui.md).
 

@@ -27,11 +27,13 @@ from __future__ import annotations
 
 import os
 from dataclasses import replace
+from pathlib import Path
 
 from PySide6.QtCore import QSettings, Qt, QThreadPool, Signal
 from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import (
     QComboBox,
+    QFileDialog,
     QFormLayout,
     QHBoxLayout,
     QHeaderView,
@@ -45,6 +47,7 @@ from PySide6.QtWidgets import (
 
 from thesisagents.core.models import Paper, PaperCollection
 from thesisagents.exporters.i18n import SUPPORTED_LANGUAGES as DECK_LANGUAGES
+from thesisagents.gui.handoff import HandoffError, read_handoff, write_handoff
 from thesisagents.gui.i18n import LANGUAGE_DISPLAY_NAMES, t
 from thesisagents.gui.widgets.responsive import (
     AdaptiveSplit,
@@ -120,6 +123,7 @@ class EnrichPage(QWidget):
         form.addRow(t("enrich.model_label", language), self._model_input)
         adapt_form_rows(settings_card, form)
         controls_layout.addWidget(settings_card)
+        controls_layout.addWidget(self._build_agent_card(controls))
         controls_layout.addStretch(1)
 
         footer = QWidget(self)
@@ -186,6 +190,7 @@ class EnrichPage(QWidget):
             self._enriched_papers = []
             self._table_model.removeRows(0, self._table_model.rowCount())
             self._enrich_button.setEnabled(False)
+            self._set_agent_buttons(False)
             self._status_label.setText(
                 t("enrich.status_no_collection", self._ui_language),
             )
@@ -194,6 +199,7 @@ class EnrichPage(QWidget):
         self._enriched_papers = []
         self._populate_table(collection.papers)
         self._enrich_button.setEnabled(bool(collection.papers))
+        self._set_agent_buttons(bool(collection.papers))
         self._status_label.setText(
             t(
                 "enrich.status_ready",
@@ -218,6 +224,89 @@ class EnrichPage(QWidget):
 
     def is_running(self) -> bool:
         return self._running
+
+    # --- hand-off to an LLM agent (progress #27) ---------------------------
+
+    def _build_agent_card(self, parent: QWidget) -> QWidget:
+        """The no-API-key path: write the papers for an agent, read its summaries."""
+        language = self._ui_language
+        card, layout = make_card(t("enrich.card_agent", language), parent)
+        hint = QLabel(t("enrich.agent_hint", language), card)
+        hint.setObjectName("Muted")
+        hint.setWordWrap(True)
+        layout.addWidget(hint)
+        row = QHBoxLayout()
+        self._agent_export_button = QPushButton(t("enrich.agent_export_button", language), self)
+        self._agent_export_button.clicked.connect(self._on_agent_export_clicked)
+        self._agent_import_button = QPushButton(t("enrich.agent_import_button", language), self)
+        self._agent_import_button.clicked.connect(self._on_agent_import_clicked)
+        row.addWidget(self._agent_export_button)
+        row.addWidget(self._agent_import_button)
+        row.addStretch(1)
+        layout.addLayout(row)
+        self._set_agent_buttons(False)
+        return card
+
+    def _set_agent_buttons(self, enabled: bool) -> None:
+        self._agent_export_button.setEnabled(enabled)
+        self._agent_import_button.setEnabled(enabled)
+
+    def _on_agent_export_clicked(self) -> None:
+        path, _ = QFileDialog.getSaveFileName(
+            self, t("enrich.agent_export_button", self._ui_language),
+            str(Path.cwd() / "handoff.json"), "JSON (*.json)",
+        )
+        if path:
+            self.export_for_agent(path)
+
+    def export_for_agent(self, path: str) -> None:
+        """Write the current papers (enriched ones keep their summary) for an agent."""
+        collection = self.collection()
+        if collection is None or not collection.papers:
+            self._status_label.setText(t("enrich.error_no_collection", self._ui_language))
+            return
+        language = self._language_combo.currentData() or "en"
+        try:
+            count = write_handoff(collection, path, language=language)
+        except OSError as err:
+            self._status_label.setText(t("enrich.agent_error", self._ui_language, error=str(err)))
+            return
+        self._status_label.setText(
+            t("enrich.agent_exported", self._ui_language, count=count, path=path)
+        )
+
+    def _on_agent_import_clicked(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self, t("enrich.agent_import_button", self._ui_language),
+            str(Path.cwd()), "JSON (*.json);;All files (*)",
+        )
+        if path:
+            self.import_from_agent(path)
+
+    def import_from_agent(self, path: str) -> None:
+        """Attach an agent's summaries and send the result on to the Deck page."""
+        collection = self.collection()
+        if collection is None or not collection.papers:
+            self._status_label.setText(t("enrich.error_no_collection", self._ui_language))
+            return
+        try:
+            result = read_handoff(path, collection)
+        except (HandoffError, OSError) as err:
+            self._status_label.setText(t("enrich.agent_error", self._ui_language, error=str(err)))
+            return
+        self._collection = result.collection
+        self._enriched_papers = []
+        self._populate_table(result.collection.papers)
+        for row, paper in enumerate(result.collection.papers):
+            if paper.summary is not None:
+                self._set_row_status(row, "enrich.row_done")
+        self._status_label.setText(
+            t(
+                "enrich.agent_imported", self._ui_language,
+                count=result.imported, unmatched=result.unmatched,
+            )
+        )
+        self.collection_ready.emit(result.collection)
 
     def save_form(self, store: QSettings) -> None:
         """Write the summary language and model to ``store``."""
@@ -266,6 +355,7 @@ class EnrichPage(QWidget):
         self._running = True
         self._stop_requested = False
         self._enrich_button.setEnabled(False)
+        self._set_agent_buttons(False)
         self._cancel_button.setVisible(True)
         self._cancel_button.setEnabled(True)
         self.busy_changed.emit(True)
@@ -388,6 +478,7 @@ class EnrichPage(QWidget):
         self._running = False
         self._worker = None
         self._enrich_button.setEnabled(True)
+        self._set_agent_buttons(True)
         self._cancel_button.setVisible(False)
         self.busy_changed.emit(False)
         if stopped_after is None:
