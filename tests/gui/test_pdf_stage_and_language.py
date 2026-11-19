@@ -193,3 +193,56 @@ def test_a_language_switch_waits_while_work_runs(qtbot):
     assert len(main_window_module._REPLACEMENTS) == before  # noqa: SLF001
     assert "next start" in window.statusBar().currentMessage()
     window.search_page().busy_changed.emit(False)
+
+
+# --- #30 the Search page follows the access switch --------------------------------
+
+
+def test_ieee_is_locked_out_of_searches_while_access_is_off(qtbot):
+    from thesisagents.gui.pages.search import SearchPage
+
+    page = SearchPage(ui_language="en")
+    qtbot.addWidget(page)
+    page.show()
+    sources = page._sources_widget  # noqa: SLF001
+    assert sources.is_locked("ieee")
+    assert not sources.box("ieee").isEnabled()
+    assert "ieee" not in sources.selected()
+    assert page._ieee_note.isVisible()  # noqa: SLF001
+    sources.box("ieee").setChecked(True)          # even a ticked box is not sent
+    assert "ieee" not in sources.selected()
+
+
+def test_a_restored_form_cannot_bring_ieee_back_without_access(qtbot):
+    from thesisagents.gui.pages.search import SearchPage
+    from thesisagents.gui.pages.settings import settings_store
+
+    settings_store().setValue("form/search/sources", "arxiv,ieee")
+    page = SearchPage(ui_language="en")
+    qtbot.addWidget(page)
+    page.restore_form(settings_store())
+    assert page._sources_widget.selected() == ("arxiv",)  # noqa: SLF001
+
+
+def test_saving_access_in_settings_unlocks_ieee_on_the_search_page(qtbot):
+    window = MainWindow(ui_language="en")
+    qtbot.addWidget(window)
+    sources = window.search_page()._sources_widget  # noqa: SLF001
+    assert sources.is_locked("ieee")
+    window.settings_page().vpn_checkbox().setChecked(True)
+    window.settings_page().trigger_save()
+    assert not sources.is_locked("ieee")
+    assert "ieee" in sources.selected()           # a default source comes back ticked
+    window.settings_page().vpn_checkbox().setChecked(False)
+    window.settings_page().trigger_save()
+    assert "ieee" not in sources.selected()
+
+
+def test_with_access_saved_ieee_starts_unlocked(qtbot):
+    from thesisagents.gui.pages.search import SearchPage
+    from thesisagents.gui.pages.settings import settings_store
+
+    settings_store().setValue("access/vpn", True)
+    page = SearchPage(ui_language="en")
+    qtbot.addWidget(page)
+    assert "ieee" in page._sources_widget.selected()  # noqa: SLF001

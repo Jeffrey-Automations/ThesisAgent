@@ -68,6 +68,7 @@ from thesisagents.exporters.i18n import SUPPORTED_LANGUAGES as DECK_LANGUAGES
 from thesisagents.fetchers.http import shutdown_clients
 from thesisagents.gui.i18n import LANGUAGE_DISPLAY_NAMES, t
 from thesisagents.gui.models.papers_table_model import PaperFilterProxy, PapersTableModel
+from thesisagents.gui.pages.settings import saved_vpn_access
 from thesisagents.gui.widgets.responsive import (
     AdaptiveSplit,
     Breakpoint,
@@ -187,6 +188,7 @@ class SearchPage(QWidget):
         self._loading = False
         self._build_ui()
         self._papers_model.checks_changed.connect(self._on_checks_changed)
+        self.apply_access(saved_vpn_access())
 
     def _build_ui(self) -> None:
         """Controls in three cards, the results table beside or below them.
@@ -217,6 +219,10 @@ class SearchPage(QWidget):
         query_layout.addWidget(QLabel(t("search.sources_label", language), query_card))
         self._sources_widget = SourceMultiselect(self)
         query_layout.addWidget(self._sources_widget)
+        self._ieee_note = QLabel(t("search.ieee_locked_note", language), query_card)
+        self._ieee_note.setObjectName("Muted")
+        self._ieee_note.setWordWrap(True)
+        query_layout.addWidget(self._ieee_note)
         controls_layout.addWidget(query_card)
 
         filters_card, filters_layout = make_card(t("search.card_filters", language), controls)
@@ -535,6 +541,20 @@ class SearchPage(QWidget):
         self._snowball_floor.setValue(bounds.min_relevance or 0.0)
 
     # --- remembered form ------------------------------------------------
+
+    def apply_access(self, vpn_access: bool) -> None:
+        """Lock the ``ieee`` source while VPN / institutional access is not declared.
+
+        The project's IEEE rule (``CLAUDE.md``) asks for the access status
+        before any search with ``ieee`` in the mix. The GUI's answer is the
+        Settings switch, so with it off ``ieee`` is unticked, greyed out and
+        never sent, even when a restored form had it ticked (owner's option
+        (a) for ``progress.md`` #30). Called at start and on every Settings save.
+        """
+        self._sources_widget.set_locked(
+            "ieee", not vpn_access, t("search.ieee_locked_note", self._ui_language)
+        )
+        self._ieee_note.setVisible(not vpn_access)
 
     def save_form(self, store: QSettings) -> None:
         """Write every search field to ``store`` (called when the window closes)."""

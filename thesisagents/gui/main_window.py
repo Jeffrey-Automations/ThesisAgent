@@ -218,6 +218,7 @@ class MainWindow(QMainWindow):
             page.busy_changed.connect(lambda busy, k=key: self._on_busy_changed(k, busy))
         self._settings_page.theme_changed.connect(self._on_theme_changed)
         self._settings_page.language_changed.connect(self._on_language_changed)
+        self._settings_page.access_changed.connect(self._search_page.apply_access)
 
     # --- responsive -----------------------------------------------------
 

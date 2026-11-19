@@ -178,6 +178,9 @@ class SettingsPage(QWidget):
     #: A different interface language was saved. The main window rebuilds
     #: itself in it, carrying the current work over.
     language_changed = Signal(str)
+    #: The VPN / institutional access switch as saved, emitted on every save.
+    #: The Search page locks or unlocks the ``ieee`` source with it.
+    access_changed = Signal(bool)
 
     def __init__(self, ui_language: str = "en", parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -354,6 +357,7 @@ class SettingsPage(QWidget):
         store.setValue(_VPN_KEY, self._vpn_check.isChecked())
         store.sync()
         self.theme_changed.emit(theme)
+        self.access_changed.emit(self._vpn_check.isChecked())
         self._status_label.setText(
             t("settings.saved_message", self._ui_language)
         )

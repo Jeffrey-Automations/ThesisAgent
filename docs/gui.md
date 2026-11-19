@@ -70,6 +70,13 @@ The core search → export flow.
   Sources that need a key or a browser (`ieee`, `springer`, `core`,
   `scholar`) only return results once the matching value is set in
   **Settings**, otherwise the status line marks them disabled.
+  `ieee` is also locked (unticked, greyed out, with a note below the
+  boxes) until **Settings** declares institutional / VPN access: the
+  project's IEEE rule asks for the access status before any search with
+  `ieee` in it, and without access IEEE answers with abstract pages and
+  403s after opening a browser window. A restored form cannot bring it
+  back. Saving the switch on in **Settings** unlocks it at once and ticks
+  it again.
 - **Slide language** — picks the language for any `.pptx` exported
   from this run. Defaults to English.
 - **Max results per source** — 1 … 200 (same as the CLI `--max`).

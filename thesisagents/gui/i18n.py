@@ -4035,6 +4035,43 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
             "berikutnya."
         ),
     },
+    "search.ieee_locked_note": {
+        "en": (
+            "IEEE is off: it needs institutional / VPN access, which you can declare in Settings."
+        ),
+        "zh-tw": "IEEE 已停用：需要機構 / VPN 存取權，可在「設定」中勾選。",
+        "zh-cn": "IEEE 已停用：需要机构 / VPN 访问权限，可在“设置”中勾选。",
+        "ja": "IEEE はオフです: 機関 / VPN アクセスが必要です。設定で有効にできます。",
+        "es": (
+            "IEEE está desactivado: necesita acceso institucional / VPN, que puede declarar en "
+            "Ajustes."
+        ),
+        "fr": (
+            "IEEE est désactivé : il faut un accès institutionnel / VPN, à déclarer dans les "
+            "Paramètres."
+        ),
+        "de": (
+            "IEEE ist aus: Es braucht institutionellen / VPN-Zugang, den Sie in den Einstellungen "
+            "angeben können."
+        ),
+        "ko": "IEEE 꺼짐: 기관 / VPN 접근 권한이 필요하며, 설정에서 지정할 수 있습니다.",
+        "pt": (
+            "O IEEE está desligado: ele exige acesso institucional / VPN, que você pode declarar "
+            "em Configurações."
+        ),
+        "ru": (
+            "IEEE отключён: нужен институциональный / VPN-доступ, его можно указать в настройках."
+        ),
+        "it": (
+            "IEEE è disattivato: serve l'accesso istituzionale / VPN, che puoi dichiarare nelle "
+            "Impostazioni."
+        ),
+        "vi": "IEEE đang tắt: cần quyền truy cập tổ chức / VPN, có thể khai báo trong Cài đặt.",
+        "hi": (
+            "IEEE बंद है: इसके लिए संस्थागत / VPN पहुँच चाहिए, जिसे सेटिंग्स में बताया जा सकता है।"
+        ),
+        "id": "IEEE nonaktif: perlu akses institusi / VPN, yang dapat dinyatakan di Pengaturan.",
+    },
 }
 
 
