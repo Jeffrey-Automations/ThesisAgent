@@ -135,7 +135,7 @@ colonne 7 = DOI, colonne 8 = URL. Auditez votre script regen à la fin :
            print(f"! {p.bibtex_key()} authored {p.url} vs real {actual}")
 
 **L'export le vérifie à l'exécution.** Avant toute écriture, la CLI,
-l'outil MCP ``export`` et l'onglet Deck de la GUI interrogent doi.org
+l'outil MCP ``export`` et la page Deck de la GUI interrogent doi.org
 pour le DOI de chaque article et demandent chaque URL une fois. Un DOI
 non enregistré, une URL qui répond 404 ou un hôte injoignable arrêtent
 l'export et indiquent l'article et l'identifiant concernés. Le contrôle

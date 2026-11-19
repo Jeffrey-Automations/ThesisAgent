@@ -117,7 +117,8 @@ Sources (up to 25 requested from each):
 | What the table shows | Cause | What to do |
 |---|---|---|
 | `failed: ...` | The source raised an error: a block page, a changed response format, a network failure. | Read the message. For `ieee` and `scholar`, check that a Chrome window opened and that VPN / institutional access is active. |
-| `rate_limited: ...` | The source answered HTTP 429 through every retry. | Wait and run again, or set the source's API key (`THESISAGENTS_S2_API_KEY` for Semantic Scholar). |
+| `rate_limited: ...` | The source answered HTTP 429 through every retry. DBLP is also counted here when it answers with an empty body or an HTML page instead of results (`[dblp] answered with a page instead of results, not JSON (status 200, text/html): …`). | Wait and run again, or set the source's API key (`THESISAGENTS_S2_API_KEY` for Semantic Scholar). |
+| `failed: [dblp] DBLP is showing a bot-check page …` | DBLP put its search behind a "Making sure you're not a bot!" check (seen 2026-11-19, HTTP 202). It needs a JavaScript browser, so the API request cannot pass it and is not retried. | Try again later, or leave `dblp` out of `--source` for now. The other sources still answer. |
 | `disabled: ...` | The plugin could not be loaded, usually a missing API key (`springer`, `core`). | Set the variable named in the message, or ignore the source. |
 | `0 returned, 0 after dedup` | The source answered and had nothing for this query. | Nothing is wrong. Try broader keywords. |
 | `returned` far above `after dedup` | Most of the source's records duplicated an earlier source's. | Nothing is wrong. The source adds little for this query. |
@@ -196,7 +197,7 @@ Springer; with `--source springer` explicitly requested, the
 error surfaces. Get a free key at
 <https://dev.springernature.com/>.
 
-### `error: --pdf path does not exist`
+### `error: PDF path does not exist`
 
 The path passed to `--pdf` resolves to nothing. Confirm the file
 exists and the path is absolute or relative to your current
@@ -236,12 +237,14 @@ run. Name a library (`--library thesis.db`, or `library=` on the MCP
 same way. A failed check is made again on every run by design, so an
 export that failed while the network was down succeeds once it is back.
 
-### `error: --pdf file is empty / not a PDF / encrypted`
+### `error: PDF file is empty / not a PDF file / PDF is encrypted`
 
-The pre-flight check rejected the file. Encrypted PDFs need
-decryption first (`qpdf --decrypt in.pdf out.pdf` or
-`pdftk in.pdf input_pw=password output out.pdf`); empty / 0-byte
-files indicate a failed prior download.
+The pre-flight check of a local PDF (the CLI's `--pdf`, or **Use local
+PDFs…** on the GUI Search page) rejected the file, and the message names
+it. Encrypted PDFs need decryption first (`qpdf --decrypt in.pdf
+out.pdf` or `pdftk in.pdf input_pw=password output out.pdf`). An empty
+or 0-byte file usually means an earlier download failed. Files over
+100 MB are refused as well.
 
 ## MCP errors
 
@@ -278,6 +281,14 @@ failed. The result entry has a `skipped_reason`:
 | `unsupported_scheme` | The URL wasn't HTTPS. The HTTPS-only transport refuses it. |
 | `http_<code>` | Network error. 403 = paywall (set up cookies file), 404 = stale URL, 5xx = retry later. |
 | `too_large` | PDF exceeded the 100 MB safety cap. Increase locally or skip the paper. |
+
+Each result also has a `route`. `direct_without_browser` means browser
+automation is unavailable, so a paywalled publisher PDF was requested
+without Chrome and almost always fails: install `selenium` (it ships with
+the package) or unset `THESISAGENTS_DISABLE_WEBRUNNER`. The downloader
+logs a WARNING for it, and the GUI Deck page says so on its status line.
+`direct_after_browser_failed` means Chrome opened but could not fetch
+the PDF, often a missing VPN / institutional login in the Chrome profile.
 
 ### `fetch_pdf_text` returns truncated text
 

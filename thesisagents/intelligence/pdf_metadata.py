@@ -52,6 +52,23 @@ _ABSTRACT_INLINE_RE = re.compile(
 _ABSTRACT_BLOCK_RE = re.compile(
     r"(?:^|\n)\s*(?:Abstract|ABSTRACT|摘要|要旨|Resumen|Résumé|Zusammenfassung)\s*\n",
 )
+# Flattened heading: pypdf often returns the whole front page as one line,
+# "... Alan Turing Abstract We study sparse attention ...", with no separator
+# and no newline, which neither pattern above matches (``progress.md`` #32:
+# the abstract came back empty for all three arXiv PDFs checked, and the
+# author list ran on into the abstract). A bare "Abstract" also starts
+# captions ("Abstract Apps") and titles ("Abstract Interpretation of ..."),
+# so it only counts when what follows reads as prose, see
+# ``_flat_abstract_anchor``.
+_ABSTRACT_FLAT_RE = re.compile(r"(?:^|\s)(?:Abstract|ABSTRACT)\s+(?=[A-Z])")
+_PROSE_WORD_RE = re.compile(r"[A-Za-z][A-Za-z'\-]*")
+#: Words after a flattened "Abstract" that are checked (up to the window,
+#: at least the minimum), and the share that must start lower-case. Prose
+#: runs about 70-90 % lower-case words, a Title-Cased title or caption under
+#: 30 %.
+_PROSE_WINDOW_WORDS = 12
+_PROSE_MIN_WORDS = 8
+_PROSE_MIN_LOWERCASE_SHARE = 0.6
 _ABSTRACT_END_RE = re.compile(
     r"(?:"
     r"(?:^|\n|\s)1\s*[.)]\s*Introduction"
@@ -170,7 +187,7 @@ def _extract_abstract(text: str) -> tuple[int | None, str | None]:
     """
     inline = _ABSTRACT_INLINE_RE.search(text)
     block = _ABSTRACT_BLOCK_RE.search(text)
-    chosen = _pick_earlier_match(inline, block)
+    chosen = _pick_earlier_match(inline, block) or _flat_abstract_anchor(text)
     if chosen is None:
         return None, None
     anchor_start = chosen.start()
@@ -180,6 +197,26 @@ def _extract_abstract(text: str) -> tuple[int | None, str | None]:
     body = window[: end_match.start()] if end_match else window[:_MAX_ABSTRACT_CHARS]
     abstract = " ".join(body.split())[:_MAX_ABSTRACT_CHARS]
     return anchor_start, (abstract or None)
+
+
+def _flat_abstract_anchor(text: str) -> re.Match | None:
+    """The first flattened ``Abstract`` heading that is followed by prose.
+
+    Used only when no ``Abstract:`` / ``Abstract—`` or line-alone heading
+    exists. Looks at the next ``_PROSE_WINDOW_WORDS`` words (at least
+    ``_PROSE_MIN_WORDS``) and accepts the heading when at least
+    ``_PROSE_MIN_LOWERCASE_SHARE`` of them start lower-case, which tells a
+    sentence ("Abstract Transformers are quickly becoming one of
+    the most ...") from a title or caption ("Abstract Interpretation for
+    Neural Network Verification").
+    """
+    for match in _ABSTRACT_FLAT_RE.finditer(text, 0, 6000):
+        window = text[match.end() : match.end() + 240]
+        words = _PROSE_WORD_RE.findall(window)[:_PROSE_WINDOW_WORDS]
+        lowercase = sum(1 for word in words if word[0].islower())
+        if len(words) >= _PROSE_MIN_WORDS and lowercase >= _PROSE_MIN_LOWERCASE_SHARE * len(words):
+            return match
+    return None
 
 
 def _pick_earlier_match(a: re.Match | None, b: re.Match | None) -> re.Match | None:
@@ -250,7 +287,10 @@ _FLAT_AUTHOR_MARKER_RE = re.compile(
     # The leading ``\s`` makes ``marker.start()`` point to the space
     # *before* the first name, which is exactly where the title ends.
     r"\s([A-Z][a-z'\-]+\s+[A-Z][a-zA-Z'\-]+)"
-    r"(?:\s*[\*∗⋆†‡§\d,]"
+    # 4. An ORCID iD ("Athanasios Zeris iD 0009-0002-6907-2400"), the only
+    #    marker on single-author preprints that carry no footnote symbol.
+    r"(?:\s+(?:iD\s+)?\d{4}-\d{4}-\d{4}-\d{3}[\dX]"
+    r"|\s*[\*∗⋆†‡§\d,]"
     r"|\s+(?:[A-Z][a-z]+[\s,]+){1,3}"
     r"(?:University|Department|Institute|Laboratory|College))",
 )
@@ -262,8 +302,18 @@ _FLAT_AUTHOR_END_RE = re.compile(
     # than swallowing it into the last author's name.
     r"(?:[A-Z][a-z]+\s+)?"
     r"(?:Department|University|Institute|Laboratory|College|"
-    r"School\s+of|@|\{)",
+    r"School\s+of|@|\{)"
+    # A standalone Abstract heading: belt and braces for flattened pages
+    # whose abstract anchor was not found, so the author list cannot run on
+    # into the abstract and split its sentences at "and" (progress #32).
+    r"|\b(?:Abstract|ABSTRACT)\b",
 )
+#: Names on flattened front matter separated only by their footnote marks,
+#: "Xin Lai1 Yuhui Yuan3 Ruihang Chu1": split after a mark that is followed
+#: by the next capitalised name.
+_FLAT_FOOTNOTE_SPLIT_RE = re.compile(r"(?<=[A-Za-z])[\d∗*†‡§⋆][\d,∗*†‡§⋆]*\s+(?=[A-Z])")
+#: An ORCID iD and its "iD" badge, which pypdf leaves next to the name.
+_ORCID_RE = re.compile(r"\s*\biD\b\s*|\s*\d{4}-\d{4}-\d{4}-\d{3}[\dX]")
 
 
 def _extract_from_flat_text(head: str) -> tuple[str | None, tuple[str, ...]]:
@@ -286,7 +336,12 @@ def _extract_from_flat_text(head: str) -> tuple[str | None, tuple[str, ...]]:
 
 
 def _split_flat_author_chunk(chunk: str) -> tuple[str, ...]:
-    parts = _AUTHOR_SEPARATOR_RE.split(chunk)
+    chunk = _ORCID_RE.sub(" ", chunk)
+    parts = [
+        piece
+        for segment in _FLAT_FOOTNOTE_SPLIT_RE.split(chunk)
+        for piece in _AUTHOR_SEPARATOR_RE.split(segment)
+    ]
     names: list[str] = []
     for raw in parts:
         # Strip a leading "and " left behind when "Author, and OtherAuthor"

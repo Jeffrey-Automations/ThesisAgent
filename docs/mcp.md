@@ -576,7 +576,8 @@ Returns:
   "results": [
     {"paper_key": "vaswani2017attention",
      "path": "./exports/attention/pdfs/vaswani2017attention.pdf",
-     "reason": null}
+     "reason": null,
+     "route": "direct"}
   ]
 }
 ```
@@ -584,6 +585,16 @@ Returns:
 Papers without a `pdf_url` come back with `reason: "no_pdf_url"`;
 HTTP 403 / non-PDF content-type / oversize bodies come back with the
 matching reason string.
+
+`route` says how each PDF was fetched: `browser` (visible Chrome, the
+required path for paywalled publisher hosts), `direct` (an ordinary
+HTTPS request to an open host), `on_disk` (already there),
+`direct_after_browser_failed` (Chrome could not fetch it, a direct
+request was tried), `direct_without_browser` (browser automation is
+unavailable, selenium missing or `THESISAGENTS_DISABLE_WEBRUNNER=1`, so a
+publisher URL got a direct request the publisher usually refuses), or
+empty when nothing was requested. The last two are the cases the
+Browser Automation rule asks you to surface rather than trust.
 
 ### `export`
 

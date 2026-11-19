@@ -28,15 +28,15 @@
 
 | Path | Responsibility |
 |---|---|
-| `thesisagents/cli.py`, `__main__.py` | argparse CLI; bare invocation or `gui` launches the GUI, `review` audits a deck. `cli.py` holds the flags and the order of the stages, with one module per group of flags beside it: `cli_output.py` (what a run prints), `cli_snowball.py` (`--snowball*`), `cli_library.py` (`--library*`), `cli_template.py` (`--pptx-template*`), `cli_local_pdf.py` (`--pdf` mode) |
-| `thesisagents/core/` | Frozen models (`models.py`: `Query`, `Paper`, `PaperSummary`, `PaperCollection`, `ExportOptions`), `pipeline.run_search`, `dedup.py`, `ranking.py` (`rank` and the explained `rank_with_scores`), `pruning.py` (advisory keep / review / prune), `diagnostics.py` (the records both produce), `top_venues.py`, `oa_resolver.py`, `pdf_download.py`, `snowball.py` (bounded citation snowballing over `CitationProvider`s), `export_validation.py` (the DOI / URL preflight every export runs first), `constants.py` (source and export names) |
+| `thesisagents/cli.py`, `__main__.py` | argparse CLI; bare invocation or `gui` launches the GUI, `review` audits a deck. `cli.py` holds the flags and the order of the stages, with one module per group of flags beside it: `cli_output.py` (what a run prints), `cli_snowball.py` (`--snowball*`), `cli_library.py` (`--library*`), `cli_template.py` (`--pptx-template*`), `cli_local_pdf.py` (`--pdf` mode, a thin wrapper over `core/local_pdf.py`) |
+| `thesisagents/core/` | Frozen models (`models.py`: `Query`, `Paper`, `PaperSummary`, `PaperCollection`, `ExportOptions`), `pipeline.run_search`, `dedup.py`, `ranking.py` (`rank` and the explained `rank_with_scores`), `pruning.py` (advisory keep / review / prune), `diagnostics.py` (the records both produce), `top_venues.py`, `oa_resolver.py`, `pdf_download.py`, `snowball.py` (bounded citation snowballing over `CitationProvider`s), `export_validation.py` (the DOI / URL preflight every export runs first), `local_pdf.py` (local PDF files → papers, shared by the CLI `--pdf` mode and the GUI), `constants.py` (source and export names) |
 | `thesisagents/fetchers/` | `Fetcher` base and `load_fetcher()`, HTTPS-only per-source `httpx` client (`http.get_client`, plus `http.scoped_client` for code that runs on a private event loop), token-bucket `rate_limit.py`, `citations.py` (`CitationProvider` base, `load_citation_provider()`, the shared `get_json`), visible-Chrome helpers (`webrunner_browser.py`, `webrunner_pdf.py`) |
 | `thesisagents/sources/<name>/` | One plugin per source: `__init__.py` exposes `fetcher_class`, `fetcher.py`, `parser.py`; browser-backed sources (`ieee`, `scholar`) add `webrunner_backend.py`, and sources with citation data (`openalex`, `semantic_scholar`, `crossref`) add `citations.py` exposing `citation_provider_class` |
 | `thesisagents/exporters/` | `Exporter` strategies (`pptx`, `xlsx`, `bibtex`, `markdown`, `json`, `ris`, `csv`, `csl`) and the `_REGISTRY` in `__init__.py`; `pptx_edit.py`, `review.py` / `audit.py` / `overflow.py` (deck audits), `i18n.py` (deck strings), `template.py` (the deck template contract: layout per slide role, `TemplateConfig`, `validate_template`) |
 | `thesisagents/library/` | Literature library kept across runs in one SQLite file: `store.py` (`Library`: merge an import on the identity keys of `core/dedup.py`, search with `rank_with_scores`, `LibraryVerificationCache` for the export preflight), `schema.py` (tables, `SCHEMA_VERSION`, migrations). Reads and writes the core models, and nothing in `core/` imports it |
 | `thesisagents/intelligence/` | PDF text / asset / metadata extraction and the API summariser (`summarise.py`), `[intelligence]` extra |
 | `thesisagents/mcp/` | FastMCP server (`server.build_server()`, with the library tools in `library_tools.py`), `[mcp]` extra (held below mcp 2.0, which renamed FastMCP) |
-| `thesisagents/gui/` | PySide6 desktop app (`app.py`, `main_window.py`, `pages/`, `workers.py` on `QThreadPool`, `i18n.py`), `[gui]` extra |
+| `thesisagents/gui/` | PySide6 desktop app, `[gui]` extra: `app.py` (boot, HiDPI, theme), `main_window.py` (sidebar `widgets/nav_rail.py` + page stack + status bar), `pages/` (Search, Library (read-only view of a `thesisagents/library/` file, the GUI's only reader of it besides Search library), Enrich, Deck, Settings), `widgets/responsive.py` (size classes compact / medium / expanded that every page re-arranges for), `theme.py` (classic / Material 3 styles in light / dark / system and the app stylesheet), `icons.py` (painted icons), `workers.py` on `QThreadPool`, `i18n.py` |
 | `thesisagents/evaluation/` | Offline search-quality benchmark (`search_quality.py`; see `docs/search-quality.md`) |
 | `thesisagents/utils/` | Logging, path safety, and `async_helpers.run_blocking` (finish a coroutine from synchronous code, inside or outside a running loop) |
 | `tests/` | pytest suite with recorded fixtures under `tests/fixtures/<source>/`; no live HTTP |
@@ -166,6 +166,11 @@ no key, no model → lightweight, abstract-based deck
   (UI); every supported language must be filled (`tests/test_i18n.py`, `tests/gui/test_i18n.py`).
 - **New summary field**: `PaperSummary` in `thesisagents/core/models.py`, consumed by the thesis-style
   tier in `thesisagents/exporters/pptx.py`.
+- **New GUI page**: a `QWidget` in `thesisagents/gui/pages/` with `apply_breakpoint(Breakpoint)` (put
+  controls and results in an `AdaptiveSplit` from `widgets/responsive.py`) and, when it runs work on
+  a worker thread, a `busy_changed = Signal(bool)`. Register it in `_PAGE_META` and the page tuple in
+  `thesisagents/gui/main_window.py`, add a painter in `icons.py` for its sidebar icon, and take
+  colours from the stylesheet's object names (`#Card`, `primary`) rather than hard-coded values.
 
 ## 6. Cross-project boundaries
 

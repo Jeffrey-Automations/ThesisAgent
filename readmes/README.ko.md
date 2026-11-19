@@ -94,7 +94,7 @@ for p in ALL_PAPERS:
 (`view/fang2026` 대신 `v40i5.37389`).
 
 **내보내기 단계에서 실행 시점에 이를 검사합니다.** 파일을 쓰기 전에 CLI, MCP `export` 도구, GUI Deck
-탭이 각 논문의 DOI 를 doi.org 에서 조회하고 각 URL 에 한 번씩 요청을 보냅니다. 등록되지 않은 DOI, 404 를
+페이지가 각 논문의 DOI 를 doi.org 에서 조회하고 각 URL 에 한 번씩 요청을 보냅니다. 등록되지 않은 DOI, 404 를
 반환하는 URL, 연결할 수 없는 호스트가 있으면 내보내기가 중단되고 해당 논문과 식별자가 표시됩니다. 이 검사는 식별자가
 존재한다는 것만 보여 줄 뿐 그 논문의 것임을 보장하지 않으므로, 위의 xlsx 에서 그대로 복사하는 규칙과 감사는 여전히
 필요합니다. 오프라인으로 작업할 때는 `--no-verify-identifiers` (CLI) 또는
@@ -206,7 +206,7 @@ for key in irrelevant_keys:
     빨강을 **금지** 한 5색 팔레트 규율(네이비 / 틸 / 그레이 / 라이트 /
     화이트) — 강조에는 대신 굵게 + 틸 `#0E7490` 를 사용.
   - **라이트 모드가 기본 렌더링 경로입니다.** `--dark-mode` 를
-    넘기거나, GUI Deck 탭에서 **Dark mode** 를 활성화하거나,
+    넘기거나, GUI Deck 페이지에서 **Dark mode** 를 활성화하거나,
     `ExportOptions(dark_mode=True)` 를 설정하면 다크 후처리를
     적용합니다(슬라이드 배경 `#12151B`, 본문 텍스트 `#E5E7EB`).
   - `.xlsx` — Papers 시트 + Query 출처 시트, URL / PDF 하이퍼링크,
@@ -522,24 +522,28 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-창에는 네 개의 탭이 있습니다 — **Search**, **Settings**(QSettings 를
-통해 API 키를 영속화), **Enrich**(`collection_ready` 시그널을 통해
-LLM-as-agent / Python 파이프라인 보강을 구동), 그리고 **Deck**(Light
-모드 토글 + 슬라이드 상한 + 최대 figure 컨트롤이 `ExportOptions` 로
-흘러 들어감). Windows 릴리스 zip 은 PySide6 를 포함한 Nuitka 컴파일
+창에는 사이드바와 다섯 개의 페이지가 있습니다: **Search**, **Library** (라이브러리 파일의 읽기 전용 보기: 개요, 논문과 그 인용 관계·식별자 검사, 라이브러리를 채운 검색 기록),
+**Enrich**(`collection_ready` 시그널을 통해 LLM-as-agent / Python
+파이프라인 보강을 구동), **Deck**(Dark mode 토글, 슬라이드 상한, 식별자
+검사, 덱 템플릿이 `ExportOptions` 로 흘러 들어감), 그리고
+**Settings**(QSettings 를 통해 API 키를 영속화). Windows 릴리스 zip 은 PySide6 를 포함한 Nuitka 컴파일
 번들을 제공하므로, 별도의 Python 설치 없이 `thesisagents.exe gui` 가
 동작합니다.
-Search 탭에서는 상위 결과에서 인용을 따라가거나 (스노볼), 결과를 라이브러리 파일에 보관하고 네트워크 없이 그 라이브러리를
-검색할 수도 있으며, Deck 탭에서는 사용자의 PowerPoint 템플릿 위에 슬라이드를 만들 수 있습니다.
+Search 페이지에서는 상위 결과에서 인용을 따라가거나 (스노볼), 결과를 라이브러리 파일에 보관하고 네트워크 없이 그 라이브러리를
+검색할 수도 있으며, Deck 페이지에서는 사용자의 PowerPoint 템플릿 위에 슬라이드를 만들 수 있습니다.
 **UI 는 14개 언어 모두로 제공됩니다**(English, 繁體中文, 简体中文,
 日本語, Español, Français, Deutsch, 한국어, Português, Русский,
 Italiano, Tiếng Việt, हिन्दी, Bahasa Indonesia) — 첫 실행은 OS
 로케일에서 언어를 고르고, 이후 **Settings → Interface language** 에서
 바꿀 수 있습니다. 덱 출력 언어는 별도의 드롭다운이라 UI 를 한
 언어로 실행하면서 슬라이드는 다른 언어로 낼 수 있습니다. 레이아웃은
-반응형입니다: 모든 폼이 `QScrollArea` 안에 있고 창은 900×600 까지
-줄어들며(720p 에도 여전히 맞음), HiDPI 스케일링이 기본으로
-켜져 있습니다.
+창 너비에 맞춰 바뀝니다. 넓은 창에서는 각 페이지의 컨트롤이 결과 옆에
+한 열로 놓이고, 중간 너비에서는 결과 위에 놓이며, 760 px 미만에서는
+사이드바가 아이콘으로 접히고 폼 레이블이 입력란 위로 옮겨집니다. 창은
+640×480 까지 줄어들며, HiDPI 스케일링이 기본으로 켜져 있습니다.
+**Settings → Theme** 에서 라이트, 다크, 시스템 따르기 중 하나를 고르면
+바로 적용되며, 덱 자체의 다크 모드와는 별개입니다. 결과를 정렬·필터링하고 체크해 일부 논문만 Enrich, Deck, Export 로 보낼 수 있고, 스노볼 범위를 조정할 수 있으며, 실행 중인 검색이나 보강은 취소할 수 있고, 폼 내용은 다음 실행 때도 유지됩니다. Deck 페이지에서는 내보내기 전에 템플릿을 검사하고 완성된 슬라이드를 검토할 수 있으며, API 키가 없으면 Enrich 페이지가 논문을 JSON 파일로 LLM 에이전트에게 넘기고 그 요약을 가져옵니다. Deck 페이지는 PDF도 다운로드할 수 있고, Settings 에서 기관 / VPN 접근을 선언하기 전까지 IEEE 는 제외하며, 새 인터페이스 언어는 작업을 유지한 채 바로 적용됩니다. 같은 스위치로 `ieee` 는 검색에서도 제외됩니다. Search 페이지는 CLI 의 `--pdf` 처럼 로컬 PDF를 결과로 읽어 올 수도 있습니다. 상태 줄은 Chrome 을 거쳐 받은 PDF 수를 알려 주고, 출판사 PDF가 Chrome 을 쓰지 못했을 때 경고합니다. **Settings → Style** 에서 클래식 네이비 스타일과 Material 3 를 전환합니다. `Ctrl+1` …
+`Ctrl+5` 로 페이지를 전환합니다.
 
 전체 레퍼런스: [`docs/gui.md`](../docs/gui.md).
 
@@ -619,6 +623,10 @@ PyPI 게시 + 릴리스 실행 파일을 활성화하려면:
 (Nuitka `.exe` 가 첨부된) 릴리스 항목으로 표출됩니다 — 릴리스는
 자신만의 전용 페이지를 갖고, 그 위의 Deployment 항목은 그저
 불필요한 잡음일 뿐입니다.
+
+## 보안
+
+취약점은 비공개로 보고해 주세요. 정책, 지원 버전, 운영 시 주의 사항은 [SECURITY.md](../SECURITY.md)에 있습니다.
 
 ## 라이선스
 

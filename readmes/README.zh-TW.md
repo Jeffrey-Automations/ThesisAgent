@@ -88,7 +88,7 @@ for p in ALL_PAPERS:
 (`v39i23.34521` vs 真實 `v39i22.34537`),以及發明出來的作者 slug 路徑
 (`view/fang2026` 而非 `v40i5.37389`)。
 
-**匯出時會在執行期檢查這一點。** 寫入任何檔案之前,CLI、MCP 的 `export` 工具與 GUI 的 Deck 分頁會到 doi.org 查詢每篇論文的 DOI,並對每個網址送出一次請求。DOI 未註冊、網址回應 404,或主機無法連線時,匯出會停止並指出是哪一篇論文的哪一個識別碼。這項檢查只能證明識別碼存在,無法證明它屬於這篇論文,所以上面「逐字從 xlsx 抄」的規則與稽核仍然要做。離線作業時,請加上 `--no-verify-identifiers` (CLI) 或 `verify_identifiers=false` (MCP)。
+**匯出時會在執行期檢查這一點。** 寫入任何檔案之前,CLI、MCP 的 `export` 工具與 GUI 的 Deck 頁面會到 doi.org 查詢每篇論文的 DOI,並對每個網址送出一次請求。DOI 未註冊、網址回應 404,或主機無法連線時,匯出會停止並指出是哪一篇論文的哪一個識別碼。這項檢查只能證明識別碼存在,無法證明它屬於這篇論文,所以上面「逐字從 xlsx 抄」的規則與稽核仍然要做。離線作業時,請加上 `--no-verify-identifiers` (CLI) 或 `verify_identifiers=false` (MCP)。
 
 ### 必辦:出貨前先剔除不相關的下載
 
@@ -177,7 +177,7 @@ for key in irrelevant_keys:
     交替列底紋、垂直置中對齊、粗體列標籤),以及五色調色盤紀律
     (深藍 / 藍綠 / 灰 / 淺 / 白),文字**禁用**紅色(改用粗體 + 藍綠
     `#0E7490` 來強調)。
-  - **淺色模式是預設的渲染路徑。** 傳 `--dark-mode`、在 GUI Deck 分頁
+  - **淺色模式是預設的渲染路徑。** 傳 `--dark-mode`、在 GUI Deck 頁面
     啟用 **Dark mode**,或設 `ExportOptions(dark_mode=True)`,即可套用
     深色後製處理(投影片背景 `#12151B`、內文 `#E5E7EB`)。
   - `.xlsx` —— Papers 工作表 + Query 出處工作表、超連結的 URL / PDF、
@@ -458,20 +458,23 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-視窗有四個分頁 —— **Search**、**Settings**(透過 QSettings 保存 API
-金鑰)、**Enrich**(透過一個 `collection_ready` 訊號驅動 LLM-as-agent /
-Python-pipeline 加值),以及 **Deck**(淺色模式切換 + 投影片上限 +
-最大圖數控制項會流向 `ExportOptions`)。Windows 發行版 zip 出貨的是
-Nuitka 編譯的套件,已含 PySide6,所以 `thesisagents.exe gui` 不必另外
-裝 Python 就能運作。
-Search 分頁還可以沿著引用關係擴充最前面的結果 (滾雪球)、把結果保存到文獻庫檔案並在沒有網路時搜尋該文獻庫,Deck 分頁則可以在你自己的 PowerPoint 範本上產生投影片。
+視窗有一個側邊欄,含五個頁面:**Search**、**Library**(文獻庫檔案的唯讀檢視：概況、收錄論文及其引用關係與識別碼檢查，以及累積它的歷次搜尋)、**Enrich**(透過一個
+`collection_ready` 訊號驅動 LLM-as-agent / Python-pipeline 加值)、
+**Deck**(深色模式切換、投影片上限、識別碼檢查與投影片範本會流向
+`ExportOptions`),以及 **Settings**(透過 QSettings 保存 API 金鑰)。
+Windows 發行版 zip 出貨的是 Nuitka 編譯的套件,已含 PySide6,所以
+`thesisagents.exe gui` 不必另外裝 Python 就能運作。
+Search 頁面還可以沿著引用關係擴充最前面的結果 (滾雪球)、把結果保存到文獻庫檔案並在沒有網路時搜尋該文獻庫,Deck 頁面則可以在你自己的 PowerPoint 範本上產生投影片。
 **UI 以全部 14 種語言出貨**(English、繁體中文、简体中文、日本語、
 Español、Français、Deutsch、한국어、Português、Русский、Italiano、
 Tiếng Việt、हिन्दी、Bahasa Indonesia)—— 首次執行會從你的 OS 語系挑選
 語言,之後 **Settings → Interface language** 讓你更改它。投影片輸出語言
 是一個獨立的下拉選單,所以你可以用一種語言跑 UI、用另一種語言產出
-投影片。版面是自適應的:每個表單都坐在一個 `QScrollArea` 裡,視窗可以
-縮小到 900×600(仍容得下 720p),並預設開啟 HiDPI 縮放。
+投影片。版面會依視窗寬度調整:視窗寬時,每個頁面的控制項排成一欄放在
+結果旁邊,中等寬度時放在結果上方,寬度低於 760 px 時側邊欄收合成圖示,
+表單標籤移到欄位上方。視窗可以縮小到 640×480,並預設開啟 HiDPI 縮放。
+**Settings → Theme** 可選淺色、深色或跟隨系統,立即套用,且與投影片本身的
+深色模式無關。結果可以排序、篩選並勾選，只把勾選的論文交給 Enrich、Deck 與匯出，滾雪球的範圍可以調整，執行中的搜尋或豐富化可以取消，表單內容在下次啟動時會保留。Deck 頁面可在匯出前檢查範本，也能審查任何完成的投影片。沒有 API 金鑰時，Enrich 頁面會把論文以 JSON 檔交給 LLM 代理，再匯入它寫的摘要。Deck 頁面也能下載 PDF，在 Settings 宣告機構 / VPN 存取權之前會跳過 IEEE，新的介面語言會立即套用並保留目前的工作。同一個開關也會讓搜尋跳過 `ieee`。Search 頁面也能像 CLI 的 `--pdf` 一樣，把本機 PDF 讀入結果。狀態列會顯示經由 Chrome 下載的 PDF 數量，出版商 PDF 無法使用 Chrome 時也會發出警告。**Settings → Style** 可在經典海軍藍外觀與 Material 3 之間切換。`Ctrl+1` … `Ctrl+5` 切換頁面。
 
 完整參考:[`docs/gui.md`](../docs/gui.md)。
 
@@ -542,6 +545,10 @@ Tiếng Việt、हिन्दी、Bahasa Indonesia)—— 首次執行會從
 都以 Release 條目(附它的 Nuitka `.exe`)呈現,而非以 repo 首頁上的
 「Deployment」側邊欄小工具呈現 —— release 有自己專屬的頁面,上頭再加一個
 Deployment 條目只會是多餘的雜訊。
+
+## 安全性
+
+漏洞請私下回報。政策、支援版本與操作者注意事項見 [SECURITY.md](../SECURITY.md)。
 
 ## 授權
 

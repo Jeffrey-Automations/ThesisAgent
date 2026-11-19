@@ -99,7 +99,7 @@ AAAI (`v39i23.34521` so với thực tế `v39i22.34537`) và đường dẫn sl
 giả tự bịa (`view/fang2026` thay vì `v40i5.37389`).
 
 **Bước xuất kiểm tra điều này khi chạy.** Trước khi ghi bất cứ thứ gì,
-CLI, công cụ MCP `export` và tab Deck của GUI tra cứu DOI của từng bài
+CLI, công cụ MCP `export` và trang Deck của GUI tra cứu DOI của từng bài
 báo tại doi.org và gửi một yêu cầu tới từng URL. Một DOI chưa đăng ký,
 một URL trả về 404 hoặc một máy chủ không thể kết nối sẽ dừng việc xuất
 và nêu rõ bài báo cùng mã định danh. Phép kiểm tra chứng minh rằng mã
@@ -220,7 +220,7 @@ cho mỗi bài trong tuple `PaperCollection`.
     grey / light / white) với đỏ bị **cấm** dùng cho chữ (thay vào đó dùng
     đậm + teal `#0E7490` để nhấn mạnh).
   - **Chế độ sáng là đường render mặc định.** Truyền `--dark-mode`, bật
-    **Dark mode** trong tab Deck của GUI, hoặc đặt
+    **Dark mode** trong trang Deck của GUI, hoặc đặt
     `ExportOptions(dark_mode=True)` để áp dụng post-pass tối (nền slide
     `#12151B`, chữ thân `#E5E7EB`).
   - `.xlsx` — sheet Papers + sheet nguồn gốc Query, URL / PDF có
@@ -558,16 +558,16 @@ pip install thesisagents[gui]
 thesisagents-gui                 # hoặc: thesisagents gui
 ```
 
-Cửa sổ có bốn tab — **Search**, **Settings** (duy trì API key
-qua QSettings), **Enrich** (điều khiển làm giàu LLM-as-agent /
-Python-pipeline qua một tín hiệu `collection_ready`), và **Deck** (nút bật
-Light mode + slide-cap + max-figures luồng vào
-`ExportOptions`). Bản release zip Windows đóng gói bundle được biên dịch
+Cửa sổ có một thanh bên với năm trang: **Search**, **Library** (chế độ xem chỉ đọc một tệp thư viện: tổng quan, các bài báo cùng liên kết trích dẫn và kết quả kiểm tra định danh, và các lần tìm kiếm đã bổ sung vào nó), **Enrich** (điều
+khiển làm giàu LLM-as-agent / Python-pipeline qua một tín hiệu
+`collection_ready`), **Deck** (nút bật Dark mode, giới hạn slide, kiểm tra
+định danh và mẫu deck luồng vào `ExportOptions`), và **Settings** (duy trì
+API key qua QSettings). Bản release zip Windows đóng gói bundle được biên dịch
 bằng Nuitka kèm sẵn PySide6, nên `thesisagents.exe gui` chạy
 mà không cần cài Python riêng.
-Tab Search còn có thể lần theo trích dẫn từ các kết quả đứng đầu (lăn
+Trang Search còn có thể lần theo trích dẫn từ các kết quả đứng đầu (lăn
 cầu tuyết), lưu kết quả vào một tệp thư viện và tìm trong thư viện đó
-khi không có mạng, còn tab Deck có thể dựng bộ trang chiếu trên mẫu
+khi không có mạng, còn trang Deck có thể dựng bộ trang chiếu trên mẫu
 PowerPoint của riêng bạn.
 **Giao diện phát hành đủ 14 ngôn ngữ** (English, 繁體中文, 简体中文,
 日本語, Español, Français, Deutsch, 한국어, Português, Русский,
@@ -575,9 +575,13 @@ Italiano, Tiếng Việt, हिन्दी, Bahasa Indonesia) — lần chạy
 ngôn ngữ theo locale OS của bạn, rồi **Settings → Interface
 language** cho bạn đổi nó. Ngôn ngữ đầu ra của deck là một dropdown
 riêng nên bạn có thể chạy UI ở một ngôn ngữ và phát ra
-slide ở ngôn ngữ khác. Bố cục responsive: mọi form nằm trong
-một `QScrollArea` và cửa sổ thu nhỏ xuống 900×600 (vẫn vừa
-720p), với HiDPI scaling bật theo mặc định.
+slide ở ngôn ngữ khác. Bố cục thích ứng theo chiều rộng cửa sổ: khi cửa sổ
+rộng, các điều khiển của mỗi trang nằm thành một cột bên cạnh kết quả, khi
+rộng vừa thì nằm phía trên kết quả, và dưới 760 px thanh bên thu gọn thành
+biểu tượng, nhãn của form chuyển lên trên ô nhập. Cửa sổ thu nhỏ xuống
+640×480, với HiDPI scaling bật theo mặc định. **Settings → Theme** chọn sáng,
+tối hoặc theo hệ thống, áp dụng ngay và độc lập với chế độ tối riêng của
+deck. Kết quả có thể sắp xếp, lọc và đánh dấu để chỉ gửi một số bài báo sang Enrich, Deck và Export, giới hạn lăn cầu tuyết có thể điều chỉnh, có thể hủy tìm kiếm hoặc quá trình làm giàu đang chạy, và biểu mẫu được ghi nhớ giữa các lần khởi động. Trang Deck có thể kiểm tra mẫu trước khi xuất và rà soát bất kỳ bộ slide đã hoàn thành nào, và khi không có khóa API, trang Enrich giao các bài báo cho một tác tử LLM dưới dạng tệp JSON rồi nhập các bản tóm tắt của nó. Trang Deck cũng có thể tải PDF, bỏ qua IEEE cho đến khi Settings khai báo quyền truy cập tổ chức / VPN, và ngôn ngữ giao diện mới áp dụng ngay mà vẫn giữ công việc. Cùng công tắc đó cũng loại `ieee` khỏi các lần tìm kiếm. Trang Search cũng có thể đọc PDF trên máy thành kết quả, giống `--pdf` của CLI. Dòng trạng thái cho biết bao nhiêu PDF được tải qua Chrome và cảnh báo khi một PDF của nhà xuất bản không dùng được Chrome. **Settings → Style** chuyển giữa giao diện cổ điển màu xanh navy và Material 3. `Ctrl+1` … `Ctrl+5` chuyển trang.
 
 Tham chiếu đầy đủ: [`docs/gui.md`](../docs/gui.md).
 
@@ -656,6 +660,10 @@ Environment, nên mỗi lần chạy hiện ra như một mục Release (với
 `.exe` Nuitka đính kèm) thay vì như một widget sidebar "Deployment"
 trên trang chủ repo — các release có trang riêng dành cho chúng
 và một mục Deployment ở trên cùng sẽ chỉ là nhiễu thừa.
+
+## Bảo mật
+
+Hãy báo cáo lỗ hổng một cách riêng tư. Chính sách, phiên bản được hỗ trợ và lưu ý cho người vận hành nằm trong [SECURITY.md](../SECURITY.md).
 
 ## Giấy phép
 

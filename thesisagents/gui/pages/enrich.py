@@ -27,13 +27,14 @@ from __future__ import annotations
 
 import os
 from dataclasses import replace
+from pathlib import Path
 
-from PySide6.QtCore import Qt, QThreadPool, Signal
+from PySide6.QtCore import QSettings, Qt, QThreadPool, Signal
 from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import (
     QComboBox,
+    QFileDialog,
     QFormLayout,
-    QGroupBox,
     QHBoxLayout,
     QHeaderView,
     QLabel,
@@ -46,13 +47,22 @@ from PySide6.QtWidgets import (
 
 from thesisagents.core.models import Paper, PaperCollection
 from thesisagents.exporters.i18n import SUPPORTED_LANGUAGES as DECK_LANGUAGES
+from thesisagents.gui.handoff import HandoffError, read_handoff, write_handoff
 from thesisagents.gui.i18n import LANGUAGE_DISPLAY_NAMES, t
+from thesisagents.gui.widgets.responsive import (
+    AdaptiveSplit,
+    Breakpoint,
+    adapt_form_rows,
+    make_card,
+)
 from thesisagents.gui.workers import AsyncWorker
 
 # Anthropic env var name — mirrors intelligence.summarise._API_KEY_ENV
 # but duplicated here so importing this page doesn't pull the optional
 # anthropic SDK at module-load time.
 _API_KEY_ENV = "ANTHROPIC_API_KEY"
+#: QSettings group the form is saved under when the window closes.
+_FORM_GROUP = "form/enrich"
 _DEFAULT_MODEL = "claude-opus-4-7"
 
 
@@ -62,6 +72,9 @@ class EnrichPage(QWidget):
     # Re-emitted to downstream tabs (Deck) whenever an enrichment run
     # finishes — even partially — so they can render whatever survived.
     collection_ready = Signal(object)
+    #: ``True`` when an enrichment run starts, ``False`` when its last paper
+    #: is done. Drives the main window's progress indicator.
+    busy_changed = Signal(bool)
 
     def __init__(self, ui_language: str = "en", parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -69,6 +82,13 @@ class EnrichPage(QWidget):
         self._collection: PaperCollection | None = None
         self._enriched_papers: list[Paper] = []
         self._pending_index: int = 0
+        self._running = False
+        self._stop_requested = False
+        self._worker: AsyncWorker | None = None
+        # A collection that arrived while a run was going (a new search, or
+        # ticks changed on the Search page). Applied when the run ends:
+        # swapping it in mid-run would point the run at the wrong rows.
+        self._held: tuple[object] | None = None
         self._table_model = QStandardItemModel(0, 3, self)
         self._table_model.setHorizontalHeaderLabels([
             t("enrich.column_title", ui_language),
@@ -78,51 +98,79 @@ class EnrichPage(QWidget):
         self._build_ui()
 
     def _build_ui(self) -> None:
+        """Settings card and Enrich button beside / above the per-paper table."""
+        language = self._ui_language
         outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
 
-        settings_box = QGroupBox(t("enrich.settings_group", self._ui_language), self)
-        form = QFormLayout(settings_box)
+        controls = QWidget(self)
+        controls_layout = QVBoxLayout(controls)
+        controls_layout.setContentsMargins(0, 0, 6, 0)
+        settings_card, settings_layout = make_card(
+            t("enrich.settings_group", language), controls
+        )
+        form = QFormLayout()
+        settings_layout.addLayout(form)
 
         self._language_combo = QComboBox(self)
         for code in DECK_LANGUAGES:
             display = LANGUAGE_DISPLAY_NAMES.get(code, code)
             self._language_combo.addItem(display, code)
-        form.addRow(
-            t("enrich.language_label", self._ui_language), self._language_combo,
-        )
+        form.addRow(t("enrich.language_label", language), self._language_combo)
 
         self._model_input = QLineEdit(self)
         self._model_input.setPlaceholderText(_DEFAULT_MODEL)
-        form.addRow(t("enrich.model_label", self._ui_language), self._model_input)
+        form.addRow(t("enrich.model_label", language), self._model_input)
+        adapt_form_rows(settings_card, form)
+        controls_layout.addWidget(settings_card)
+        controls_layout.addWidget(self._build_agent_card(controls))
+        controls_layout.addStretch(1)
 
-        outer.addWidget(settings_box)
-
-        button_row = QHBoxLayout()
-        self._enrich_button = QPushButton(
-            t("enrich.enrich_button", self._ui_language), self,
-        )
+        footer = QWidget(self)
+        button_row = QHBoxLayout(footer)
+        button_row.setContentsMargins(0, 0, 6, 0)
+        self._enrich_button = QPushButton(t("enrich.enrich_button", language), self)
+        self._enrich_button.setProperty("primary", True)
         self._enrich_button.setEnabled(False)
         self._enrich_button.clicked.connect(self._on_enrich_clicked)
-        button_row.addWidget(self._enrich_button)
-        button_row.addStretch(1)
-        outer.addLayout(button_row)
+        self._cancel_button = QPushButton(t("action.cancel", language), self)
+        self._cancel_button.setVisible(False)
+        self._cancel_button.clicked.connect(self._on_cancel_clicked)
+        button_row.addWidget(self._enrich_button, stretch=1)
+        button_row.addWidget(self._cancel_button)
 
+        results = QWidget(self)
+        results_layout = QVBoxLayout(results)
+        results_layout.setContentsMargins(6, 0, 0, 0)
         self._table = QTableView(self)
         self._table.setModel(self._table_model)
         self._table.setSelectionBehavior(QTableView.SelectRows)
         self._table.setEditTriggers(QTableView.NoEditTriggers)
+        self._table.setAlternatingRowColors(True)
+        self._table.setShowGrid(False)
+        self._table.verticalHeader().setVisible(False)
         header = self._table.horizontalHeader()
         header.setStretchLastSection(False)
         header.setSectionResizeMode(0, QHeaderView.Stretch)
         header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        outer.addWidget(self._table, stretch=1)
+        results_layout.addWidget(self._table, stretch=1)
 
-        self._status_label = QLabel(
-            t("enrich.status_no_collection", self._ui_language), self,
-        )
+        self._status_label = QLabel(t("enrich.status_no_collection", language), self)
+        self._status_label.setObjectName("Muted")
+        self._status_label.setWordWrap(True)
         self._status_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        outer.addWidget(self._status_label)
+        results_layout.addWidget(self._status_label)
+
+        self._split = AdaptiveSplit(controls, results, footer=footer, parent=self)
+        outer.addWidget(self._split)
+
+    def apply_breakpoint(self, breakpoint: Breakpoint) -> None:
+        """Re-arrange for the window size class (called by the main window)."""
+        self._split.apply_breakpoint(breakpoint)
+
+    def split(self) -> AdaptiveSplit:
+        return self._split
 
     # --- public API -----------------------------------------------------
 
@@ -131,13 +179,18 @@ class EnrichPage(QWidget):
 
         Called from a Qt signal, so the parameter is typed ``object``.
         ``None`` clears the page (used by tests to simulate the empty
-        initial state).
+        initial state). While a run is going the collection is held and
+        applied when the run ends.
         """
+        if self._running:
+            self._held = (collection,)
+            return
         if collection is None or not isinstance(collection, PaperCollection):
             self._collection = None
             self._enriched_papers = []
             self._table_model.removeRows(0, self._table_model.rowCount())
             self._enrich_button.setEnabled(False)
+            self._set_agent_buttons(False)
             self._status_label.setText(
                 t("enrich.status_no_collection", self._ui_language),
             )
@@ -146,6 +199,7 @@ class EnrichPage(QWidget):
         self._enriched_papers = []
         self._populate_table(collection.papers)
         self._enrich_button.setEnabled(bool(collection.papers))
+        self._set_agent_buttons(bool(collection.papers))
         self._status_label.setText(
             t(
                 "enrich.status_ready",
@@ -167,6 +221,105 @@ class EnrichPage(QWidget):
 
     def table_model(self) -> QStandardItemModel:
         return self._table_model
+
+    def is_running(self) -> bool:
+        return self._running
+
+    # --- hand-off to an LLM agent (progress #27) ---------------------------
+
+    def _build_agent_card(self, parent: QWidget) -> QWidget:
+        """The no-API-key path: write the papers for an agent, read its summaries."""
+        language = self._ui_language
+        card, layout = make_card(t("enrich.card_agent", language), parent)
+        hint = QLabel(t("enrich.agent_hint", language), card)
+        hint.setObjectName("Muted")
+        hint.setWordWrap(True)
+        layout.addWidget(hint)
+        row = QHBoxLayout()
+        self._agent_export_button = QPushButton(t("enrich.agent_export_button", language), self)
+        self._agent_export_button.clicked.connect(self._on_agent_export_clicked)
+        self._agent_import_button = QPushButton(t("enrich.agent_import_button", language), self)
+        self._agent_import_button.clicked.connect(self._on_agent_import_clicked)
+        row.addWidget(self._agent_export_button)
+        row.addWidget(self._agent_import_button)
+        row.addStretch(1)
+        layout.addLayout(row)
+        self._set_agent_buttons(False)
+        return card
+
+    def _set_agent_buttons(self, enabled: bool) -> None:
+        self._agent_export_button.setEnabled(enabled)
+        self._agent_import_button.setEnabled(enabled)
+
+    def _on_agent_export_clicked(self) -> None:
+        path, _ = QFileDialog.getSaveFileName(
+            self, t("enrich.agent_export_button", self._ui_language),
+            str(Path.cwd() / "handoff.json"), "JSON (*.json)",
+        )
+        if path:
+            self.export_for_agent(path)
+
+    def export_for_agent(self, path: str) -> None:
+        """Write the current papers (enriched ones keep their summary) for an agent."""
+        collection = self.collection()
+        if collection is None or not collection.papers:
+            self._status_label.setText(t("enrich.error_no_collection", self._ui_language))
+            return
+        language = self._language_combo.currentData() or "en"
+        try:
+            count = write_handoff(collection, path, language=language)
+        except OSError as err:
+            self._status_label.setText(t("enrich.agent_error", self._ui_language, error=str(err)))
+            return
+        self._status_label.setText(
+            t("enrich.agent_exported", self._ui_language, count=count, path=path)
+        )
+
+    def _on_agent_import_clicked(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self, t("enrich.agent_import_button", self._ui_language),
+            str(Path.cwd()), "JSON (*.json);;All files (*)",
+        )
+        if path:
+            self.import_from_agent(path)
+
+    def import_from_agent(self, path: str) -> None:
+        """Attach an agent's summaries and send the result on to the Deck page."""
+        collection = self.collection()
+        if collection is None or not collection.papers:
+            self._status_label.setText(t("enrich.error_no_collection", self._ui_language))
+            return
+        try:
+            result = read_handoff(path, collection)
+        except (HandoffError, OSError) as err:
+            self._status_label.setText(t("enrich.agent_error", self._ui_language, error=str(err)))
+            return
+        self._collection = result.collection
+        self._enriched_papers = []
+        self._populate_table(result.collection.papers)
+        for row, paper in enumerate(result.collection.papers):
+            if paper.summary is not None:
+                self._set_row_status(row, "enrich.row_done")
+        self._status_label.setText(
+            t(
+                "enrich.agent_imported", self._ui_language,
+                count=result.imported, unmatched=result.unmatched,
+            )
+        )
+        self.collection_ready.emit(result.collection)
+
+    def save_form(self, store: QSettings) -> None:
+        """Write the summary language and model to ``store``."""
+        store.setValue(f"{_FORM_GROUP}/language", self._language_combo.currentData() or "en")
+        store.setValue(f"{_FORM_GROUP}/model", self._model_input.text())
+
+    def restore_form(self, store: QSettings) -> None:
+        """Fill the fields from ``store``; missing values keep the defaults."""
+        language = store.value(f"{_FORM_GROUP}/language", "", type=str)
+        index = self._language_combo.findData(language)
+        if index >= 0:
+            self._language_combo.setCurrentIndex(index)
+        self._model_input.setText(store.value(f"{_FORM_GROUP}/model", "", type=str))
 
     # --- internals ------------------------------------------------------
 
@@ -199,7 +352,13 @@ class EnrichPage(QWidget):
             return
         self._enriched_papers = []
         self._pending_index = 0
+        self._running = True
+        self._stop_requested = False
         self._enrich_button.setEnabled(False)
+        self._set_agent_buttons(False)
+        self._cancel_button.setVisible(True)
+        self._cancel_button.setEnabled(True)
+        self.busy_changed.emit(True)
         self._status_label.setText(
             t(
                 "enrich.status_running",
@@ -213,6 +372,9 @@ class EnrichPage(QWidget):
     def _enrich_next(self) -> None:
         assert self._collection is not None  # noqa: S101 # nosec B101  # state-machine invariant, not runtime validation
         idx = self._pending_index
+        if self._stop_requested:
+            self._finish_stopped()
+            return
         if idx >= len(self._collection.papers):
             self._on_run_finished()
             return
@@ -242,7 +404,36 @@ class EnrichPage(QWidget):
         worker = AsyncWorker(coro)
         worker.signals.finished.connect(self._on_paper_finished)
         worker.signals.failed.connect(self._on_paper_failed)
+        worker.signals.cancelled.connect(self._on_paper_cancelled)
+        self._worker = worker
         QThreadPool.globalInstance().start(worker)
+
+    def _on_cancel_clicked(self) -> None:
+        """Stop after the current paper (or during its PDF download)."""
+        self._stop_requested = True
+        self._cancel_button.setEnabled(False)
+        if self._worker is not None:
+            self._worker.cancel()
+
+    def _on_paper_cancelled(self) -> None:
+        """The current paper was stopped: keep its search record, then stop."""
+        assert self._collection is not None  # noqa: S101 # nosec B101  # state-machine invariant, not runtime validation
+        self._finish_stopped()
+
+    def _finish_stopped(self) -> None:
+        """End a cancelled run: papers not reached keep their search record.
+
+        The output still has every paper, so the Deck page renders the
+        unreached ones in the lightweight tier, as it does for a failed one.
+        """
+        assert self._collection is not None  # noqa: S101 # nosec B101  # state-machine invariant, not runtime validation
+        papers = self._collection.papers
+        for idx in range(self._pending_index, len(papers)):
+            self._enriched_papers.append(papers[idx])
+            self._set_row_status(idx, "enrich.row_cancelled")
+        done = self._pending_index
+        self._pending_index = len(papers)
+        self._on_run_finished(stopped_after=done)
 
     def _on_paper_finished(self, summary: object) -> None:
         assert self._collection is not None  # noqa: S101 # nosec B101  # state-machine invariant, not runtime validation
@@ -278,24 +469,33 @@ class EnrichPage(QWidget):
             t("enrich.status_running", self._ui_language, done=done, total=total),
         )
 
-    def _on_run_finished(self) -> None:
+    def _on_run_finished(self, stopped_after: int | None = None) -> None:
         assert self._collection is not None  # noqa: S101 # nosec B101  # state-machine invariant, not runtime validation
         total = len(self._collection.papers)
         successes = sum(
             1 for p in self._enriched_papers if p.summary is not None
         )
+        self._running = False
+        self._worker = None
         self._enrich_button.setEnabled(True)
-        self._status_label.setText(
-            t(
-                "enrich.status_done",
-                self._ui_language,
-                successes=successes,
-                total=total,
-            ),
-        )
+        self._set_agent_buttons(True)
+        self._cancel_button.setVisible(False)
+        self.busy_changed.emit(False)
+        if stopped_after is None:
+            message = t("enrich.status_done", self._ui_language, successes=successes, total=total)
+        else:
+            message = t(
+                "enrich.status_cancelled", self._ui_language,
+                done=stopped_after, total=total,
+            )
+        self._status_label.setText(message)
         result = self.collection()
         if result is not None:
             self.collection_ready.emit(result)
+        if self._held is not None:
+            (held,) = self._held
+            self._held = None
+            self.set_collection(held)
 
 
 def _truncate(text: str, limit: int) -> str:

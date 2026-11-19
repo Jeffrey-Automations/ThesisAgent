@@ -127,7 +127,7 @@ xlsx ``exports/<run>/<slug>-<timestamp>.xlsx`` में लिखी जात�
            print(f"! {p.bibtex_key()} authored {p.url} vs real {actual}")
 
 **Export इसे run time पर जाँचता है।** कुछ भी लिखने से पहले CLI, MCP
-``export`` tool और GUI का Deck tab हर paper का DOI doi.org पर देखते हैं
+``export`` tool और GUI का Deck पेज हर paper का DOI doi.org पर देखते हैं
 और हर URL को एक बार request करते हैं। जो DOI registered नहीं है, जो URL
 404 लौटाता है, या जिस host तक पहुँचा नहीं जा सकता, वह export को रोक देता
 है और paper तथा identifier का नाम बताता है। यह जाँच सिद्ध करती है कि

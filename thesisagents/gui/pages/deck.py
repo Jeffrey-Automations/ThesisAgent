@@ -18,16 +18,16 @@ point — the page does not call the search pipeline itself.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QThreadPool, QUrl
+from PySide6.QtCore import QSettings, Qt, QThreadPool, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QFileDialog,
     QFormLayout,
-    QGroupBox,
     QHBoxLayout,
     QHeaderView,
     QLabel,
@@ -42,7 +42,21 @@ from PySide6.QtWidgets import (
 from thesisagents.core.models import ExportOptions, PaperCollection
 from thesisagents.exporters import export_collection
 from thesisagents.exporters.i18n import SUPPORTED_LANGUAGES as DECK_LANGUAGES
+from thesisagents.exporters.review import DeckReview, review_deck
+from thesisagents.exporters.review import format_report as format_review
+from thesisagents.exporters.template import TemplateValidationReport, validate_template
+from thesisagents.exporters.template import format_report as format_template_report
 from thesisagents.gui.i18n import LANGUAGE_DISPLAY_NAMES, t
+from thesisagents.gui.pages.settings import saved_vpn_access
+from thesisagents.gui.pdf_stage import PdfStageReport, run_pdf_stage
+from thesisagents.gui.widgets.report_dialog import ReportDialog
+from thesisagents.gui.widgets.responsive import (
+    AdaptiveSplit,
+    Breakpoint,
+    ReflowGrid,
+    adapt_form_rows,
+    make_card,
+)
 from thesisagents.gui.workers import BlockingWorker
 from thesisagents.library import Library
 
@@ -59,10 +73,25 @@ _FORMAT_CHOICES: tuple[tuple[str, str], ...] = (
 )
 _DEFAULT_FORMATS: frozenset[str] = frozenset({"pptx", "xlsx", "bib"})
 _DEFAULT_MAX_SLIDES = 25
+#: QSettings group the form is saved under when the window closes.
+_FORM_GROUP = "form/deck"
+
+
+@dataclass(frozen=True)
+class _ExportOutcome:
+    """What the export worker hands back: the files written per format, and
+    the PDF stage's counts when **Download the PDFs** was ticked."""
+
+    written: dict[str, Path]
+    pdfs: PdfStageReport | None = None
 
 
 class DeckPage(QWidget):
     """Granular export controls for the active collection."""
+
+    #: ``True`` when an export starts on a worker thread, ``False`` when it
+    #: ends either way. Drives the main window's progress indicator.
+    busy_changed = Signal(bool)
 
     def __init__(self, ui_language: str = "en", parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -70,6 +99,8 @@ class DeckPage(QWidget):
         self._collection: PaperCollection | None = None
         self._collection_is_enriched: bool = False
         self._last_written_dir: Path | None = None
+        self._last_deck: Path | None = None
+        self._last_report: ReportDialog | None = None
         self._library_path = ""
         self._files_model = QStandardItemModel(0, 2, self)
         self._files_model.setHorizontalHeaderLabels([
@@ -79,85 +110,86 @@ class DeckPage(QWidget):
         self._build_ui()
 
     def _build_ui(self) -> None:
+        """Output, format and option cards beside / above the written files."""
+        language = self._ui_language
         outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
 
-        # Output dir + filename row
-        output_box = QGroupBox(t("deck.output_group", self._ui_language), self)
-        output_form = QFormLayout(output_box)
+        controls = QWidget(self)
+        controls_layout = QVBoxLayout(controls)
+        controls_layout.setContentsMargins(0, 0, 6, 0)
+        controls_layout.setSpacing(12)
+
+        # Output dir + filename + deck language
+        output_card, output_layout = make_card(t("deck.output_group", language), controls)
+        output_form = QFormLayout()
+        output_layout.addLayout(output_form)
 
         dir_row = QWidget(self)
         dir_layout = QHBoxLayout(dir_row)
         dir_layout.setContentsMargins(0, 0, 0, 0)
         self._out_dir_input = QLineEdit(self)
         self._out_dir_input.setText(str(Path.cwd() / "exports"))
-        browse = QPushButton(t("deck.browse_button", self._ui_language), self)
+        browse = QPushButton(t("deck.browse_button", language), self)
         browse.clicked.connect(self._on_browse_out_dir)
         dir_layout.addWidget(self._out_dir_input, stretch=1)
         dir_layout.addWidget(browse)
-        output_form.addRow(t("deck.out_dir_label", self._ui_language), dir_row)
+        output_form.addRow(t("deck.out_dir_label", language), dir_row)
 
         self._filename_stem_input = QLineEdit(self)
         self._filename_stem_input.setPlaceholderText(
-            t("deck.filename_stem_placeholder", self._ui_language),
+            t("deck.filename_stem_placeholder", language),
         )
-        output_form.addRow(
-            t("deck.filename_stem_label", self._ui_language),
-            self._filename_stem_input,
-        )
+        output_form.addRow(t("deck.filename_stem_label", language), self._filename_stem_input)
 
         self._language_combo = QComboBox(self)
         for code in DECK_LANGUAGES:
             display = LANGUAGE_DISPLAY_NAMES.get(code, code)
             self._language_combo.addItem(display, code)
-        output_form.addRow(
-            t("deck.language_label", self._ui_language), self._language_combo,
-        )
+        output_form.addRow(t("deck.language_label", language), self._language_combo)
+        adapt_form_rows(output_card, output_form)
+        controls_layout.addWidget(output_card)
 
-        outer.addWidget(output_box)
-
-        # Format checkboxes
-        format_box = QGroupBox(t("deck.format_group", self._ui_language), self)
-        format_row = QHBoxLayout(format_box)
+        # Format check boxes, re-flowed to the pane width
+        format_card, format_layout = make_card(t("deck.format_group", language), controls)
         self._format_checks: dict[str, QCheckBox] = {}
         for fmt, label_key in _FORMAT_CHOICES:
-            chk = QCheckBox(t(label_key, self._ui_language), self)
+            chk = QCheckBox(t(label_key, language))
             chk.setChecked(fmt in _DEFAULT_FORMATS)
-            format_row.addWidget(chk)
             self._format_checks[fmt] = chk
-        format_row.addStretch(1)
-        outer.addWidget(format_box)
+        self._format_grid = ReflowGrid(list(self._format_checks.values()), parent=format_card)
+        format_layout.addWidget(self._format_grid)
+        controls_layout.addWidget(format_card)
 
         # Options
-        options_box = QGroupBox(t("deck.options_group", self._ui_language), self)
-        options_form = QFormLayout(options_box)
+        options_card, options_layout = make_card(t("deck.options_group", language), controls)
+        options_form = QFormLayout()
+        options_layout.addLayout(options_form)
         self._max_slides_spin = QSpinBox(self)
         self._max_slides_spin.setRange(0, 200)
         self._max_slides_spin.setValue(_DEFAULT_MAX_SLIDES)
-        self._max_slides_spin.setSpecialValueText(
-            t("deck.unlimited", self._ui_language),
-        )
-        options_form.addRow(
-            t("deck.max_slides_label", self._ui_language), self._max_slides_spin,
-        )
-        self._include_abstract_check = QCheckBox(
-            t("deck.include_abstract_label", self._ui_language), self,
-        )
+        self._max_slides_spin.setSpecialValueText(t("deck.unlimited", language))
+        options_form.addRow(t("deck.max_slides_label", language), self._max_slides_spin)
+        self._include_abstract_check = QCheckBox(t("deck.include_abstract_label", language), self)
         self._include_abstract_check.setChecked(True)
         options_form.addRow(self._include_abstract_check)
         # Default is the light navy-band deck; this checkbox is the
         # opt-IN toggle for dark mode (OLED / low-light venues).
-        self._dark_mode_check = QCheckBox(
-            t("deck.dark_mode_label", self._ui_language), self,
-        )
+        self._dark_mode_check = QCheckBox(t("deck.dark_mode_label", language), self)
         self._dark_mode_check.setChecked(False)
         options_form.addRow(self._dark_mode_check)
         # Export preflight: on by default. Unchecking it is the GUI form of
         # the CLI's --no-verify-identifiers, for a machine with no network.
         self._verify_identifiers_check = QCheckBox(
-            t("deck.verify_identifiers_label", self._ui_language), self,
+            t("deck.verify_identifiers_label", language), self,
         )
         self._verify_identifiers_check.setChecked(True)
         options_form.addRow(self._verify_identifiers_check)
+        # The PDF download stage (the CLI's --export pdf). IEEE PDFs need the
+        # institutional / VPN access declared in Settings, see gui/pdf_stage.py.
+        self._download_pdfs_check = QCheckBox(t("deck.download_pdfs_label", language), self)
+        self._download_pdfs_check.setChecked(False)
+        options_form.addRow(self._download_pdfs_check)
         # Deck template: the GUI form of --pptx-template and
         # --pptx-template-config. Empty means the built-in design.
         self._template_input = self._file_row(
@@ -168,41 +200,71 @@ class DeckPage(QWidget):
             options_form, "deck.template_config_label", "deck.template_config_placeholder",
             "deck.template_config_dialog_title", "Config (*.toml *.json);;All files (*)",
         )
-        outer.addWidget(options_box)
+        check_row = QHBoxLayout()
+        self._check_template_button = QPushButton(t("deck.check_template_button", language), self)
+        self._check_template_button.clicked.connect(self._on_check_template_clicked)
+        check_row.addWidget(self._check_template_button)
+        check_row.addStretch(1)
+        options_form.addRow(check_row)
+        adapt_form_rows(options_card, options_form)
+        controls_layout.addWidget(options_card)
+        controls_layout.addStretch(1)
 
-        # Action row
-        button_row = QHBoxLayout()
-        self._export_button = QPushButton(
-            t("deck.export_button", self._ui_language), self,
-        )
+        # Action row, pinned below the cards
+        footer = QWidget(self)
+        button_row = QHBoxLayout(footer)
+        button_row.setContentsMargins(0, 0, 6, 0)
+        self._export_button = QPushButton(t("deck.export_button", language), self)
+        self._export_button.setProperty("primary", True)
         self._export_button.setEnabled(False)
         self._export_button.clicked.connect(self._on_export_clicked)
-        self._open_folder_button = QPushButton(
-            t("deck.open_folder_button", self._ui_language), self,
-        )
+        self._open_folder_button = QPushButton(t("deck.open_folder_button", language), self)
         self._open_folder_button.setEnabled(False)
         self._open_folder_button.clicked.connect(self._on_open_folder_clicked)
-        button_row.addWidget(self._export_button)
+        button_row.addWidget(self._export_button, stretch=1)
         button_row.addWidget(self._open_folder_button)
-        button_row.addStretch(1)
-        outer.addLayout(button_row)
 
-        # Output table
+        # Written files
+        results = QWidget(self)
+        results_layout = QVBoxLayout(results)
+        results_layout.setContentsMargins(6, 0, 0, 0)
+        review_row = QHBoxLayout()
+        self._review_button = QPushButton(t("deck.review_button", language), self)
+        self._review_button.clicked.connect(self._on_review_clicked)
+        review_row.addWidget(self._review_button)
+        review_row.addStretch(1)
+        results_layout.addLayout(review_row)
         self._table = QTableView(self)
         self._table.setModel(self._files_model)
         self._table.setSelectionBehavior(QTableView.SelectRows)
         self._table.setEditTriggers(QTableView.NoEditTriggers)
+        self._table.setAlternatingRowColors(True)
+        self._table.setShowGrid(False)
+        self._table.verticalHeader().setVisible(False)
         header = self._table.horizontalHeader()
         header.setStretchLastSection(False)
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, QHeaderView.Stretch)
-        outer.addWidget(self._table, stretch=1)
+        results_layout.addWidget(self._table, stretch=1)
 
-        self._status_label = QLabel(
-            t("deck.status_no_collection", self._ui_language), self,
-        )
+        self._status_label = QLabel(t("deck.status_no_collection", language), self)
+        self._status_label.setObjectName("Muted")
+        self._status_label.setWordWrap(True)
         self._status_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        outer.addWidget(self._status_label)
+        results_layout.addWidget(self._status_label)
+
+        self._split = AdaptiveSplit(controls, results, footer=footer, parent=self)
+        outer.addWidget(self._split)
+
+    def apply_breakpoint(self, breakpoint: Breakpoint) -> None:
+        """Re-arrange for the window size class (called by the main window)."""
+        self._split.apply_breakpoint(breakpoint)
+
+    def split(self) -> AdaptiveSplit:
+        return self._split
+
+    def format_grid(self) -> ReflowGrid:
+        return self._format_grid
 
     # --- public API -----------------------------------------------------
 
@@ -261,6 +323,64 @@ class DeckPage(QWidget):
     def set_template_path(self, path: str) -> None:
         self._template_input.setText(path)
 
+    def save_form(self, store: QSettings) -> None:
+        """Write the output, format and option fields to ``store``.
+
+        The filename stem is left out on purpose: it names one export, and a
+        remembered stem would make the next export overwrite the last one.
+        """
+        values: dict[str, object] = {
+            "out_dir": self._out_dir_input.text(),
+            "language": self._language_combo.currentData() or "en",
+            "formats": ",".join(self._selected_formats()),
+            "max_slides": self._max_slides_spin.value(),
+            "include_abstract": self._include_abstract_check.isChecked(),
+            "dark_mode": self._dark_mode_check.isChecked(),
+            "verify_identifiers": self._verify_identifiers_check.isChecked(),
+            "download_pdfs": self._download_pdfs_check.isChecked(),
+            "template": self._template_input.text(),
+            "template_config": self._template_config_input.text(),
+        }
+        for key, value in values.items():
+            store.setValue(f"{_FORM_GROUP}/{key}", value)
+
+    def restore_form(self, store: QSettings) -> None:
+        """Fill the fields from ``store``; missing values keep the defaults."""
+
+        def stored(key: str, kind: type) -> object | None:
+            full = f"{_FORM_GROUP}/{key}"
+            return store.value(full, type=kind) if store.contains(full) else None
+
+        for key, field in (
+            ("out_dir", self._out_dir_input),
+            ("template", self._template_input),
+            ("template_config", self._template_config_input),
+        ):
+            text = stored(key, str)
+            # An empty saved output folder would leave Export with nowhere to write.
+            if text is not None and (text or key != "out_dir"):
+                field.setText(str(text))
+        language = stored("language", str)
+        if language is not None and self._language_combo.findData(language) >= 0:
+            self._language_combo.setCurrentIndex(self._language_combo.findData(language))
+        formats = stored("formats", str)
+        if formats is not None:
+            wanted = set(str(formats).split(","))
+            for fmt, check in self._format_checks.items():
+                check.setChecked(fmt in wanted)
+        max_slides = stored("max_slides", int)
+        if max_slides is not None:
+            self._max_slides_spin.setValue(int(max_slides))
+        for key, check in (
+            ("include_abstract", self._include_abstract_check),
+            ("dark_mode", self._dark_mode_check),
+            ("verify_identifiers", self._verify_identifiers_check),
+            ("download_pdfs", self._download_pdfs_check),
+        ):
+            flag = stored(key, bool)
+            if flag is not None:
+                check.setChecked(bool(flag))
+
     def set_template_config_path(self, path: str) -> None:
         self._template_config_input.setText(path)
 
@@ -313,7 +433,8 @@ class DeckPage(QWidget):
             )
             return
         formats = self._selected_formats()
-        if not formats:
+        download_pdfs = self._download_pdfs_check.isChecked()
+        if not formats and not download_pdfs:
             self._status_label.setText(
                 t("deck.error_no_formats", self._ui_language),
             )
@@ -328,7 +449,8 @@ class DeckPage(QWidget):
         language = self._language_combo.currentData() or "en"
         try:
             options = ExportOptions(
-                formats=formats,
+                # ExportOptions needs one format; a PDFs-only run never uses it.
+                formats=formats or ("json",),
                 out_dir=out_dir,
                 filename_stem=stem,
                 include_abstract=self._include_abstract_check.isChecked(),
@@ -349,48 +471,183 @@ class DeckPage(QWidget):
         self._open_folder_button.setEnabled(False)
         self._files_model.removeRows(0, self._files_model.rowCount())
         self._status_label.setText(t("deck.status_running", self._ui_language))
+        self.busy_changed.emit(True)
 
         library_path = self._library_path
+        vpn_access = saved_vpn_access()
 
-        def call() -> dict[str, Path]:
-            if not library_path:
-                return export_collection(collection, options)
-            with Library(library_path) as library:
-                return export_collection(
-                    collection, options, verification_cache=library.verification_cache()
-                )
+        def call() -> _ExportOutcome:
+            written: dict[str, Path] = {}
+            if formats and not library_path:
+                written = export_collection(collection, options)
+            elif formats:
+                with Library(library_path) as library:
+                    written = export_collection(
+                        collection, options, verification_cache=library.verification_cache()
+                    )
+            pdfs = (
+                run_pdf_stage(collection, out_dir, vpn_access=vpn_access)
+                if download_pdfs else None
+            )
+            return _ExportOutcome(dict(written), pdfs)
 
         worker = BlockingWorker(call)
         worker.signals.finished.connect(self._on_export_finished)
         worker.signals.failed.connect(self._on_export_failed)
         QThreadPool.globalInstance().start(worker)
 
-    def _on_export_finished(self, written: object) -> None:
+    def _on_export_finished(self, result: object) -> None:
+        self.busy_changed.emit(False)
         self._export_button.setEnabled(True)
-        if not isinstance(written, dict) or not written:
+        outcome = result if isinstance(result, _ExportOutcome) else _ExportOutcome(
+            result if isinstance(result, dict) else {}
+        )
+        written = outcome.written
+        if not written and outcome.pdfs is None:
             self._status_label.setText(
                 t("deck.error_no_output", self._ui_language),
             )
             return
-        any_path: Path | None = None
+        folder: Path | None = None
         for fmt, path in written.items():
             self._files_model.appendRow([
                 QStandardItem(fmt),
                 QStandardItem(str(path)),
             ])
-            any_path = path
-        if any_path is not None:
-            self._last_written_dir = any_path.parent
+            folder = Path(path).parent
+        if outcome.pdfs is not None:
+            self._files_model.appendRow([
+                QStandardItem("pdf"), QStandardItem(str(outcome.pdfs.folder)),
+            ])
+            # A PDFs-only run has no other file: Open folder shows the PDFs.
+            folder = folder or outcome.pdfs.folder
+        if folder is not None:
+            self._last_written_dir = folder
             self._open_folder_button.setEnabled(True)
-        self._status_label.setText(
-            t("deck.status_done", self._ui_language, count=len(written)),
-        )
+        deck = written.get("pptx")
+        self._last_deck = Path(deck) if isinstance(deck, (str, Path)) else None
+        self._status_label.setText(self._done_status(outcome))
+
+    def _done_status(self, outcome: _ExportOutcome) -> str:
+        """Files written, then the PDF counts and any IEEE papers held back."""
+        language = self._ui_language
+        parts = []
+        if outcome.written:
+            parts.append(t("deck.status_done", language, count=len(outcome.written)))
+        pdfs = outcome.pdfs
+        if pdfs is not None:
+            parts.append(t("deck.pdfs_summary", language, saved=pdfs.saved, skipped=pdfs.skipped))
+            if pdfs.via_browser:
+                parts.append(t("deck.pdfs_via_browser", language, count=pdfs.via_browser))
+            if pdfs.without_browser:
+                parts.append(t("deck.pdfs_no_browser", language, count=pdfs.without_browser))
+            if pdfs.browser_failed:
+                parts.append(t("deck.pdfs_browser_failed", language, count=pdfs.browser_failed))
+            if pdfs.held:
+                parts.append(t("deck.pdfs_ieee_held", language, count=pdfs.held))
+        return " ".join(parts)
+
+    def output_dir(self) -> str:
+        """The export folder typed on this page (the Search page copies
+        local PDFs into its ``pdfs`` subfolder)."""
+        return self._out_dir_input.text().strip()
+
+    def download_pdfs_checkbox(self) -> QCheckBox:
+        return self._download_pdfs_check
 
     def _on_export_failed(self, err: object) -> None:
+        self.busy_changed.emit(False)
         self._export_button.setEnabled(True)
         self._status_label.setText(
             t("deck.error_generic", self._ui_language, error=str(err)),
         )
+
+    # --- template check and deck review (progress #23) --------------------
+
+    def _on_check_template_clicked(self) -> None:
+        """Validate the chosen template (and config) without exporting.
+
+        The same check ``thesisagents validate-template`` runs, and the one an
+        export runs first. Doing it here costs a second instead of a whole
+        search-and-export round trip.
+        """
+        template = self._template_input.text().strip()
+        if not template:
+            self._status_label.setText(t("deck.error_no_template", self._ui_language))
+            return
+        config = self._template_config_input.text().strip() or None
+        dark = self._dark_mode_check.isChecked()
+        self._run_check(lambda: validate_template(template, config, dark_mode=dark))
+
+    def _on_review_clicked(self) -> None:
+        """Audit a finished deck: overflow, colour contracts, section completeness."""
+        start = self._last_deck or self._last_written_dir or Path(self._out_dir_input.text())
+        path, _ = QFileDialog.getOpenFileName(
+            self, t("deck.review_dialog_title", self._ui_language),
+            str(start), "PowerPoint (*.pptx);;All files (*)",
+        )
+        if path:
+            self.review_deck_file(path)
+
+    def review_deck_file(self, path: str) -> None:
+        """Review ``path`` on a worker thread and show the report."""
+        self._run_check(lambda: review_deck(path))
+
+    def _run_check(self, call) -> None:
+        self._check_template_button.setEnabled(False)
+        self._review_button.setEnabled(False)
+        self.busy_changed.emit(True)
+        worker = BlockingWorker(call)
+        worker.signals.finished.connect(self._on_check_finished)
+        worker.signals.failed.connect(self._on_check_failed)
+        QThreadPool.globalInstance().start(worker)
+
+    def _end_check(self) -> None:
+        self._check_template_button.setEnabled(True)
+        self._review_button.setEnabled(True)
+        self.busy_changed.emit(False)
+
+    def _on_check_failed(self, err: object) -> None:
+        self._end_check()
+        self._status_label.setText(t("deck.check_failed", self._ui_language, error=str(err)))
+
+    def _on_check_finished(self, result: object) -> None:
+        """One-line verdict on the status line, the full report in a dialog."""
+        self._end_check()
+        language = self._ui_language
+        if isinstance(result, TemplateValidationReport):
+            title = t("deck.report_template_title", language)
+            text = format_template_report(result)
+            verdict = (
+                t("deck.template_ok", language)
+                if result.ok
+                else t("deck.template_not_usable", language, errors=len(result.errors))
+            )
+        elif isinstance(result, DeckReview):
+            title = t("deck.report_review_title", language)
+            text = format_review(result)
+            problems = len(result.overflow) + len(result.hard_contrast) + len(
+                result.missing_sections
+            )
+            verdict = (
+                t("deck.review_pass", language)
+                if result.ok
+                else t("deck.review_fail", language, problems=problems)
+            )
+        else:  # pragma: no cover - defensive
+            self._on_check_failed(RuntimeError(f"unexpected result {type(result)!r}"))
+            return
+        self._status_label.setText(verdict)
+        self._last_report = ReportDialog(
+            title, text,
+            copy_label=t("action.copy", language), close_label=t("action.close", language),
+            parent=self,
+        )
+        self._last_report.open()
+
+    def last_report(self) -> ReportDialog | None:
+        """The report dialog last opened (tests read its text)."""
+        return self._last_report
 
     def _on_open_folder_clicked(self) -> None:
         if self._last_written_dir is None:

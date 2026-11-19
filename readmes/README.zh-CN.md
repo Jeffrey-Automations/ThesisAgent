@@ -88,7 +88,7 @@ for p in ALL_PAPERS:
 (`v39i23.34521` vs 真实 `v39i22.34537`),以及发明出来的作者 slug 路径
 (`view/fang2026` 而非 `v40i5.37389`)。
 
-**导出时会在运行期检查这一点。** 写入任何文件之前,CLI、MCP 的 `export` 工具与 GUI 的 Deck 标签页会到 doi.org 查询每篇论文的 DOI,并对每个网址发送一次请求。DOI 未注册、网址返回 404,或主机无法连接时,导出会停止并指出是哪一篇论文的哪一个标识符。这项检查只能证明标识符存在,无法证明它属于这篇论文,所以上面“逐字从 xlsx 抄”的规则与审计仍然要做。离线工作时,请加上 `--no-verify-identifiers` (CLI) 或 `verify_identifiers=false` (MCP)。
+**导出时会在运行期检查这一点。** 写入任何文件之前,CLI、MCP 的 `export` 工具与 GUI 的 Deck 页面会到 doi.org 查询每篇论文的 DOI,并对每个网址发送一次请求。DOI 未注册、网址返回 404,或主机无法连接时,导出会停止并指出是哪一篇论文的哪一个标识符。这项检查只能证明标识符存在,无法证明它属于这篇论文,所以上面“逐字从 xlsx 抄”的规则与审计仍然要做。离线工作时,请加上 `--no-verify-identifiers` (CLI) 或 `verify_identifiers=false` (MCP)。
 
 ### 必办:发货前先剔除不相关的下载
 
@@ -177,7 +177,7 @@ for key in irrelevant_keys:
     交替行底纹、垂直居中对齐、粗体行标签),以及五色调色板纪律
     (深蓝 / 蓝绿 / 灰 / 浅 / 白),文字**禁用**红色(改用粗体 + 蓝绿
     `#0E7490` 来强调)。
-  - **浅色模式是默认的渲染路径。** 传 `--dark-mode`、在 GUI Deck 选项卡
+  - **浅色模式是默认的渲染路径。** 传 `--dark-mode`、在 GUI Deck 页面
     启用 **Dark mode**,或设 `ExportOptions(dark_mode=True)`,即可套用
     深色后处理(幻灯片背景 `#12151B`、正文 `#E5E7EB`)。
   - `.xlsx` —— Papers 工作表 + Query 出处工作表、超链接的 URL / PDF、
@@ -458,20 +458,23 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-窗口有四个选项卡 —— **Search**、**Settings**(经由 QSettings 保存 API
-密钥)、**Enrich**(经由一个 `collection_ready` 信号驱动 LLM-as-agent /
-Python-pipeline 增强),以及 **Deck**(浅色模式切换 + 幻灯片上限 +
-最大图数控件会流向 `ExportOptions`)。Windows 发行版 zip 发货的是
-Nuitka 编译的包,已含 PySide6,所以 `thesisagents.exe gui` 不必另外
-装 Python 就能运作。
-Search 标签页还可以沿着引用关系扩充最前面的结果 (滚雪球)、把结果保存到文献库文件并在没有网络时搜索该文献库,Deck 标签页则可以在你自己的 PowerPoint 模板上生成幻灯片。
+窗口有一个侧边栏,含五个页面:**Search**、**Library**(文献库文件的只读视图：概况、收录论文及其引用关系与标识符检查，以及积累它的历次搜索)、**Enrich**(经由一个
+`collection_ready` 信号驱动 LLM-as-agent / Python-pipeline 增强)、
+**Deck**(深色模式切换、幻灯片上限、标识符检查与幻灯片模板会流向
+`ExportOptions`),以及 **Settings**(经由 QSettings 保存 API 密钥)。
+Windows 发行版 zip 发货的是 Nuitka 编译的包,已含 PySide6,所以
+`thesisagents.exe gui` 不必另外装 Python 就能运作。
+Search 页面还可以沿着引用关系扩充最前面的结果 (滚雪球)、把结果保存到文献库文件并在没有网络时搜索该文献库,Deck 页面则可以在你自己的 PowerPoint 模板上生成幻灯片。
 **UI 以全部 14 种语言发货**(English、繁體中文、简体中文、日本語、
 Español、Français、Deutsch、한국어、Português、Русский、Italiano、
 Tiếng Việt、हिन्दी、Bahasa Indonesia)—— 首次运行会从你的 OS 语系挑选
 语言,之后 **Settings → Interface language** 让你更改它。幻灯片输出语言
 是一个独立的下拉菜单,所以你可以用一种语言跑 UI、用另一种语言产出
-幻灯片。布局是响应式的:每个表单都坐在一个 `QScrollArea` 里,窗口可以
-缩小到 900×600(仍容得下 720p),并默认开启 HiDPI 缩放。
+幻灯片。布局会随窗口宽度调整:窗口较宽时,每个页面的控件排成一列放在
+结果旁边,中等宽度时放在结果上方,宽度低于 760 px 时侧边栏收起为图标,
+表单标签移到字段上方。窗口可以缩小到 640×480,并默认开启 HiDPI 缩放。
+**Settings → Theme** 可选浅色、深色或跟随系统,立即生效,且与幻灯片本身的
+深色模式无关。结果可以排序、筛选并勾选，只把勾选的论文交给 Enrich、Deck 与导出，滚雪球的范围可以调整，执行中的搜索或丰富化可以取消，表单内容在下次启动时会保留。Deck 页面可在导出前检查模板，也能审查任何完成的幻灯片。没有 API 密钥时，Enrich 页面会把论文以 JSON 文件交给 LLM 代理，再导入它写的摘要。Deck 页面也能下载 PDF，在 Settings 声明机构 / VPN 访问权限之前会跳过 IEEE，新的界面语言会立即生效并保留当前工作。同一个开关也会让搜索跳过 `ieee`。Search 页面也能像 CLI 的 `--pdf` 一样，把本地 PDF 读入结果。状态栏会显示经由 Chrome 下载的 PDF 数量，出版商 PDF 无法使用 Chrome 时也会发出警告。**Settings → Style** 可在经典海军蓝外观与 Material 3 之间切换。`Ctrl+1` … `Ctrl+5` 切换页面。
 
 完整参考:[`docs/gui.md`](../docs/gui.md)。
 
@@ -542,6 +545,10 @@ Tiếng Việt、हिन्दी、Bahasa Indonesia)—— 首次运行会从
 都以 Release 条目(附它的 Nuitka `.exe`)呈现,而非以 repo 首页上的
 「Deployment」侧边栏小部件呈现 —— release 有自己专属的页面,上头再加一个
 Deployment 条目只会是多余的噪声。
+
+## 安全
+
+请私下报告漏洞。政策、支持版本与操作者注意事项见 [SECURITY.md](../SECURITY.md)。
 
 ## 许可证
 

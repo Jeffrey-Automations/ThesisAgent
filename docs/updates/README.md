@@ -58,6 +58,20 @@ In the same commit: delete the item from `progress.md`, add a `#done` entry here
 
 | ID | Date | Title | Tags | Batch |
 |---|---|---|---|---|
+| U-20261120-01 | 2026-11-20 | CI retries the Linux Qt library install | #done #ci | [2026-11](2026-11.md) |
+| U-20261119-13 | 2026-11-19 | PDF metadata reads flattened front matter: abstract, all authors, ORCID | #done #pdf #intelligence | [2026-11](2026-11.md) |
+| U-20261119-12 | 2026-11-19 | A library takes a richer summary for a paper it holds | #done #library | [2026-11](2026-11.md) |
+| U-20261119-11 | 2026-11-19 | DBLP pages instead of results are retried and say what came | #done #sources #dblp | [2026-11](2026-11.md) |
+| U-20261119-10 | 2026-11-19 | Deck meta line and research-question callout fit long text | #done #pptx #fix | [2026-11](2026-11.md) |
+| U-20261119-09 | 2026-11-19 | PDF downloads record their route; a skipped browser is surfaced | #done #pdf #compliance #mcp #gui | [2026-11](2026-11.md) |
+| U-20261119-08 | 2026-11-19 | Local PDFs in the GUI; the --pdf builder moved to core | #done #gui #cli #pdf #i18n | [2026-11](2026-11.md) |
+| U-20261119-07 | 2026-11-19 | GUI searches leave out IEEE until VPN access is declared | #done #gui #compliance #i18n | [2026-11](2026-11.md) |
+| U-20261119-06 | 2026-11-19 | GUI: PDF download with the VPN switch, language switch without restart | #done #gui #pdf #i18n | [2026-11](2026-11.md) |
+| U-20261119-05 | 2026-11-19 | GUI: template check, deck review, enrichment hand-off to an agent | #done #gui #pptx #i18n | [2026-11](2026-11.md) |
+| U-20261119-04 | 2026-11-19 | GUI Library page: overview, papers with links and checks, searches | #done #gui #library #i18n | [2026-11](2026-11.md) |
+| U-20261119-03 | 2026-11-19 | GUI: cancel, snowball bounds, results subset, remembered forms | #done #gui #i18n | [2026-11](2026-11.md) |
+| U-20261119-02 | 2026-11-19 | Selectable GUI style: classic navy or Material 3 | #done #gui #i18n | [2026-11](2026-11.md) |
+| U-20261119-01 | 2026-11-19 | GUI rebuilt: sidebar, themes, layouts that adapt to the width | #done #gui #i18n #docs | [2026-11](2026-11.md) |
 | U-20261008-08 | 2026-10-08 | The GUI gets snowballing, the library and deck templates | #done #gui #snowball #library #templates | [2026-10](2026-10.md) |
 | U-20261008-07 | 2026-10-08 | A template contract for decks, with validation before the export | #done #pptx #templates #cli #mcp | [2026-10](2026-10.md) |
 | U-20261008-06 | 2026-10-08 | A persistent SQLite literature library | #done #library #cli #mcp | [2026-10](2026-10.md) |
@@ -101,5 +115,6 @@ In the same commit: delete the item from `progress.md`, add a `#done` entry here
 
 | File | Period | Entries |
 |---|---|---:|
+| [2026-11.md](2026-11.md) | 2026-11 | 14 |
 | [2026-10.md](2026-10.md) | 2026-10 | 13 |
 | [2026-09.md](2026-09.md) | 2026-09 | 25 |

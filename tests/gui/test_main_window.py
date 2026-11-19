@@ -8,10 +8,10 @@ from thesisagents.gui.main_window import MainWindow
 from thesisagents.gui.pages.settings import settings_store
 
 
-def test_main_window_has_four_tabs(qtbot):
+def test_main_window_has_five_pages(qtbot):
     window = MainWindow(ui_language="en")
     qtbot.addWidget(window)
-    assert window.tab_count() == 4
+    assert window.tab_count() == 5
 
 
 def test_main_window_title_is_localised(qtbot):

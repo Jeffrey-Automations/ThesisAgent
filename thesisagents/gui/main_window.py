@@ -1,41 +1,85 @@
-"""Main application window — tabbed shell that hosts the four pages.
+"""Main application window: a sidebar, the five pages, and a status bar.
 
-Layout is intentionally responsive: every tab page sits inside a
-``QScrollArea`` with ``widgetResizable=True`` so the form widgets
-stretch horizontally with the window and reveal a vertical
-scrollbar when the window shrinks below the form's natural height.
+Layout, from left to right: the :class:`NavRail` sidebar, then a stack
+holding one page at a time. Each page has a title and a one-line subtitle
+saying what the step does, above its body. The status bar at the bottom
+shows a progress bar while any page has work running on a worker thread.
+
+The window adapts to its width (see ``widgets/responsive.py``):
+
+* **Compact** (< 760 px): the sidebar collapses to icons, forms put their
+  labels above the fields, controls sit above the results.
+* **Medium** (760-1179 px): full sidebar, controls above the results.
+* **Expanded** (>= 1180 px): controls in a side column beside the results.
+
+The pages are told when the size class changes (``apply_breakpoint``), so
+each one decides how to re-arrange itself. ``Ctrl+1`` ... ``Ctrl+5`` switch
+pages from the keyboard (Search, Library, Enrich, Deck, Settings).
 """
 
 from __future__ import annotations
 
-from PySide6.QtCore import QByteArray
-from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import QByteArray, QSettings, Qt
+from PySide6.QtGui import QCloseEvent, QGuiApplication, QKeySequence, QResizeEvent, QShortcut
 from PySide6.QtWidgets import (
+    QApplication,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
     QMainWindow,
+    QProgressBar,
     QScrollArea,
-    QTabWidget,
+    QStackedWidget,
+    QStatusBar,
+    QVBoxLayout,
     QWidget,
 )
 
+from thesisagents.core.models import PaperCollection
 from thesisagents.gui.i18n import t
 from thesisagents.gui.pages.deck import DeckPage
 from thesisagents.gui.pages.enrich import EnrichPage
+from thesisagents.gui.pages.library import LibraryPage
 from thesisagents.gui.pages.search import SearchPage
-from thesisagents.gui.pages.settings import SettingsPage, settings_store
+from thesisagents.gui.pages.settings import (
+    SettingsPage,
+    saved_style,
+    saved_theme,
+    settings_store,
+)
+from thesisagents.gui.theme import THEME_SYSTEM, apply_theme
+from thesisagents.gui.widgets.nav_rail import NavRail
+from thesisagents.gui.widgets.responsive import Breakpoint, breakpoint_for_width
 
-# Sensible window-size bounds: a 720p laptop can still see everything
-# at 900x600, while a 4K monitor gets a comfortable default that does
-# not feel cramped.
-_MIN_WIDTH = 900
-_MIN_HEIGHT = 600
+# The floor fits a 1366 x 768 laptop at 125 % scaling with room to spare:
+# the compact layout (icon sidebar, stacked panes, wrapped form rows) is
+# what makes a window this small usable.
+_MIN_WIDTH = 640
+_MIN_HEIGHT = 480
 _DEFAULT_WIDTH = 1280
 _DEFAULT_HEIGHT = 800
 # QSettings key holding the window's size, position and maximised state.
 _GEOMETRY_KEY = "window/geometry"
+#: Windows built by a language switch. The window that replaces another has
+#: no other Python reference (``app.py`` holds the first one only), so it is
+#: kept here until Qt destroys it.
+_REPLACEMENTS: list[MainWindow] = []
+
+# Page order: (icon, nav label key, subtitle key). The index is the
+# sidebar index, the stack index and the Ctrl+N shortcut. The Library sits
+# beside Search: both are where papers come from.
+_SEARCH, _LIBRARY, _ENRICH, _DECK, _SETTINGS = range(5)
+_PAGE_META: tuple[tuple[str, str, str], ...] = (
+    ("search", "nav.search", "page.search_subtitle"),
+    ("library", "nav.library", "page.library_subtitle"),
+    ("enrich", "nav.enrich", "page.enrich_subtitle"),
+    ("deck", "nav.deck", "page.deck_subtitle"),
+    ("settings", "nav.settings", "page.settings_subtitle"),
+)
 
 
 class MainWindow(QMainWindow):
-    """Top-level window. Owns the tab widget and all page instances.
+    """Top-level window. Owns the sidebar, the page stack and every page.
 
     The window's size and position are saved to QSettings when it closes
     and restored when the next one is built.
@@ -43,48 +87,250 @@ class MainWindow(QMainWindow):
 
     def __init__(self, ui_language: str = "en", parent: QWidget | None = None) -> None:
         super().__init__(parent)
+        self._ui_language = ui_language
+        self._breakpoint: Breakpoint | None = None
+        self._busy_pages: set[str] = set()
         self.setWindowTitle(t("app.title", ui_language))
         self.setMinimumSize(_MIN_WIDTH, _MIN_HEIGHT)
         self.resize(_DEFAULT_WIDTH, _DEFAULT_HEIGHT)
         self._restore_geometry()
 
-        tabs = QTabWidget(self)
-        tabs.setDocumentMode(True)
-
         self._search_page = SearchPage(ui_language=ui_language)
-        tabs.addTab(
-            self._wrap_scrollable(self._search_page),
-            t("nav.search", ui_language),
-        )
-
+        self._library_page = LibraryPage(ui_language=ui_language)
         self._enrich_page = EnrichPage(ui_language=ui_language)
-        tabs.addTab(
-            self._wrap_scrollable(self._enrich_page),
-            t("nav.enrich", ui_language),
-        )
-
         self._deck_page = DeckPage(ui_language=ui_language)
-        tabs.addTab(
-            self._wrap_scrollable(self._deck_page),
-            t("nav.deck", ui_language),
-        )
+        self._settings_page = SettingsPage(ui_language=ui_language)
 
-        # Wire the inter-tab data flow: Search → Enrich (raw collection)
-        # and Search → Deck (so the user can skip enrichment), plus
-        # Enrich → Deck (so the enriched collection takes precedence).
+        self._nav = NavRail(
+            brand=t("app.title", ui_language),
+            toggle_tip=t("nav.toggle", ui_language),
+        )
+        self._stack = QStackedWidget(self)
+        self._headers: list[QWidget] = []
+        bodies: tuple[QWidget, ...] = (
+            self._search_page,
+            self._library_page,
+            self._enrich_page,
+            self._deck_page,
+            self._scrollable(self._settings_page),
+        )
+        for index, (icon, label_key, subtitle_key) in enumerate(_PAGE_META):
+            self._nav.add_item(
+                icon, t(label_key, ui_language), bottom=index == _SETTINGS
+            )
+            self._stack.addWidget(
+                self._page_frame(
+                    t(label_key, ui_language), t(subtitle_key, ui_language), bodies[index]
+                )
+            )
+        self._nav.current_changed.connect(self._stack.setCurrentIndex)
+
+        central = QWidget(self)
+        row = QHBoxLayout(central)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(0)
+        row.addWidget(self._nav)
+        row.addWidget(self._stack, stretch=1)
+        self.setCentralWidget(central)
+
+        self._build_status_bar()
+        self._wire_pages()
+        for index in range(len(_PAGE_META)):
+            shortcut = QShortcut(QKeySequence(f"Ctrl+{index + 1}"), self)
+            shortcut.activated.connect(lambda i=index: self._nav.set_current(i))
+        QGuiApplication.styleHints().colorSchemeChanged.connect(self._on_system_scheme)
+        self._apply_breakpoint(breakpoint_for_width(self.width()))
+        self._restore_forms()
+
+    # --- construction ---------------------------------------------------
+
+    def _page_frame(self, title: str, subtitle: str, body: QWidget) -> QWidget:
+        """A page with its title and subtitle above ``body``."""
+        frame = QWidget(self)
+        frame.setObjectName("PageBody")
+        layout = QVBoxLayout(frame)
+        layout.setContentsMargins(24, 18, 24, 12)
+        layout.setSpacing(4)
+        header = QWidget(frame)
+        header.setObjectName("PageHeader")
+        header_layout = QVBoxLayout(header)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(2)
+        heading = QLabel(title, header)
+        heading.setObjectName("PageTitle")
+        caption = QLabel(subtitle, header)
+        caption.setObjectName("PageSubtitle")
+        caption.setWordWrap(True)
+        header_layout.addWidget(heading)
+        header_layout.addWidget(caption)
+        layout.addWidget(header)
+        layout.addSpacing(10)
+        layout.addWidget(body, stretch=1)
+        self._headers.append(frame)
+        return frame
+
+    def _scrollable(self, page: QWidget) -> QScrollArea:
+        """Wrap a page that has no results pane, so it scrolls when short.
+
+        ``widgetResizable=True`` makes the page stretch with the scroll
+        area's width instead of sitting at its size hint.
+        """
+        scroll = QScrollArea(self)
+        scroll.setWidget(page)
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QFrame.Shape.NoFrame)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        return scroll
+
+    def _build_status_bar(self) -> None:
+        bar = QStatusBar(self)
+        bar.setSizeGripEnabled(True)
+        self._busy_bar = QProgressBar(bar)
+        self._busy_bar.setRange(0, 0)  # indeterminate
+        self._busy_bar.setFixedWidth(160)
+        self._busy_bar.setTextVisible(False)
+        self._busy_bar.setVisible(False)
+        bar.addPermanentWidget(self._busy_bar)
+        self.setStatusBar(bar)
+
+    def _wire_pages(self) -> None:
+        # Data flow between steps: Search → Enrich (raw collection) and
+        # Search → Deck (so the user can skip enrichment), plus Enrich →
+        # Deck (the enriched collection takes precedence).
         self._search_page.collection_ready.connect(self._enrich_page.set_collection)
         self._search_page.collection_ready.connect(self._deck_page.set_collection)
         self._search_page.library_path_changed.connect(self._deck_page.set_library_path)
+        self._search_page.set_output_dir_provider(self._deck_page.output_dir)
         self._enrich_page.collection_ready.connect(self._deck_page.set_collection)
+        self._search_page.collection_ready.connect(self._on_search_collection)
+        # The Library page follows the Search page's library file, and hands
+        # its papers on to Enrich and Deck the same way a search does.
+        self._search_page.library_path_changed.connect(self._library_page.set_library_path)
+        self._library_page.collection_ready.connect(self._enrich_page.set_collection)
+        self._library_page.collection_ready.connect(self._deck_page.set_collection)
+        self._library_page.collection_ready.connect(self._on_search_collection)
+        self._enrich_page.collection_ready.connect(self._on_enriched_collection)
+        for key, page in (
+            ("search", self._search_page),
+            ("library", self._library_page),
+            ("enrich", self._enrich_page),
+            ("deck", self._deck_page),
+        ):
+            page.busy_changed.connect(lambda busy, k=key: self._on_busy_changed(k, busy))
+        self._settings_page.theme_changed.connect(self._on_theme_changed)
+        self._settings_page.language_changed.connect(self._on_language_changed)
+        self._settings_page.access_changed.connect(self._search_page.apply_access)
 
-        self._settings_page = SettingsPage(ui_language=ui_language)
-        tabs.addTab(
-            self._wrap_scrollable(self._settings_page),
-            t("nav.settings", ui_language),
+    # --- responsive -----------------------------------------------------
+
+    def resizeEvent(self, event: QResizeEvent) -> None:  # noqa: N802 - Qt override
+        super().resizeEvent(event)
+        self._apply_breakpoint(breakpoint_for_width(event.size().width()))
+
+    def _apply_breakpoint(self, breakpoint: Breakpoint) -> None:
+        """Re-arrange the sidebar and every page for ``breakpoint``."""
+        if breakpoint == self._breakpoint:
+            return
+        self._breakpoint = breakpoint
+        self._nav.set_compact(breakpoint is Breakpoint.COMPACT)
+        margin = 12 if breakpoint is Breakpoint.COMPACT else 24
+        for frame in self._headers:
+            frame.layout().setContentsMargins(margin, 14, margin, 10)
+        for page in (
+            self._search_page, self._library_page, self._enrich_page,
+            self._deck_page, self._settings_page,
+        ):
+            page.apply_breakpoint(breakpoint)
+
+    # --- slots ------------------------------------------------------------
+
+    def _on_search_collection(self, collection: object) -> None:
+        count = len(collection.papers) if isinstance(collection, PaperCollection) else 0
+        badge = str(count) if count else ""
+        self._nav.set_badge(_ENRICH, badge)
+        self._nav.set_badge(_DECK, badge)
+
+    def _on_enriched_collection(self, collection: object) -> None:
+        if isinstance(collection, PaperCollection):
+            count = len(collection.papers)
+            self._nav.set_badge(_DECK, str(count) if count else "")
+
+    def _on_busy_changed(self, key: str, busy: bool) -> None:
+        if busy:
+            self._busy_pages.add(key)
+        else:
+            self._busy_pages.discard(key)
+        working = bool(self._busy_pages)
+        self._busy_bar.setVisible(working)
+        if working:
+            self.statusBar().showMessage(t("status.busy", self._ui_language))
+        else:
+            self.statusBar().clearMessage()
+
+    def _on_language_changed(self, language: str) -> None:
+        """Switch the interface language now, unless work is running.
+
+        Every label is read when its page is built, so the window is rebuilt
+        in the new language and the current work is carried over (owner's
+        decision for ``progress.md`` #25). Running work cannot be carried,
+        so then the switch waits for the next start.
+        """
+        if self.is_busy():
+            self.statusBar().showMessage(t("status.language_later", self._ui_language))
+            return
+        self.rebuild_in_language(language)
+
+    def rebuild_in_language(self, language: str) -> MainWindow:
+        """Replace this window with one in ``language``; return the new one.
+
+        Carried over: the window geometry, every form field (through the
+        same QSettings save the window does on close), the search result
+        with its ticks, the open library, the Enrich and Deck collections and
+        the current page.
+        """
+        store = settings_store()
+        store.setValue(_GEOMETRY_KEY, self.saveGeometry())
+        self.save_forms(store)
+        replacement = MainWindow(ui_language=language)
+        replacement.adopt_work(self)
+        replacement.statusBar().showMessage(t("settings.saved_message", language), 8000)
+        _REPLACEMENTS.append(replacement)
+        replacement.destroyed.connect(
+            lambda *_: _REPLACEMENTS.remove(replacement) if replacement in _REPLACEMENTS else None
         )
+        replacement.show()
+        self.close()
+        return replacement
 
-        self.setCentralWidget(tabs)
-        self._tabs = tabs
+    def adopt_work(self, old: MainWindow) -> None:
+        """Take over ``old``'s results, collections and current page."""
+        search = old.search_page()
+        result = search.collection()
+        if result is not None:
+            self._search_page.show_results(result, search.papers_model().unchecked_rows())
+        snapshot = old.library_page().snapshot()
+        if snapshot is not None:
+            self._library_page.show_snapshot(snapshot)
+        enriched = old.enrich_page().collection()
+        if enriched is not None:
+            self._enrich_page.set_collection(enriched)
+        deck = old.deck_page().collection()
+        if deck is not None:
+            self._deck_page.set_collection(deck)
+        self._nav.set_current(old.nav_rail().current())
+
+    def _on_theme_changed(self, choice: str) -> None:
+        app = QApplication.instance()
+        if isinstance(app, QApplication):
+            apply_theme(app, choice, saved_style())
+        self._nav.refresh_icons()
+
+    def _on_system_scheme(self, _scheme: object) -> None:
+        """Follow the OS switching light / dark, when the theme is "system"."""
+        if saved_theme() == THEME_SYSTEM:
+            self._on_theme_changed(THEME_SYSTEM)
+
+    # --- geometry ---------------------------------------------------------
 
     def _restore_geometry(self) -> None:
         """Apply the geometry saved by the last window, if any.
@@ -98,22 +344,27 @@ class MainWindow(QMainWindow):
             self.restoreGeometry(saved)
 
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802 - Qt override
-        """Save the window geometry, then close as usual."""
-        settings_store().setValue(_GEOMETRY_KEY, self.saveGeometry())
+        """Save the window geometry and the form values, then close as usual."""
+        store = settings_store()
+        store.setValue(_GEOMETRY_KEY, self.saveGeometry())
+        self.save_forms(store)
         super().closeEvent(event)
 
-    def _wrap_scrollable(self, page: QWidget) -> QScrollArea:
-        """Wrap a page so it scrolls vertically when the window shrinks.
+    def save_forms(self, store: QSettings) -> None:
+        """Write the Search, Library, Enrich and Deck fields for the next start."""
+        for page in self._form_pages():
+            page.save_form(store)
+        store.sync()
 
-        widgetResizable=True is what makes the inner widget stretch with
-        the scroll area's width — without it the page would sit at its
-        sizeHint() and ignore the available horizontal space.
-        """
-        scroll = QScrollArea(self)
-        scroll.setWidget(page)
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QScrollArea.NoFrame)
-        return scroll
+    def _restore_forms(self) -> None:
+        store = settings_store()
+        for page in self._form_pages():
+            page.restore_form(store)
+
+    def _form_pages(self) -> tuple[SearchPage | LibraryPage | EnrichPage | DeckPage, ...]:
+        # The Library page restores after Search, so its own saved path wins
+        # over the one the Search page's restore just echoed to it.
+        return (self._search_page, self._library_page, self._enrich_page, self._deck_page)
 
     # --- accessors used by tests ----------------------------------------
 
@@ -129,5 +380,37 @@ class MainWindow(QMainWindow):
     def deck_page(self) -> DeckPage:
         return self._deck_page
 
+    def library_page(self) -> LibraryPage:
+        return self._library_page
+
+    def nav_rail(self) -> NavRail:
+        return self._nav
+
+    def page_stack(self) -> QStackedWidget:
+        return self._stack
+
+    def current_breakpoint(self) -> Breakpoint | None:
+        return self._breakpoint
+
+    def is_busy(self) -> bool:
+        """Whether the status-bar progress indicator is showing."""
+        return bool(self._busy_pages)
+
+    def page_count(self) -> int:
+        return self._stack.count()
+
     def tab_count(self) -> int:
-        return self._tabs.count()
+        """Kept for callers of the tabbed window: the number of pages."""
+        return self.page_count()
+
+
+if __name__ == "__main__":
+    # Run this module directly for a quick look at the window while
+    # developing: ``python -m thesisagents.gui.main_window``. It goes through
+    # ``app.main`` rather than building ``MainWindow`` here, because ``main``
+    # also pins the HiDPI policy, loads the saved API keys into the
+    # environment, applies the saved theme and picks the interface language.
+    # A bare ``MainWindow()`` would skip all four and open unstyled, in English.
+    from thesisagents.gui.app import main
+
+    raise SystemExit(main())

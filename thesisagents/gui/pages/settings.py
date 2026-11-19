@@ -17,12 +17,13 @@ import os
 from pathlib import Path
 from typing import Final
 
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, Qt, Signal
 from PySide6.QtWidgets import (
+    QBoxLayout,
+    QCheckBox,
     QComboBox,
     QFileDialog,
     QFormLayout,
-    QGroupBox,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -36,6 +37,8 @@ from thesisagents.gui.i18n import (
     SUPPORTED_LANGUAGES,
     t,
 )
+from thesisagents.gui.theme import STYLE_CHOICES, STYLE_CLASSIC, THEME_CHOICES, THEME_SYSTEM
+from thesisagents.gui.widgets.responsive import Breakpoint, adapt_form_rows, make_card
 
 # QSettings key (under organization/app) → env var name. The page reads
 # both directions: load() pulls from QSettings into the form fields,
@@ -78,6 +81,15 @@ _COOKIES_ENV: Final[str] = "THESISAGENTS_PDF_COOKIES_FILE"
 _CHROME_PROFILE_KEY: Final[str] = "browser/chrome_profile_dir"
 _CHROME_PROFILE_ENV: Final[str] = "THESISAGENTS_CHROME_PROFILE_DIR"
 _UI_LANG_KEY: Final[str] = "ui/language"
+#: One of ``theme.THEME_CHOICES``; applied as soon as Settings saves, with no
+#: restart (unlike the interface language, which every label reads once).
+_THEME_KEY: Final[str] = "ui/theme"
+#: One of ``theme.STYLE_CHOICES`` (classic navy or Material 3), applied on
+#: save like the theme.
+_STYLE_KEY: Final[str] = "ui/style"
+#: Whether the user has institutional / VPN access to paywalled publishers.
+#: The PDF stage (``gui/pdf_stage.py``) leaves IEEE PDFs out while it is off.
+_VPN_KEY: Final[str] = "access/vpn"
 
 _ORG: Final[str] = "ThesisAgents"
 _APP: Final[str] = "ThesisAgents"
@@ -127,8 +139,48 @@ def saved_ui_language(default: str = "en") -> str:
     return value if value in SUPPORTED_LANGUAGES else default
 
 
+def saved_theme() -> str:
+    """The persisted GUI theme (``system`` / ``light`` / ``dark``).
+
+    An unset or unknown value reads as ``system``, so a hand-edited setting
+    falls back to following the OS instead of failing.
+    """
+    value = settings_store().value(_THEME_KEY, THEME_SYSTEM, type=str)
+    return value if value in THEME_CHOICES else THEME_SYSTEM
+
+
+def saved_style() -> str:
+    """The persisted GUI style (``classic`` / ``material``).
+
+    An unset or unknown value reads as ``classic``, the look the app had
+    before styles were selectable.
+    """
+    value = settings_store().value(_STYLE_KEY, STYLE_CLASSIC, type=str)
+    return value if value in STYLE_CHOICES else STYLE_CLASSIC
+
+
+def saved_vpn_access() -> bool:
+    """Whether Settings declares institutional / VPN access (off by default).
+
+    Off is the safe default: the project's rule is to know about VPN access
+    before any paywalled-publisher download, and an unanswered question must
+    not count as a yes.
+    """
+    return bool(settings_store().value(_VPN_KEY, False, type=bool))
+
+
 class SettingsPage(QWidget):
-    """Form for API keys + cookies-file + UI language."""
+    """Form for API keys + cookies-file + UI language + theme."""
+
+    #: The theme saved by the user, emitted on every save (after the theme
+    #: and the style are stored) so the window repaints at once.
+    theme_changed = Signal(str)
+    #: A different interface language was saved. The main window rebuilds
+    #: itself in it, carrying the current work over.
+    language_changed = Signal(str)
+    #: The VPN / institutional access switch as saved, emitted on every save.
+    #: The Search page locks or unlocks the ``ieee`` source with it.
+    access_changed = Signal(bool)
 
     def __init__(self, ui_language: str = "en", parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -138,10 +190,25 @@ class SettingsPage(QWidget):
         self._load_from_store()
 
     def _build_ui(self) -> None:
-        outer = QVBoxLayout(self)
+        """Interface and browser cards in one column, API keys in the other.
 
-        ui_group = QGroupBox(t("settings.title", self._ui_language), self)
-        ui_form = QFormLayout(ui_group)
+        The two columns sit side by side on medium and expanded windows and
+        stack on a compact one (``apply_breakpoint`` flips the direction of
+        ``self._columns``).
+        """
+        language = self._ui_language
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 6, 0)
+        outer.setSpacing(12)
+        self._columns = QBoxLayout(QBoxLayout.Direction.LeftToRight)
+        self._columns.setSpacing(12)
+        outer.addLayout(self._columns)
+
+        left = QVBoxLayout()
+        left.setSpacing(12)
+        ui_card, ui_layout = make_card(t("settings.title", language), self)
+        ui_form = QFormLayout()
+        ui_layout.addLayout(ui_form)
         self._ui_lang_combo = QComboBox(self)
         # Show the language's own native name (繁體中文, Español, …)
         # but store the code as the item data so save() reads back a
@@ -149,62 +216,96 @@ class SettingsPage(QWidget):
         for code in SUPPORTED_LANGUAGES:
             display = LANGUAGE_DISPLAY_NAMES.get(code, code)
             self._ui_lang_combo.addItem(display, code)
-        ui_form.addRow(
-            t("settings.ui_language", self._ui_language), self._ui_lang_combo
-        )
-        outer.addWidget(ui_group)
+        ui_form.addRow(t("settings.ui_language", language), self._ui_lang_combo)
+        self._theme_combo = QComboBox(self)
+        for choice in THEME_CHOICES:
+            self._theme_combo.addItem(t(f"settings.theme_{choice}", language), choice)
+        ui_form.addRow(t("settings.theme_label", language), self._theme_combo)
+        self._style_combo = QComboBox(self)
+        for choice in STYLE_CHOICES:
+            self._style_combo.addItem(t(f"settings.style_{choice}", language), choice)
+        ui_form.addRow(t("settings.style_label", language), self._style_combo)
+        adapt_form_rows(ui_card, ui_form)
+        left.addWidget(ui_card)
 
-        api_group = QGroupBox(
-            t("settings.api_keys_group", self._ui_language), self
+        browser_card, browser_layout = make_card(t("settings.card_browser", language), self)
+        browser_form = QFormLayout()
+        browser_layout.addLayout(browser_form)
+        self._cookies_input = self._path_row(
+            browser_form, "settings.cookies_file", self._on_browse_cookies
         )
-        api_form = QFormLayout(api_group)
+        self._chrome_profile_input = self._path_row(
+            browser_form, "settings.chrome_profile_dir", self._on_browse_chrome_profile
+        )
+        self._vpn_check = QCheckBox(t("settings.vpn_access", language), self)
+        browser_form.addRow(self._vpn_check)
+        adapt_form_rows(browser_card, browser_form)
+        left.addWidget(browser_card)
+        left.addStretch(1)
+        self._columns.addLayout(left, stretch=1)
+
+        api_card, api_layout = make_card(t("settings.api_keys_group", language), self)
+        api_form = QFormLayout()
+        api_layout.addLayout(api_form)
         for key, _env_var, label_key in _SETTINGS_FIELDS:
             edit = QLineEdit(self)
             # Mask secret-shaped fields; contact email stays plain.
             if key.startswith("api/"):
                 edit.setEchoMode(QLineEdit.PasswordEchoOnEdit)
-            api_form.addRow(t(label_key, self._ui_language), edit)
+            api_form.addRow(t(label_key, language), edit)
             self._field_inputs[key] = edit
-        outer.addWidget(api_group)
-
-        cookies_row = QWidget(self)
-        cookies_layout = QHBoxLayout(cookies_row)
-        cookies_layout.setContentsMargins(0, 0, 0, 0)
-        self._cookies_input = QLineEdit(self)
-        self._cookies_input.setReadOnly(True)
-        browse = QPushButton(t("settings.browse_button", self._ui_language), self)
-        browse.clicked.connect(self._on_browse_cookies)
-        cookies_layout.addWidget(QLabel(t("settings.cookies_file", self._ui_language)))
-        cookies_layout.addWidget(self._cookies_input, stretch=1)
-        cookies_layout.addWidget(browse)
-        outer.addWidget(cookies_row)
-
-        chrome_row = QWidget(self)
-        chrome_layout = QHBoxLayout(chrome_row)
-        chrome_layout.setContentsMargins(0, 0, 0, 0)
-        self._chrome_profile_input = QLineEdit(self)
-        self._chrome_profile_input.setReadOnly(True)
-        chrome_browse = QPushButton(
-            t("settings.browse_button", self._ui_language), self,
-        )
-        chrome_browse.clicked.connect(self._on_browse_chrome_profile)
-        chrome_layout.addWidget(
-            QLabel(t("settings.chrome_profile_dir", self._ui_language)),
-        )
-        chrome_layout.addWidget(self._chrome_profile_input, stretch=1)
-        chrome_layout.addWidget(chrome_browse)
-        outer.addWidget(chrome_row)
+        adapt_form_rows(api_card, api_form)
+        self._columns.addWidget(api_card, stretch=1, alignment=Qt.AlignmentFlag.AlignTop)
 
         save_row = QHBoxLayout()
-        save_row.addStretch(1)
-        save_button = QPushButton(t("settings.save_button", self._ui_language), self)
+        self._status_label = QLabel("", self)
+        self._status_label.setObjectName("Muted")
+        self._status_label.setWordWrap(True)
+        save_row.addWidget(self._status_label, stretch=1)
+        save_button = QPushButton(t("settings.save_button", language), self)
+        save_button.setProperty("primary", True)
         save_button.clicked.connect(self._on_save)
         save_row.addWidget(save_button)
         outer.addLayout(save_row)
-
-        self._status_label = QLabel("", self)
-        outer.addWidget(self._status_label)
         outer.addStretch(1)
+
+    def _path_row(self, form: QFormLayout, label_key: str, on_browse) -> QLineEdit:
+        """A read-only path field with a Browse button, added to ``form``."""
+        row = QWidget(self)
+        layout = QHBoxLayout(row)
+        layout.setContentsMargins(0, 0, 0, 0)
+        field = QLineEdit(self)
+        field.setReadOnly(True)
+        browse = QPushButton(t("settings.browse_button", self._ui_language), self)
+        browse.clicked.connect(on_browse)
+        layout.addWidget(field, stretch=1)
+        layout.addWidget(browse)
+        form.addRow(t(label_key, self._ui_language), row)
+        return field
+
+    def apply_breakpoint(self, breakpoint: Breakpoint) -> None:
+        """Two columns side by side, or stacked on a compact window."""
+        direction = (
+            QBoxLayout.Direction.TopToBottom
+            if breakpoint is Breakpoint.COMPACT
+            else QBoxLayout.Direction.LeftToRight
+        )
+        self._columns.setDirection(direction)
+
+    def columns_direction(self) -> QBoxLayout.Direction:
+        return self._columns.direction()
+
+    def theme_combo(self) -> QComboBox:
+        return self._theme_combo
+
+    def vpn_checkbox(self) -> QCheckBox:
+        return self._vpn_check
+
+    def language_combo(self) -> QComboBox:
+        return self._ui_lang_combo
+
+    def style_combo(self) -> QComboBox:
+        return self._style_combo
 
     def _on_browse_cookies(self) -> None:
         start = self._cookies_input.text() or str(Path.home())
@@ -250,10 +351,18 @@ class SettingsPage(QWidget):
             os.environ.pop(_CHROME_PROFILE_ENV, None)
         lang = self._ui_lang_combo.currentData() or "en"
         store.setValue(_UI_LANG_KEY, lang)
+        theme = self._theme_combo.currentData() or THEME_SYSTEM
+        store.setValue(_THEME_KEY, theme)
+        store.setValue(_STYLE_KEY, self._style_combo.currentData() or STYLE_CLASSIC)
+        store.setValue(_VPN_KEY, self._vpn_check.isChecked())
         store.sync()
+        self.theme_changed.emit(theme)
+        self.access_changed.emit(self._vpn_check.isChecked())
         self._status_label.setText(
             t("settings.saved_message", self._ui_language)
         )
+        if lang != self._ui_language:
+            self.language_changed.emit(lang)
 
     def _load_from_store(self) -> None:
         store = settings_store()
@@ -268,6 +377,11 @@ class SettingsPage(QWidget):
             if self._ui_lang_combo.itemData(idx) == saved_lang:
                 self._ui_lang_combo.setCurrentIndex(idx)
                 break
+        theme_index = self._theme_combo.findData(saved_theme())
+        self._theme_combo.setCurrentIndex(max(0, theme_index))
+        self._vpn_check.setChecked(saved_vpn_access())
+        style_index = self._style_combo.findData(saved_style())
+        self._style_combo.setCurrentIndex(max(0, style_index))
 
     # --- accessors used by tests ----------------------------------------
 

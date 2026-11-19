@@ -99,7 +99,7 @@ Two fabrications caught this way in production: wrong AAAI volume
 (`view/fang2026` instead of `v40i5.37389`).
 
 **The export checks this at run time.** Before anything is written, the
-CLI, the MCP `export` tool and the GUI Deck tab look up every paper's
+CLI, the MCP `export` tool and the GUI Deck page look up every paper's
 DOI at doi.org and request every URL once. A DOI that is not registered,
 a URL that answers 404, or a host that cannot be reached stops the
 export and names the paper and the identifier. The check proves that an
@@ -220,7 +220,7 @@ entry per paper in the `PaperCollection` tuple.
     grey / light / white) with red **banned** for text (use bold +
     teal `#0E7490` for emphasis instead).
   - **Light mode is the default render path.** Pass `--dark-mode`, enable
-    **Dark mode** in the GUI Deck tab, or set
+    **Dark mode** on the GUI Deck page, or set
     `ExportOptions(dark_mode=True)` to apply the dark post-pass (slide
     background `#12151B`, body text `#E5E7EB`).
   - `.xlsx` — Papers sheet + Query provenance sheet, hyperlinked URL /
@@ -553,16 +553,16 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-The window has four tabs — **Search**, **Settings** (persists API keys
-via QSettings), **Enrich** (drives the LLM-as-agent / Python-pipeline
-enrichment over a `collection_ready` signal), and **Deck** (the Light
-mode toggle + slide-cap + max-figures controls flow through to
-`ExportOptions`). The Windows release zip ships the Nuitka-compiled
-bundle with PySide6 included, so `thesisagents.exe gui` works
-without a separate Python install.
-The Search tab can also follow citations from the top results
+The window has a sidebar with five pages: **Search**, **Library** (a read-only view of a library file: an overview, its papers with their citation links and identifier checks, and the searches that filled it), **Enrich** (drives
+the LLM-as-agent / Python-pipeline enrichment over a `collection_ready`
+signal), **Deck** (the Dark mode toggle, slide cap, identifier check and
+deck template flow through to `ExportOptions`) and **Settings** (persists
+API keys via QSettings). The Windows release zip ships the
+Nuitka-compiled bundle with PySide6 included, so `thesisagents.exe gui`
+works without a separate Python install.
+The Search page can also follow citations from the top results
 (snowball), keep results in a library file and search that library with
-no network, and the Deck tab can build the deck on your own PowerPoint
+no network, and the Deck page can build the deck on your own PowerPoint
 template.
 **UI ships in all 14 languages** (English, 繁體中文, 简体中文,
 日本語, Español, Français, Deutsch, 한국어, Português, Русский,
@@ -570,9 +570,13 @@ Italiano, Tiếng Việt, हिन्दी, Bahasa Indonesia) — first run pi
 the language from your OS locale, then **Settings → Interface
 language** lets you change it. The deck output language is a
 separate dropdown so you can run the UI in one language and emit
-slides in another. The layout is responsive: every form sits in
-a `QScrollArea` and the window resizes down to 900×600 (still fits
-720p), with HiDPI scaling on by default.
+slides in another. The layout adapts to the window width: on a wide
+window each page's controls sit in a column beside its results, on a
+medium one above them, and below 760 px the sidebar collapses to icons
+and form labels move above their fields. The window resizes down to
+640×480, with HiDPI scaling on by default. **Settings → Theme** picks
+light, dark or follow-the-system, applied at once and independent of
+the deck's own dark mode. Results can be sorted, filtered and ticked so only some papers go on to Enrich, Deck and Export, the snowball bounds can be adjusted, a running search or enrichment can be cancelled, and the form is remembered between starts. The Deck page can check a template before exporting and review any finished deck, and without an API key the Enrich page hands the papers to an LLM agent as a JSON file and imports its summaries. The Deck page can also download the PDFs, leaving IEEE out until Settings declares institutional / VPN access, and a new interface language applies at once, with the work carried over. The same switch keeps `ieee` out of searches. The Search page can also read local PDFs into the results, like the CLI's `--pdf`. The status line says how many PDFs came through Chrome and warns when a publisher PDF could not use it. **Settings → Style** switches between the classic navy look and Material 3. `Ctrl+1` … `Ctrl+5` switch pages.
 
 Full reference: [`docs/gui.md`](docs/gui.md).
 
@@ -651,6 +655,10 @@ Environment, so each run surfaces as a Release entry (with its
 Nuitka `.exe` attached) rather than as a "Deployment" sidebar
 widget on the repo home — releases get their own dedicated page
 and a Deployment entry on top would just be redundant noise.
+
+## Security
+
+Report vulnerabilities privately. The policy, supported versions, and operator notes are in [SECURITY.md](SECURITY.md).
 
 ## License
 

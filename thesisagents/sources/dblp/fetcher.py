@@ -104,4 +104,51 @@ class DblpFetcher(Fetcher):
         try:
             return response.json()
         except ValueError as err:
-            raise ParseError(_SOURCE_NAME, f"invalid JSON: {err}") from err
+            raise _non_json_error(response) from err
+
+
+#: Signs of the bot-check page DBLP served on 2026-11-19 (an Anubis
+#: proof-of-work wall: HTTP 202, text/html, "Making sure you're not a bot!",
+#: assets under ``/.within.website/``). It needs a JavaScript browser to
+#: pass, so retrying the API request cannot help.
+_BOT_CHECK_MARKERS = ("not a bot", ".within.website", "anubis")
+
+
+def _non_json_error(response) -> RateLimitError | ParseError | SourceUnavailableError:
+    """The error for a 2xx DBLP reply whose body is not JSON.
+
+    Why (``progress.md`` #12): one search on 2026-10-08 failed with
+    ``[dblp] invalid JSON: Expecting value: line 1 column 1 (char 0)``,
+    and nothing in that message said what DBLP had sent. On 2026-11-19 a
+    live check showed one cause: DBLP served an Anubis bot-check page
+    (HTTP 202, text/html) in place of the API answer. Three cases are told
+    apart now, and every message carries the status, the content type and
+    the first bytes of the body, so the next one can be diagnosed from the
+    Sources line alone:
+
+    * the bot-check page is a :class:`SourceUnavailableError`: it needs a
+      JavaScript browser to pass, so a retry cannot help and the source is
+      reported as failed at once;
+    * any other empty body or HTML page (maintenance, overload) is a
+      :class:`RateLimitError`, which the pipeline retries with backoff, the
+      same treatment the FAQ-documented transient 5xx gets above;
+    * anything else (truncated JSON, a format change) stays a
+      :class:`ParseError`.
+
+    Example: a 200 with ``text/html`` and ``<html>Service unavailable``
+    gives ``RateLimitError("... not JSON (status 200, text/html): <html>...")``.
+    """
+    content_type = response.headers.get("content-type", "") or "no content type"
+    body = response.text.strip()
+    snippet = " ".join(body[:120].split()) or "<empty body>"
+    detail = f"not JSON (status {response.status_code}, {content_type}): {snippet}"
+    if any(marker in body.lower() for marker in _BOT_CHECK_MARKERS):
+        return SourceUnavailableError(
+            _SOURCE_NAME,
+            "DBLP is showing a bot-check page instead of search results, a retry cannot "
+            f"pass it, try again later or leave dblp out of the sources, {detail}",
+        )
+    looks_like_a_page = not body or body.startswith("<") or "html" in content_type.lower()
+    if looks_like_a_page:
+        return RateLimitError(_SOURCE_NAME, f"answered with a page instead of results, {detail}")
+    return ParseError(_SOURCE_NAME, f"invalid JSON, {detail}")

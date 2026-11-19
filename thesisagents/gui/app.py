@@ -9,7 +9,12 @@ import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from thesisagents.gui.pages.settings import apply_saved_env, saved_ui_language
+from thesisagents.gui.pages.settings import (
+    apply_saved_env,
+    saved_style,
+    saved_theme,
+    saved_ui_language,
+)
 
 if TYPE_CHECKING:
     from PySide6.QtGui import QFont, QIcon
@@ -58,6 +63,7 @@ def main(argv: list[str] | None = None) -> int:
 
     from thesisagents.gui.i18n import normalise_language
     from thesisagents.gui.main_window import MainWindow
+    from thesisagents.gui.theme import apply_theme
 
     # Mirror any saved API keys into os.environ BEFORE the first source
     # plugin is loaded by a search; otherwise the env var lookup that
@@ -85,6 +91,10 @@ def main(argv: list[str] | None = None) -> int:
     # Tell Qt about every CJK / RTL fallback so we don't get tofu boxes
     # for hi / ko / zh-* when the host font lacks a glyph.
     app.setFont(_with_unicode_fallback(base_font))
+    # Classic / Material 3 style and light / dark / follow-the-OS theme,
+    # saved under Settings → Style and Theme. Applied
+    # before the window exists so it never flashes in the wrong colours.
+    apply_theme(app, saved_theme(), saved_style())
 
     # First-run language: settings override → OS locale → English.
     language = saved_ui_language(default=normalise_language(QLocale().name()))

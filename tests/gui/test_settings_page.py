@@ -65,7 +65,7 @@ def test_save_message_is_localised(qtbot):
     page = SettingsPage(ui_language="zh-tw")
     qtbot.addWidget(page)
     page.trigger_save()
-    assert "重新啟動" in page.status_text()
+    assert page.status_text() == "設定已儲存並套用。"
 
 
 def test_settings_store_follows_the_test_redirect(tmp_path):

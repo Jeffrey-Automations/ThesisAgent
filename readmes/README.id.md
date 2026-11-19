@@ -99,7 +99,7 @@ salah (`v39i23.34521` vs sebenarnya `v39i22.34537`) dan jalur slug penulis
 yang direka (`view/fang2026` alih-alih `v40i5.37389`).
 
 **Ekspor memeriksa hal ini saat dijalankan.** Sebelum menulis apa pun,
-CLI, tool MCP `export`, dan tab Deck pada GUI mencari DOI setiap makalah
+CLI, tool MCP `export`, dan halaman Deck pada GUI mencari DOI setiap makalah
 di doi.org dan meminta setiap URL satu kali. DOI yang tidak terdaftar,
 URL yang menjawab 404, atau host yang tidak dapat dijangkau menghentikan
 ekspor dan menyebutkan makalah serta pengenalnya. Pemeriksaan ini
@@ -222,7 +222,7 @@ mengikuti bentuk yang sama, dengan satu entri
     grey / light / white) dengan merah **dilarang** untuk teks (gunakan
     bold + teal `#0E7490` untuk penekanan sebagai gantinya).
   - **Mode terang adalah jalur render default.** Berikan `--dark-mode`,
-    aktifkan **Dark mode** di tab Deck GUI, atau set
+    aktifkan **Dark mode** di halaman Deck GUI, atau set
     `ExportOptions(dark_mode=True)` untuk menerapkan post-pass gelap (latar
     slide `#12151B`, teks body `#E5E7EB`).
   - `.xlsx` — sheet Papers + sheet asal-usul Query, URL / PDF dengan
@@ -569,16 +569,16 @@ pip install thesisagents[gui]
 thesisagents-gui                 # atau: thesisagents gui
 ```
 
-Jendela memiliki empat tab — **Search**, **Settings** (mempertahankan API
-key via QSettings), **Enrich** (menggerakkan pengayaan LLM-as-agent /
-Python-pipeline lewat sinyal `collection_ready`), dan **Deck** (kontrol
-toggle mode Terang + batas-slide + max-figures mengalir ke
-`ExportOptions`). Zip rilis Windows memuat bundle terkompilasi-Nuitka
+Jendela memiliki sidebar dengan lima halaman: **Search**, **Library** (tampilan hanya-baca sebuah berkas pustaka: ikhtisar, makalahnya beserta tautan sitasi dan pemeriksaan pengenalnya, serta pencarian yang mengisinya), **Enrich**
+(menggerakkan pengayaan LLM-as-agent / Python-pipeline lewat sinyal
+`collection_ready`), **Deck** (toggle Dark mode, batas slide, pemeriksaan
+identifier, dan templat deck mengalir ke `ExportOptions`), dan
+**Settings** (mempertahankan API key via QSettings). Zip rilis Windows memuat bundle terkompilasi-Nuitka
 dengan PySide6 disertakan, jadi `thesisagents.exe gui` bekerja tanpa
 instalasi Python terpisah.
-Tab Search juga dapat mengikuti sitasi dari hasil teratas (bola salju),
+Halaman Search juga dapat mengikuti sitasi dari hasil teratas (bola salju),
 menyimpan hasil dalam file pustaka dan mencari di pustaka itu tanpa
-jaringan, dan tab Deck dapat menyusun deck di atas templat PowerPoint
+jaringan, dan halaman Deck dapat menyusun deck di atas templat PowerPoint
 Anda sendiri.
 **UI hadir dalam semua 14 bahasa** (English, 繁體中文, 简体中文,
 日本語, Español, Français, Deutsch, 한국어, Português, Русский,
@@ -586,9 +586,14 @@ Italiano, Tiếng Việt, हिन्दी, Bahasa Indonesia) — run pertama 
 bahasa dari locale OS Anda, lalu **Settings → Interface language**
 memungkinkan Anda mengubahnya. Bahasa output deck adalah dropdown
 terpisah sehingga Anda dapat menjalankan UI dalam satu bahasa dan
-menghasilkan slide dalam bahasa lain. Tata letaknya responsif: setiap
-form berada dalam sebuah `QScrollArea` dan jendela mengecil hingga
-900×600 (masih muat 720p), dengan penskalaan HiDPI aktif secara default.
+menghasilkan slide dalam bahasa lain. Tata letaknya menyesuaikan lebar
+jendela: pada jendela lebar, kontrol setiap halaman berada dalam satu kolom
+di samping hasilnya, pada jendela sedang di atasnya, dan di bawah 760 px
+sidebar menciut menjadi ikon dan label form pindah ke atas field-nya.
+Jendela mengecil hingga 640×480, dengan penskalaan HiDPI aktif secara
+default. **Settings → Theme** memilih terang, gelap, atau mengikuti sistem,
+langsung diterapkan dan tidak bergantung pada mode gelap milik deck itu
+sendiri. Hasil dapat diurutkan, disaring, dan dicentang agar hanya sebagian makalah yang diteruskan ke Enrich, Deck, dan Export, batas bola salju dapat diatur, pencarian atau pengayaan yang sedang berjalan dapat dibatalkan, dan isian formulir diingat antar-peluncuran. Halaman Deck dapat memeriksa templat sebelum ekspor dan meninjau slide yang sudah jadi, dan tanpa kunci API halaman Enrich menyerahkan makalah ke agen LLM sebagai berkas JSON lalu mengimpor ringkasannya. Halaman Deck juga dapat mengunduh PDF, melewatkan IEEE sampai Settings menyatakan akses institusi / VPN, dan bahasa antarmuka baru langsung berlaku tanpa kehilangan pekerjaan. Sakelar yang sama juga mengecualikan `ieee` dari pencarian. Halaman Search juga dapat membaca PDF lokal sebagai hasil, seperti `--pdf` di CLI. Baris status menyebutkan berapa PDF yang datang lewat Chrome dan memperingatkan bila PDF penerbit tidak dapat memakainya. **Settings → Style** beralih antara tampilan klasik biru dongker dan Material 3. `Ctrl+1` … `Ctrl+5` berpindah halaman.
 
 Referensi lengkap: [`docs/gui.md`](../docs/gui.md).
 
@@ -669,6 +674,10 @@ jadi setiap run muncul sebagai entri Release (dengan `.exe` Nuitka-nya
 terlampir) alih-alih sebagai widget sidebar "Deployment" di beranda repo
 — rilis mendapat halaman khusus tersendiri dan sebuah entri Deployment
 di atasnya hanya akan menjadi kebisingan yang berlebihan.
+
+## Keamanan
+
+Laporkan kerentanan secara pribadi. Kebijakan, versi yang didukung, dan catatan operator ada di [SECURITY.md](../SECURITY.md).
 
 ## Lisensi
 

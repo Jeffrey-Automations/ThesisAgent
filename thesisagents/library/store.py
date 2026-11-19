@@ -47,7 +47,13 @@ from thesisagents.core.diagnostics import (
 )
 from thesisagents.core.exceptions import LibraryError
 from thesisagents.core.export_validation import Verdict, VerificationStatus
-from thesisagents.core.models import FieldProvenance, Paper, PaperCollection, Query
+from thesisagents.core.models import (
+    FieldProvenance,
+    Paper,
+    PaperCollection,
+    PaperSummary,
+    Query,
+)
 from thesisagents.core.pruning import recommend_pruning
 from thesisagents.core.ranking import RankedPaper, rank_with_scores
 from thesisagents.library.schema import prepare, transaction
@@ -75,6 +81,7 @@ RUN_SEARCH: str = "search"
 RUN_MANUAL: str = "manual"
 
 _CITATION_FIELD = "citation_count"
+_SUMMARY_FIELD = "summary"
 
 
 @dataclass(frozen=True, slots=True)
@@ -417,6 +424,7 @@ class Library:
             stored = merge_papers(stored, self._load(absorbed))
             self._absorb(absorbed, paper_id)
         stored = _with_latest_citations(merge_papers(stored, paper), paper)
+        stored = _with_better_summary(stored, paper)
         self._conn.execute(
             "UPDATE papers SET record = ?, title = ?, year = ?, last_seen = ? WHERE id = ?",
             (_dump(stored.to_dict()), stored.title, stored.year, stamp, paper_id),
@@ -816,6 +824,45 @@ def _query_record(query: Query) -> dict[str, Any]:
         "min_citations": query.min_citations,
         "top_tier_only": query.top_tier_only,
     }
+
+
+def _summary_tier(summary: PaperSummary | None) -> int:
+    """0 without a summary, 1 for a flat one, 2 for a thesis-style (rich) one."""
+    if summary is None:
+        return 0
+    return 2 if summary.has_rich_fields() else 1
+
+
+def _with_better_summary(stored: Paper, incoming: Paper) -> Paper:
+    """Take the incoming summary when it is at least as rich as the stored one.
+
+    The second place the library departs from ``merge_papers`` (``progress.md``
+    #15). ``merge_papers`` keeps the first summary it sees, so a paper first
+    imported with an abstract-based flat summary kept it after a hand-authored
+    thesis-style summary was added later, and its deck stayed in the flat
+    tier. The rule now, by tier (none < flat < rich):
+
+    * a richer incoming summary replaces the stored one;
+    * one of the same tier replaces it too, because a summary is only ever
+      written on purpose (an enrichment run, an agent hand-off, a hand-written
+      script), so the newer one is the intended one;
+    * a poorer one never does, so re-adding a flat summary cannot undo a
+      rich one;
+    * no incoming summary changes nothing, which is every plain search result.
+
+    The provenance entry for the field is replaced, as for citation counts.
+
+    Example: stored flat summary, incoming rich one gives the rich one with
+    ``FieldProvenance("summary", incoming.source, incoming.source_id)``.
+    """
+    if incoming.summary is None or incoming.summary == stored.summary:
+        return stored
+    if _summary_tier(incoming.summary) < _summary_tier(stored.summary):
+        return stored
+    provenance = tuple(entry for entry in stored.provenance if entry.field != _SUMMARY_FIELD)
+    if (incoming.source, incoming.source_id) != (stored.source, stored.source_id):
+        provenance += (FieldProvenance(_SUMMARY_FIELD, incoming.source, incoming.source_id),)
+    return replace(stored, summary=incoming.summary, provenance=provenance)
 
 
 def _with_latest_citations(stored: Paper, incoming: Paper) -> Paper:

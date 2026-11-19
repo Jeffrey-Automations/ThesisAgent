@@ -125,7 +125,7 @@ xlsx ditulis ke ``exports/<run>/<slug>-<timestamp>.xlsx`` dengan kolom
            print(f"! {p.bibtex_key()} authored {p.url} vs real {actual}")
 
 **Ekspor memeriksa hal ini saat dijalankan.** Sebelum menulis apa pun,
-CLI, tool MCP ``export``, dan tab Deck pada GUI mencari DOI setiap
+CLI, tool MCP ``export``, dan halaman Deck pada GUI mencari DOI setiap
 makalah di doi.org dan meminta setiap URL satu kali. DOI yang tidak
 terdaftar, URL yang menjawab 404, atau host yang tidak dapat dijangkau
 menghentikan ekspor dan menyebutkan makalah serta pengenalnya.

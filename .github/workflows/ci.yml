@@ -50,10 +50,20 @@ jobs:
         # of system libs that ubuntu-latest doesn't preinstall —
         # libEGL.so.1 and the xcb / xkb stack are the load-time deps
         # pytest-qt trips on at "import QtGui" before any test runs.
+        # Retried because this step failed on its own twice on 2026-11-19
+        # (a695f30 on Python 3.14, 9dd2975 on Python 3.12) and passed on
+        # the next push with no change: a mirror hiccup, not a missing
+        # package. Acquire::Retries covers single downloads, the loop
+        # covers a failed index update. A real error still fails after
+        # the third try.
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
+          for attempt in 1 2 3; do
+            sudo apt-get -o Acquire::Retries=5 update && break
+            [ "$attempt" = 3 ] && exit 1
+            sleep 15
+          done
+          sudo apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
             libegl1 \
             libgl1 \
             libxkbcommon0 \

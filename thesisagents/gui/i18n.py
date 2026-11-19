@@ -1303,20 +1303,20 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "id": "Simpan",
     },
     "settings.saved_message": {
-        "en": "Settings saved. Restart the app to apply.",
-        "zh-tw": "設定已儲存,重新啟動 App 後生效。",
-        "zh-cn": "设置已保存,重启 App 后生效。",
-        "ja": "設定を保存しました。アプリを再起動すると反映されます。",
-        "es": "Ajustes guardados. Reinicie la app para aplicar.",
-        "fr": "Paramètres enregistrés. Redémarrez l'app pour appliquer.",
-        "de": "Einstellungen gespeichert. App neu starten zum Anwenden.",
-        "ko": "설정이 저장되었습니다. 적용하려면 앱을 재시작하세요.",
-        "pt": "Configurações salvas. Reinicie o app para aplicar.",
-        "ru": "Настройки сохранены. Перезапустите приложение.",
-        "it": "Impostazioni salvate. Riavvia l'app per applicare.",
-        "vi": "Đã lưu cài đặt. Khởi động lại app để áp dụng.",
-        "hi": "सेटिंग्स सहेजी गईं। लागू करने के लिए ऐप पुनः शुरू करें।",
-        "id": "Pengaturan disimpan. Mulai ulang app untuk menerapkan.",
+        "en": "Settings saved and applied.",
+        "zh-tw": "設定已儲存並套用。",
+        "zh-cn": "设置已保存并应用。",
+        "ja": "設定を保存して反映しました。",
+        "es": "Ajustes guardados y aplicados.",
+        "fr": "Paramètres enregistrés et appliqués.",
+        "de": "Einstellungen gespeichert und angewendet.",
+        "ko": "설정을 저장하고 적용했습니다.",
+        "pt": "Configurações salvas e aplicadas.",
+        "ru": "Настройки сохранены и применены.",
+        "it": "Impostazioni salvate e applicate.",
+        "vi": "Đã lưu và áp dụng cài đặt.",
+        "hi": "सेटिंग्स सहेजी और लागू की गईं।",
+        "id": "Pengaturan disimpan dan diterapkan.",
     },
     "settings.cookies_dialog_title": {
         "en": "Choose cookies file",
@@ -2249,6 +2249,2013 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "vi": "Xuất thất bại: {error}",
         "hi": "Export विफल: {error}",
         "id": "Ekspor gagal: {error}",
+    },
+    # Shell: sidebar, status bar, page subtitles ----------------------
+    "nav.toggle": {
+        "en": "Collapse or expand the sidebar",
+        "zh-tw": "收合或展開側邊欄",
+        "zh-cn": "收起或展开侧边栏",
+        "ja": "サイドバーを折りたたむ／展開する",
+        "es": "Contraer o expandir la barra lateral",
+        "fr": "Réduire ou développer la barre latérale",
+        "de": "Seitenleiste ein- oder ausklappen",
+        "ko": "사이드바 접기/펼치기",
+        "pt": "Recolher ou expandir a barra lateral",
+        "ru": "Свернуть или развернуть боковую панель",
+        "it": "Comprimi o espandi la barra laterale",
+        "vi": "Thu gọn hoặc mở rộng thanh bên",
+        "hi": "साइडबार को छोटा या बड़ा करें",
+        "id": "Ciutkan atau bentangkan bilah samping",
+    },
+    "status.busy": {
+        "en": "Working…",
+        "zh-tw": "處理中…",
+        "zh-cn": "处理中…",
+        "ja": "処理中…",
+        "es": "Procesando…",
+        "fr": "Traitement en cours…",
+        "de": "Wird bearbeitet …",
+        "ko": "처리 중…",
+        "pt": "Processando…",
+        "ru": "Выполняется…",
+        "it": "Elaborazione in corso…",
+        "vi": "Đang xử lý…",
+        "hi": "काम जारी है…",
+        "id": "Sedang memproses…",
+    },
+    "page.search_subtitle": {
+        "en": (
+            "Find papers across the academic sources, follow their citations, and keep them in a "
+            "library."
+        ),
+        "zh-tw": "跨學術來源搜尋論文，可沿引用延伸，並存入文獻庫。",
+        "zh-cn": "跨学术来源搜索论文，可沿引用扩展，并存入文献库。",
+        "ja": "複数の学術ソースから論文を検索し、引用をたどってライブラリに保存します。",
+        "es": (
+            "Busque artículos en las fuentes académicas, siga sus citas y guárdelos en una "
+            "biblioteca."
+        ),
+        "fr": (
+            "Recherchez des articles dans les sources académiques, suivez leurs citations et "
+            "gardez-les dans une bibliothèque."
+        ),
+        "de": (
+            "Artikel in den Fachquellen suchen, ihren Zitationen folgen und in einer Bibliothek "
+            "ablegen."
+        ),
+        "ko": "여러 학술 소스에서 논문을 검색하고, 인용을 따라가며, 라이브러리에 보관합니다.",
+        "pt": (
+            "Pesquise artigos nas fontes acadêmicas, siga suas citações e guarde-os em uma "
+            "biblioteca."
+        ),
+        "ru": (
+            "Ищите статьи в академических источниках, переходите по цитированиям и сохраняйте их в "
+            "библиотеке."
+        ),
+        "it": (
+            "Cerca articoli nelle fonti accademiche, segui le loro citazioni e conservali in una "
+            "biblioteca."
+        ),
+        "vi": "Tìm bài báo trên các nguồn học thuật, lần theo trích dẫn và lưu chúng vào thư viện.",
+        "hi": (
+            "अकादमिक स्रोतों में शोध-पत्र खोजें, उनके उद्धरणों का अनुसरण करें और उन्हें लाइब्रेरी "
+            "में रखें।"
+        ),
+        "id": (
+            "Cari makalah di berbagai sumber akademik, telusuri sitasinya, dan simpan di pustaka."
+        ),
+    },
+    "page.enrich_subtitle": {
+        "en": (
+            "Read each paper's PDF and write a thesis-structured summary, with an Anthropic API "
+            "key from Settings or by handing the papers to an LLM agent."
+        ),
+        "zh-tw": (
+            "讀取每篇論文的 PDF，產生依論文章節編排的摘要。可使用「設定」中的 Anthropic API 金鑰，"
+            "或把論文交給 LLM 代理處理。"
+        ),
+        "zh-cn": (
+            "读取每篇论文的 PDF，生成按论文章节编排的摘要。可使用“设置”中的 Anthropic API 密钥，"
+            "或把论文交给 LLM 代理处理。"
+        ),
+        "ja": (
+            "各論文の PDF を読み、論文の章立てに沿った要約を作成します。設定の Anthropic API "
+            "キーを使うか、論文を LLM エージェントに渡します。"
+        ),
+        "es": (
+            "Lee el PDF de cada artículo y redacta un resumen con estructura de tesis, con una "
+            "clave de API de Anthropic en Ajustes o pasando los artículos a un agente LLM."
+        ),
+        "fr": (
+            "Lit le PDF de chaque article et rédige un résumé structuré comme une thèse, avec une "
+            "clé API Anthropic dans les Paramètres ou en confiant les articles à un agent LLM."
+        ),
+        "de": (
+            "Liest das PDF jedes Artikels und schreibt eine Zusammenfassung im Aufbau einer "
+            "Abschlussarbeit, mit einem Anthropic-API-Schlüssel aus den Einstellungen oder über "
+            "einen LLM-Agenten."
+        ),
+        "ko": (
+            "각 논문의 PDF를 읽고 학위논문 구조에 맞춘 요약을 작성합니다. 설정의 Anthropic API "
+            "키를 쓰거나 논문을 LLM 에이전트에게 넘깁니다."
+        ),
+        "pt": (
+            "Lê o PDF de cada artigo e escreve um resumo com estrutura de tese, com uma chave de "
+            "API da Anthropic em Configurações ou passando os artigos a um agente LLM."
+        ),
+        "ru": (
+            "Читает PDF каждой статьи и составляет резюме по структуре диссертации, с ключом API "
+            "Anthropic из настроек или через LLM-агента."
+        ),
+        "it": (
+            "Legge il PDF di ogni articolo e scrive un riassunto con la struttura di una tesi, con "
+            "una chiave API Anthropic nelle Impostazioni o affidando gli articoli a un agente LLM."
+        ),
+        "vi": (
+            "Đọc PDF của từng bài báo và viết bản tóm tắt theo cấu trúc luận văn, bằng khóa API "
+            "Anthropic trong Cài đặt hoặc giao các bài báo cho một tác tử LLM."
+        ),
+        "hi": (
+            "हर शोध-पत्र की PDF पढ़कर थीसिस-संरचना वाला सारांश लिखता है, सेटिंग्स की Anthropic API "
+            "कुंजी से या शोध-पत्र किसी LLM एजेंट को सौंपकर।"
+        ),
+        "id": (
+            "Membaca PDF setiap makalah dan menulis ringkasan berstruktur tesis, dengan kunci API "
+            "Anthropic di Pengaturan atau dengan menyerahkan makalah ke agen LLM."
+        ),
+    },
+    "page.deck_subtitle": {
+        "en": "Pick the output formats and deck options, then write the files.",
+        "zh-tw": "選擇輸出格式與投影片選項，然後寫出檔案。",
+        "zh-cn": "选择输出格式与幻灯片选项，然后写出文件。",
+        "ja": "出力形式とスライドのオプションを選び、ファイルを書き出します。",
+        "es": (
+            "Elija los formatos de salida y las opciones de diapositivas, y luego escriba los "
+            "archivos."
+        ),
+        "fr": (
+            "Choisissez les formats de sortie et les options des diapos, puis écrivez les fichiers."
+        ),
+        "de": "Ausgabeformate und Folienoptionen wählen, dann die Dateien schreiben.",
+        "ko": "출력 형식과 슬라이드 옵션을 고른 뒤 파일을 저장합니다.",
+        "pt": (
+            "Escolha os formatos de saída e as opções dos slides e, em seguida, grave os arquivos."
+        ),
+        "ru": "Выберите форматы вывода и параметры слайдов, затем запишите файлы.",
+        "it": "Scegli i formati di output e le opzioni delle diapositive, poi scrivi i file.",
+        "vi": "Chọn định dạng đầu ra và tùy chọn slide, sau đó ghi tệp.",
+        "hi": "आउटपुट फ़ॉर्मैट और स्लाइड विकल्प चुनें, फिर फ़ाइलें लिखें।",
+        "id": "Pilih format keluaran dan opsi slide, lalu tulis berkasnya.",
+    },
+    "page.settings_subtitle": {
+        "en": (
+            "API keys, browser access, interface language and theme. Everything is stored on this "
+            "computer only."
+        ),
+        "zh-tw": "API 金鑰、瀏覽器存取、介面語言與主題。所有設定只儲存在這台電腦。",
+        "zh-cn": "API 密钥、浏览器访问、界面语言与主题。所有设置只保存在这台电脑。",
+        "ja": (
+            "API キー、ブラウザーアクセス、表示言語とテーマ。"
+            "すべてこのコンピューターにのみ保存されます。"
+        ),
+        "es": (
+            "Claves de API, acceso del navegador, idioma de la interfaz y tema. Todo se guarda "
+            "solo en este equipo."
+        ),
+        "fr": (
+            "Clés API, accès navigateur, langue de l'interface et thème. Tout est enregistré sur "
+            "cet ordinateur uniquement."
+        ),
+        "de": (
+            "API-Schlüssel, Browserzugriff, Oberflächensprache und Design. Alles wird nur auf "
+            "diesem Computer gespeichert."
+        ),
+        "ko": (
+            "API 키, 브라우저 접근, 인터페이스 언어와 테마. 모든 설정은 이 컴퓨터에만 저장됩니다."
+        ),
+        "pt": (
+            "Chaves de API, acesso do navegador, idioma da interface e tema. Tudo fica salvo "
+            "apenas neste computador."
+        ),
+        "ru": (
+            "Ключи API, доступ браузера, язык интерфейса и тема. Всё хранится только на этом "
+            "компьютере."
+        ),
+        "it": (
+            "Chiavi API, accesso del browser, lingua dell'interfaccia e tema. Tutto è salvato solo "
+            "su questo computer."
+        ),
+        "vi": (
+            "Khóa API, truy cập trình duyệt, ngôn ngữ giao diện và chủ đề. Mọi thứ chỉ được lưu "
+            "trên máy tính này."
+        ),
+        "hi": (
+            "API कुंजियाँ, ब्राउज़र पहुँच, इंटरफ़ेस भाषा और थीम। सब कुछ केवल इसी कंप्यूटर पर सहेजा "
+            "जाता है।"
+        ),
+        "id": (
+            "Kunci API, akses peramban, bahasa antarmuka, dan tema. Semuanya hanya disimpan di "
+            "komputer ini."
+        ),
+    },
+    # Card titles -------------------------------------------------------
+    "search.card_query": {
+        "en": "What to search",
+        "zh-tw": "搜尋內容",
+        "zh-cn": "搜索内容",
+        "ja": "検索内容",
+        "es": "Qué buscar",
+        "fr": "Que rechercher",
+        "de": "Suchanfrage",
+        "ko": "검색 내용",
+        "pt": "O que pesquisar",
+        "ru": "Что искать",
+        "it": "Cosa cercare",
+        "vi": "Tìm gì",
+        "hi": "क्या खोजें",
+        "id": "Apa yang dicari",
+    },
+    "search.card_filters": {
+        "en": "Filters",
+        "zh-tw": "篩選條件",
+        "zh-cn": "筛选条件",
+        "ja": "絞り込み",
+        "es": "Filtros",
+        "fr": "Filtres",
+        "de": "Filter",
+        "ko": "필터",
+        "pt": "Filtros",
+        "ru": "Фильтры",
+        "it": "Filtri",
+        "vi": "Bộ lọc",
+        "hi": "फ़िल्टर",
+        "id": "Filter",
+    },
+    "search.card_library": {
+        "en": "Snowball and library",
+        "zh-tw": "引用滾雪球與文獻庫",
+        "zh-cn": "引用滚雪球与文献库",
+        "ja": "引用スノーボールとライブラリ",
+        "es": "Bola de nieve y biblioteca",
+        "fr": "Boule de neige et bibliothèque",
+        "de": "Schneeball und Bibliothek",
+        "ko": "인용 스노볼과 라이브러리",
+        "pt": "Bola de neve e biblioteca",
+        "ru": "Снежный ком и библиотека",
+        "it": "Palla di neve e biblioteca",
+        "vi": "Lăn cầu tuyết và thư viện",
+        "hi": "Citation snowball और लाइब्रेरी",
+        "id": "Bola salju dan pustaka",
+    },
+    "search.results_title": {
+        "en": "Results",
+        "zh-tw": "搜尋結果",
+        "zh-cn": "搜索结果",
+        "ja": "検索結果",
+        "es": "Resultados",
+        "fr": "Résultats",
+        "de": "Ergebnisse",
+        "ko": "결과",
+        "pt": "Resultados",
+        "ru": "Результаты",
+        "it": "Risultati",
+        "vi": "Kết quả",
+        "hi": "परिणाम",
+        "id": "Hasil",
+    },
+    "settings.card_browser": {
+        "en": "Browser and PDF access",
+        "zh-tw": "瀏覽器與 PDF 存取",
+        "zh-cn": "浏览器与 PDF 访问",
+        "ja": "ブラウザーと PDF へのアクセス",
+        "es": "Navegador y acceso a PDF",
+        "fr": "Navigateur et accès aux PDF",
+        "de": "Browser und PDF-Zugriff",
+        "ko": "브라우저 및 PDF 접근",
+        "pt": "Navegador e acesso a PDF",
+        "ru": "Браузер и доступ к PDF",
+        "it": "Browser e accesso ai PDF",
+        "vi": "Trình duyệt và truy cập PDF",
+        "hi": "ब्राउज़र और PDF पहुँच",
+        "id": "Peramban dan akses PDF",
+    },
+    # Theme ---------------------------------------------------------------
+    "settings.theme_label": {
+        "en": "Theme",
+        "zh-tw": "主題",
+        "zh-cn": "主题",
+        "ja": "テーマ",
+        "es": "Tema",
+        "fr": "Thème",
+        "de": "Design",
+        "ko": "테마",
+        "pt": "Tema",
+        "ru": "Тема",
+        "it": "Tema",
+        "vi": "Chủ đề",
+        "hi": "थीम",
+        "id": "Tema",
+    },
+    "settings.theme_system": {
+        "en": "Follow the system",
+        "zh-tw": "跟隨系統",
+        "zh-cn": "跟随系统",
+        "ja": "システムに合わせる",
+        "es": "Seguir el sistema",
+        "fr": "Suivre le système",
+        "de": "Wie System",
+        "ko": "시스템 설정 따르기",
+        "pt": "Seguir o sistema",
+        "ru": "Как в системе",
+        "it": "Segui il sistema",
+        "vi": "Theo hệ thống",
+        "hi": "सिस्टम के अनुसार",
+        "id": "Ikuti sistem",
+    },
+    "settings.theme_light": {
+        "en": "Light",
+        "zh-tw": "淺色",
+        "zh-cn": "浅色",
+        "ja": "ライト",
+        "es": "Claro",
+        "fr": "Clair",
+        "de": "Hell",
+        "ko": "라이트",
+        "pt": "Claro",
+        "ru": "Светлая",
+        "it": "Chiaro",
+        "vi": "Sáng",
+        "hi": "लाइट",
+        "id": "Terang",
+    },
+    "settings.theme_dark": {
+        "en": "Dark",
+        "zh-tw": "深色",
+        "zh-cn": "深色",
+        "ja": "ダーク",
+        "es": "Oscuro",
+        "fr": "Sombre",
+        "de": "Dunkel",
+        "ko": "다크",
+        "pt": "Escuro",
+        "ru": "Тёмная",
+        "it": "Scuro",
+        "vi": "Tối",
+        "hi": "डार्क",
+        "id": "Gelap",
+    },
+    # Style -------------------------------------------------------------
+    "settings.style_label": {
+        "en": "Style",
+        "zh-tw": "介面風格",
+        "zh-cn": "界面风格",
+        "ja": "スタイル",
+        "es": "Estilo",
+        "fr": "Style",
+        "de": "Stil",
+        "ko": "스타일",
+        "pt": "Estilo",
+        "ru": "Стиль",
+        "it": "Stile",
+        "vi": "Phong cách",
+        "hi": "शैली",
+        "id": "Gaya",
+    },
+    "settings.style_classic": {
+        "en": "Classic (navy, matches the decks)",
+        "zh-tw": "經典(海軍藍，與投影片一致)",
+        "zh-cn": "经典(海军蓝，与幻灯片一致)",
+        "ja": "クラシック(ネイビー、スライドと統一)",
+        "es": "Clásico (azul marino, como las diapositivas)",
+        "fr": "Classique (bleu marine, comme les diapos)",
+        "de": "Klassisch (Marineblau, wie die Folien)",
+        "ko": "클래식 (네이비, 슬라이드와 통일)",
+        "pt": "Clássico (azul-marinho, como os slides)",
+        "ru": "Классический (тёмно-синий, как слайды)",
+        "it": "Classico (blu navy, come le diapositive)",
+        "vi": "Cổ điển (xanh navy, giống slide)",
+        "hi": "क्लासिक (नेवी, स्लाइड जैसा)",
+        "id": "Klasik (biru dongker, serasi dengan slide)",
+    },
+    "settings.style_material": {
+        "en": "Material 3",
+        "zh-tw": "Material 3",
+        "zh-cn": "Material 3",
+        "ja": "Material 3",
+        "es": "Material 3",
+        "fr": "Material 3",
+        "de": "Material 3",
+        "ko": "Material 3",
+        "pt": "Material 3",
+        "ru": "Material 3",
+        "it": "Material 3",
+        "vi": "Material 3",
+        "hi": "Material 3",
+        "id": "Material 3",
+    },
+    # Stage A: cancel, snowball bounds, results filter / ticks / menu --
+    "action.cancel": {
+        "en": "Cancel",
+        "zh-tw": "取消",
+        "zh-cn": "取消",
+        "ja": "キャンセル",
+        "es": "Cancelar",
+        "fr": "Annuler",
+        "de": "Abbrechen",
+        "ko": "취소",
+        "pt": "Cancelar",
+        "ru": "Отмена",
+        "it": "Annulla",
+        "vi": "Hủy",
+        "hi": "रद्द करें",
+        "id": "Batal",
+    },
+    "search.status_cancelled": {
+        "en": "Search cancelled. The previous results are kept.",
+        "zh-tw": "已取消搜尋，保留先前的結果。",
+        "zh-cn": "已取消搜索，保留之前的结果。",
+        "ja": "検索をキャンセルしました。前回の結果はそのままです。",
+        "es": "Búsqueda cancelada. Se conservan los resultados anteriores.",
+        "fr": "Recherche annulée. Les résultats précédents sont conservés.",
+        "de": "Suche abgebrochen. Die bisherigen Ergebnisse bleiben erhalten.",
+        "ko": "검색을 취소했습니다. 이전 결과는 그대로 유지됩니다.",
+        "pt": "Pesquisa cancelada. Os resultados anteriores foram mantidos.",
+        "ru": "Поиск отменён. Предыдущие результаты сохранены.",
+        "it": "Ricerca annullata. I risultati precedenti restano.",
+        "vi": "Đã hủy tìm kiếm. Kết quả trước đó được giữ lại.",
+        "hi": "खोज रद्द की गई। पिछले परिणाम बने रहेंगे।",
+        "id": "Pencarian dibatalkan. Hasil sebelumnya tetap disimpan.",
+    },
+    "search.snowball_advanced": {
+        "en": "Advanced snowball settings",
+        "zh-tw": "進階滾雪球設定",
+        "zh-cn": "高级滚雪球设置",
+        "ja": "スノーボールの詳細設定",
+        "es": "Ajustes avanzados de bola de nieve",
+        "fr": "Réglages avancés de la boule de neige",
+        "de": "Erweiterte Schneeball-Einstellungen",
+        "ko": "스노볼 고급 설정",
+        "pt": "Configurações avançadas da bola de neve",
+        "ru": "Расширенные настройки снежного кома",
+        "it": "Impostazioni avanzate della palla di neve",
+        "vi": "Cài đặt lăn cầu tuyết nâng cao",
+        "hi": "उन्नत snowball सेटिंग्स",
+        "id": "Pengaturan lanjutan bola salju",
+    },
+    "search.snowball_seeds": {
+        "en": "Top results to expand",
+        "zh-tw": "延伸前幾筆結果",
+        "zh-cn": "扩展前几条结果",
+        "ja": "展開する上位の結果数",
+        "es": "Primeros resultados a expandir",
+        "fr": "Premiers résultats à étendre",
+        "de": "Zu erweiternde Top-Ergebnisse",
+        "ko": "확장할 상위 결과 수",
+        "pt": "Primeiros resultados a expandir",
+        "ru": "Сколько первых результатов расширять",
+        "it": "Primi risultati da espandere",
+        "vi": "Số kết quả đầu cần mở rộng",
+        "hi": "विस्तार के लिए शीर्ष परिणाम",
+        "id": "Hasil teratas yang diperluas",
+    },
+    "search.snowball_depth": {
+        "en": "Steps from each result",
+        "zh-tw": "每筆結果延伸的層數",
+        "zh-cn": "每条结果扩展的层数",
+        "ja": "各結果からたどる段数",
+        "es": "Pasos desde cada resultado",
+        "fr": "Étapes depuis chaque résultat",
+        "de": "Schritte ab jedem Ergebnis",
+        "ko": "각 결과에서 따라갈 단계 수",
+        "pt": "Passos a partir de cada resultado",
+        "ru": "Шагов от каждого результата",
+        "it": "Passi da ogni risultato",
+        "vi": "Số bước từ mỗi kết quả",
+        "hi": "हर परिणाम से चरण",
+        "id": "Langkah dari setiap hasil",
+    },
+    "search.snowball_max_per_seed": {
+        "en": "Papers per result and direction",
+        "zh-tw": "每筆結果、每個方向的論文數",
+        "zh-cn": "每条结果、每个方向的论文数",
+        "ja": "結果・方向ごとの論文数",
+        "es": "Artículos por resultado y dirección",
+        "fr": "Articles par résultat et direction",
+        "de": "Artikel pro Ergebnis und Richtung",
+        "ko": "결과·방향별 논문 수",
+        "pt": "Artigos por resultado e direção",
+        "ru": "Статей на результат и направление",
+        "it": "Articoli per risultato e direzione",
+        "vi": "Số bài báo mỗi kết quả và hướng",
+        "hi": "प्रति परिणाम और दिशा शोध-पत्र",
+        "id": "Makalah per hasil dan arah",
+    },
+    "search.snowball_max_total": {
+        "en": "New papers in all (at most)",
+        "zh-tw": "新增論文總數上限",
+        "zh-cn": "新增论文总数上限",
+        "ja": "追加する論文の上限",
+        "es": "Máximo de artículos nuevos en total",
+        "fr": "Nouveaux articles au total (au plus)",
+        "de": "Neue Artikel insgesamt (höchstens)",
+        "ko": "새 논문 총수 (최대)",
+        "pt": "Máximo de artigos novos no total",
+        "ru": "Всего новых статей (не более)",
+        "it": "Nuovi articoli in tutto (al massimo)",
+        "vi": "Tổng số bài báo mới (tối đa)",
+        "hi": "कुल नए शोध-पत्र (अधिकतम)",
+        "id": "Total makalah baru (paling banyak)",
+    },
+    "search.snowball_min_relevance": {
+        "en": "Minimum relevance (0 to 1, dash = off)",
+        "zh-tw": "最低相關度(0 到 1，— 表示不限)",
+        "zh-cn": "最低相关度(0 到 1，— 表示不限)",
+        "ja": "最低関連度(0〜1、— は制限なし)",
+        "es": "Relevancia mínima (0 a 1, guion = sin límite)",
+        "fr": "Pertinence minimale (0 à 1, tiret = aucune)",
+        "de": "Mindestrelevanz (0 bis 1, Strich = aus)",
+        "ko": "최소 관련도 (0~1, — 는 제한 없음)",
+        "pt": "Relevância mínima (0 a 1, traço = sem limite)",
+        "ru": "Минимальная релевантность (0–1, прочерк = без порога)",
+        "it": "Rilevanza minima (da 0 a 1, trattino = nessuna)",
+        "vi": "Độ liên quan tối thiểu (0 đến 1, gạch = không giới hạn)",
+        "hi": "न्यूनतम प्रासंगिकता (0 से 1, डैश = बंद)",
+        "id": "Relevansi minimum (0 sampai 1, tanda pisah = mati)",
+    },
+    "search.filter_placeholder": {
+        "en": "Filter by title, author, venue or DOI",
+        "zh-tw": "依標題、作者、出處或 DOI 篩選",
+        "zh-cn": "按标题、作者、出处或 DOI 筛选",
+        "ja": "タイトル・著者・掲載誌・DOI で絞り込み",
+        "es": "Filtrar por título, autor, publicación o DOI",
+        "fr": "Filtrer par titre, auteur, revue ou DOI",
+        "de": "Nach Titel, Autor, Publikationsort oder DOI filtern",
+        "ko": "제목·저자·게재처·DOI로 필터",
+        "pt": "Filtrar por título, autor, veículo ou DOI",
+        "ru": "Фильтр по названию, автору, изданию или DOI",
+        "it": "Filtra per titolo, autore, sede o DOI",
+        "vi": "Lọc theo tiêu đề, tác giả, nơi đăng hoặc DOI",
+        "hi": "शीर्षक, लेखक, प्रकाशन स्थल या DOI से फ़िल्टर करें",
+        "id": "Saring menurut judul, penulis, publikasi, atau DOI",
+    },
+    "search.filter_all_sources": {
+        "en": "All sources",
+        "zh-tw": "所有來源",
+        "zh-cn": "所有来源",
+        "ja": "すべてのソース",
+        "es": "Todas las fuentes",
+        "fr": "Toutes les sources",
+        "de": "Alle Quellen",
+        "ko": "모든 소스",
+        "pt": "Todas as fontes",
+        "ru": "Все источники",
+        "it": "Tutte le fonti",
+        "vi": "Tất cả nguồn",
+        "hi": "सभी स्रोत",
+        "id": "Semua sumber",
+    },
+    "search.tick_shown": {
+        "en": "Tick shown",
+        "zh-tw": "勾選顯示的",
+        "zh-cn": "勾选显示的",
+        "ja": "表示中を選択",
+        "es": "Marcar visibles",
+        "fr": "Cocher les visibles",
+        "de": "Angezeigte anhaken",
+        "ko": "표시된 항목 선택",
+        "pt": "Marcar visíveis",
+        "ru": "Отметить видимые",
+        "it": "Seleziona visibili",
+        "vi": "Chọn mục đang hiện",
+        "hi": "दिखाए गए चुनें",
+        "id": "Centang yang tampil",
+    },
+    "search.untick_shown": {
+        "en": "Untick shown",
+        "zh-tw": "取消勾選顯示的",
+        "zh-cn": "取消勾选显示的",
+        "ja": "表示中の選択を解除",
+        "es": "Desmarcar visibles",
+        "fr": "Décocher les visibles",
+        "de": "Angezeigte abwählen",
+        "ko": "표시된 항목 선택 해제",
+        "pt": "Desmarcar visíveis",
+        "ru": "Снять отметку с видимых",
+        "it": "Deseleziona visibili",
+        "vi": "Bỏ chọn mục đang hiện",
+        "hi": "दिखाए गए अचयनित करें",
+        "id": "Hapus centang yang tampil",
+    },
+    "search.selection_count": {
+        "en": "{checked} of {total} ticked",
+        "zh-tw": "已勾選 {checked} / {total}",
+        "zh-cn": "已勾选 {checked} / {total}",
+        "ja": "{total} 件中 {checked} 件を選択",
+        "es": "{checked} de {total} marcados",
+        "fr": "{checked} sur {total} cochés",
+        "de": "{checked} von {total} angehakt",
+        "ko": "{total}개 중 {checked}개 선택",
+        "pt": "{checked} de {total} marcados",
+        "ru": "Отмечено {checked} из {total}",
+        "it": "{checked} di {total} selezionati",
+        "vi": "Đã chọn {checked}/{total}",
+        "hi": "{total} में से {checked} चुने गए",
+        "id": "{checked} dari {total} dicentang",
+    },
+    "search.menu_open_page": {
+        "en": "Open paper page",
+        "zh-tw": "開啟論文頁面",
+        "zh-cn": "打开论文页面",
+        "ja": "論文ページを開く",
+        "es": "Abrir la página del artículo",
+        "fr": "Ouvrir la page de l'article",
+        "de": "Artikelseite öffnen",
+        "ko": "논문 페이지 열기",
+        "pt": "Abrir a página do artigo",
+        "ru": "Открыть страницу статьи",
+        "it": "Apri la pagina dell'articolo",
+        "vi": "Mở trang bài báo",
+        "hi": "शोध-पत्र का पेज खोलें",
+        "id": "Buka halaman makalah",
+    },
+    "search.menu_open_pdf": {
+        "en": "Open PDF",
+        "zh-tw": "開啟 PDF",
+        "zh-cn": "打开 PDF",
+        "ja": "PDF を開く",
+        "es": "Abrir el PDF",
+        "fr": "Ouvrir le PDF",
+        "de": "PDF öffnen",
+        "ko": "PDF 열기",
+        "pt": "Abrir o PDF",
+        "ru": "Открыть PDF",
+        "it": "Apri il PDF",
+        "vi": "Mở PDF",
+        "hi": "PDF खोलें",
+        "id": "Buka PDF",
+    },
+    "search.menu_copy_doi": {
+        "en": "Copy DOI",
+        "zh-tw": "複製 DOI",
+        "zh-cn": "复制 DOI",
+        "ja": "DOI をコピー",
+        "es": "Copiar el DOI",
+        "fr": "Copier le DOI",
+        "de": "DOI kopieren",
+        "ko": "DOI 복사",
+        "pt": "Copiar o DOI",
+        "ru": "Копировать DOI",
+        "it": "Copia il DOI",
+        "vi": "Sao chép DOI",
+        "hi": "DOI कॉपी करें",
+        "id": "Salin DOI",
+    },
+    "search.menu_copy_bibtex": {
+        "en": "Copy BibTeX",
+        "zh-tw": "複製 BibTeX",
+        "zh-cn": "复制 BibTeX",
+        "ja": "BibTeX をコピー",
+        "es": "Copiar BibTeX",
+        "fr": "Copier le BibTeX",
+        "de": "BibTeX kopieren",
+        "ko": "BibTeX 복사",
+        "pt": "Copiar BibTeX",
+        "ru": "Копировать BibTeX",
+        "it": "Copia BibTeX",
+        "vi": "Sao chép BibTeX",
+        "hi": "BibTeX कॉपी करें",
+        "id": "Salin BibTeX",
+    },
+    "enrich.row_cancelled": {
+        "en": "not run (stopped)",
+        "zh-tw": "未執行(已停止)",
+        "zh-cn": "未执行(已停止)",
+        "ja": "未実行(停止)",
+        "es": "no procesado (detenido)",
+        "fr": "non traité (arrêté)",
+        "de": "nicht ausgeführt (gestoppt)",
+        "ko": "실행 안 함 (중지됨)",
+        "pt": "não processado (interrompido)",
+        "ru": "не выполнено (остановлено)",
+        "it": "non eseguito (interrotto)",
+        "vi": "chưa chạy (đã dừng)",
+        "hi": "नहीं चला (रोका गया)",
+        "id": "tidak dijalankan (dihentikan)",
+    },
+    "enrich.status_cancelled": {
+        "en": "Stopped after {done} of {total} papers. The rest keep their search record.",
+        "zh-tw": "已在 {total} 篇中的第 {done} 篇後停止，其餘論文保留搜尋時的資料。",
+        "zh-cn": "已在 {total} 篇中的第 {done} 篇后停止，其余论文保留搜索时的数据。",
+        "ja": "{total} 件中 {done} 件で停止しました。残りは検索時の情報のままです。",
+        "es": (
+            "Detenido tras {done} de {total} artículos. El resto conserva su registro de búsqueda."
+        ),
+        "fr": (
+            "Arrêté après {done} articles sur {total}. Les autres gardent leur fiche de recherche."
+        ),
+        "de": (
+            "Nach {done} von {total} Artikeln gestoppt. Die übrigen behalten ihren Suchdatensatz."
+        ),
+        "ko": "{total}편 중 {done}편 이후 중지했습니다. 나머지는 검색 시 정보를 유지합니다.",
+        "pt": (
+            "Interrompido após {done} de {total} artigos. Os demais mantêm o registro da pesquisa."
+        ),
+        "ru": "Остановлено после {done} из {total} статей. Остальные сохраняют данные поиска.",
+        "it": (
+            "Interrotto dopo {done} di {total} articoli. Gli altri mantengono il record di ricerca."
+        ),
+        "vi": "Đã dừng sau {done}/{total} bài báo. Các bài còn lại giữ dữ liệu tìm kiếm.",
+        "hi": "{total} में से {done} शोध-पत्रों के बाद रोका गया। बाकी अपना खोज रिकॉर्ड रखते हैं।",
+        "id": "Dihentikan setelah {done} dari {total} makalah. Sisanya menyimpan data pencarian.",
+    },
+    # Library page --------------------------------------------------------
+    "nav.library": {
+        "en": "Library",
+        "zh-tw": "文獻庫",
+        "zh-cn": "文献库",
+        "ja": "ライブラリ",
+        "es": "Biblioteca",
+        "fr": "Bibliothèque",
+        "de": "Bibliothek",
+        "ko": "라이브러리",
+        "pt": "Biblioteca",
+        "ru": "Библиотека",
+        "it": "Biblioteca",
+        "vi": "Thư viện",
+        "hi": "लाइब्रेरी",
+        "id": "Pustaka",
+    },
+    "page.library_subtitle": {
+        "en": (
+            "Browse a library file: what it holds, the searches that filled it, and the citation "
+            "links between its papers. Read only."
+        ),
+        "zh-tw": "瀏覽文獻庫檔案：收錄的論文、累積它的歷次搜尋，以及論文之間的引用關係。唯讀。",
+        "zh-cn": "浏览文献库文件：收录的论文、积累它的历次搜索，以及论文之间的引用关系。只读。",
+        "ja": (
+            "ライブラリファイルを閲覧します。収録論文、それを集めた検索、"
+            "論文間の引用関係を表示します。読み取り専用です。"
+        ),
+        "es": (
+            "Explore un archivo de biblioteca: lo que contiene, las búsquedas que lo llenaron y "
+            "los enlaces de citas entre sus artículos. Solo lectura."
+        ),
+        "fr": (
+            "Parcourez un fichier de bibliothèque : son contenu, les recherches qui l'ont rempli "
+            "et les liens de citation entre ses articles. Lecture seule."
+        ),
+        "de": (
+            "Eine Bibliotheksdatei durchsehen: ihren Inhalt, die Suchen, die sie gefüllt haben, "
+            "und die Zitationen zwischen ihren Artikeln. Nur lesend."
+        ),
+        "ko": (
+            "라이브러리 파일을 살펴봅니다. 담긴 논문, 이를 채운 검색들, 논문 간 인용 관계를 보여 "
+            "줍니다. 읽기 전용입니다."
+        ),
+        "pt": (
+            "Explore um arquivo de biblioteca: o que ele contém, as pesquisas que o preencheram e "
+            "os vínculos de citação entre os artigos. Somente leitura."
+        ),
+        "ru": (
+            "Просмотр файла библиотеки: что в нём хранится, какие поиски его наполнили и как "
+            "статьи цитируют друг друга. Только чтение."
+        ),
+        "it": (
+            "Consulta un file di biblioteca: cosa contiene, le ricerche che l'hanno riempito e i "
+            "legami di citazione tra gli articoli. Sola lettura."
+        ),
+        "vi": (
+            "Duyệt một tệp thư viện: nội dung, các lần tìm kiếm đã bổ sung vào nó và liên kết "
+            "trích dẫn giữa các bài báo. Chỉ đọc."
+        ),
+        "hi": (
+            "लाइब्रेरी फ़ाइल देखें: उसमें क्या है, किन खोजों ने उसे भरा, और उसके शोध-पत्रों के बीच "
+            "उद्धरण संबंध। केवल पढ़ने के लिए।"
+        ),
+        "id": (
+            "Jelajahi berkas pustaka: isinya, pencarian yang mengisinya, dan tautan sitasi "
+            "antarmakalah. Hanya baca."
+        ),
+    },
+    "library.card_file": {
+        "en": "Library file",
+        "zh-tw": "文獻庫檔案",
+        "zh-cn": "文献库文件",
+        "ja": "ライブラリファイル",
+        "es": "Archivo de biblioteca",
+        "fr": "Fichier de bibliothèque",
+        "de": "Bibliotheksdatei",
+        "ko": "라이브러리 파일",
+        "pt": "Arquivo da biblioteca",
+        "ru": "Файл библиотеки",
+        "it": "File della biblioteca",
+        "vi": "Tệp thư viện",
+        "hi": "लाइब्रेरी फ़ाइल",
+        "id": "Berkas pustaka",
+    },
+    "library.query_placeholder": {
+        "en": "Find in the library (empty lists every paper)",
+        "zh-tw": "在文獻庫中搜尋(留空則列出全部論文)",
+        "zh-cn": "在文献库中搜索(留空则列出全部论文)",
+        "ja": "ライブラリ内を検索(空欄ですべての論文)",
+        "es": "Buscar en la biblioteca (vacío muestra todos los artículos)",
+        "fr": "Chercher dans la bibliothèque (vide : tous les articles)",
+        "de": "In der Bibliothek suchen (leer zeigt alle Artikel)",
+        "ko": "라이브러리에서 찾기 (비워 두면 전체 논문)",
+        "pt": "Procurar na biblioteca (vazio lista todos os artigos)",
+        "ru": "Поиск в библиотеке (пусто: все статьи)",
+        "it": "Cerca nella biblioteca (vuoto elenca tutti gli articoli)",
+        "vi": "Tìm trong thư viện (để trống để liệt kê mọi bài báo)",
+        "hi": "लाइब्रेरी में खोजें (खाली छोड़ने पर सभी शोध-पत्र)",
+        "id": "Cari di pustaka (kosong menampilkan semua makalah)",
+    },
+    "library.card_overview": {
+        "en": "Overview",
+        "zh-tw": "概況",
+        "zh-cn": "概况",
+        "ja": "概要",
+        "es": "Resumen",
+        "fr": "Vue d'ensemble",
+        "de": "Überblick",
+        "ko": "개요",
+        "pt": "Visão geral",
+        "ru": "Обзор",
+        "it": "Panoramica",
+        "vi": "Tổng quan",
+        "hi": "सारांश",
+        "id": "Ikhtisar",
+    },
+    "library.stat_papers": {
+        "en": "Papers",
+        "zh-tw": "論文",
+        "zh-cn": "论文",
+        "ja": "論文",
+        "es": "Artículos",
+        "fr": "Articles",
+        "de": "Artikel",
+        "ko": "논문",
+        "pt": "Artigos",
+        "ru": "Статьи",
+        "it": "Articoli",
+        "vi": "Bài báo",
+        "hi": "शोध-पत्र",
+        "id": "Makalah",
+    },
+    "library.stat_runs": {
+        "en": "Searches",
+        "zh-tw": "搜尋次數",
+        "zh-cn": "搜索次数",
+        "ja": "検索回数",
+        "es": "Búsquedas",
+        "fr": "Recherches",
+        "de": "Suchen",
+        "ko": "검색 횟수",
+        "pt": "Pesquisas",
+        "ru": "Поиски",
+        "it": "Ricerche",
+        "vi": "Lần tìm kiếm",
+        "hi": "खोजें",
+        "id": "Pencarian",
+    },
+    "library.stat_relations": {
+        "en": "Citation links",
+        "zh-tw": "引用關係",
+        "zh-cn": "引用关系",
+        "ja": "引用リンク",
+        "es": "Enlaces de citas",
+        "fr": "Liens de citation",
+        "de": "Zitationen",
+        "ko": "인용 관계",
+        "pt": "Vínculos de citação",
+        "ru": "Связи цитирования",
+        "it": "Legami di citazione",
+        "vi": "Liên kết trích dẫn",
+        "hi": "उद्धरण संबंध",
+        "id": "Tautan sitasi",
+    },
+    "library.stat_years": {
+        "en": "Years",
+        "zh-tw": "年份範圍",
+        "zh-cn": "年份范围",
+        "ja": "年",
+        "es": "Años",
+        "fr": "Années",
+        "de": "Jahre",
+        "ko": "연도",
+        "pt": "Anos",
+        "ru": "Годы",
+        "it": "Anni",
+        "vi": "Năm",
+        "hi": "वर्ष",
+        "id": "Tahun",
+    },
+    "library.stat_sources": {
+        "en": "Papers per source",
+        "zh-tw": "各來源論文數",
+        "zh-cn": "各来源论文数",
+        "ja": "ソース別の論文数",
+        "es": "Artículos por fuente",
+        "fr": "Articles par source",
+        "de": "Artikel je Quelle",
+        "ko": "소스별 논문 수",
+        "pt": "Artigos por fonte",
+        "ru": "Статей по источникам",
+        "it": "Articoli per fonte",
+        "vi": "Bài báo theo nguồn",
+        "hi": "प्रति स्रोत शोध-पत्र",
+        "id": "Makalah per sumber",
+    },
+    "library.stat_checks": {
+        "en": "Identifier checks",
+        "zh-tw": "識別碼檢查",
+        "zh-cn": "标识符检查",
+        "ja": "識別子の確認",
+        "es": "Comprobaciones de identificadores",
+        "fr": "Vérifications d'identifiants",
+        "de": "Kennungsprüfungen",
+        "ko": "식별자 검사",
+        "pt": "Verificações de identificadores",
+        "ru": "Проверки идентификаторов",
+        "it": "Verifiche degli identificatori",
+        "vi": "Kiểm tra định danh",
+        "hi": "पहचानकर्ता जाँच",
+        "id": "Pemeriksaan pengenal",
+    },
+    "library.open_button": {
+        "en": "Open library",
+        "zh-tw": "開啟文獻庫",
+        "zh-cn": "打开文献库",
+        "ja": "ライブラリを開く",
+        "es": "Abrir la biblioteca",
+        "fr": "Ouvrir la bibliothèque",
+        "de": "Bibliothek öffnen",
+        "ko": "라이브러리 열기",
+        "pt": "Abrir a biblioteca",
+        "ru": "Открыть библиотеку",
+        "it": "Apri la biblioteca",
+        "vi": "Mở thư viện",
+        "hi": "लाइब्रेरी खोलें",
+        "id": "Buka pustaka",
+    },
+    "library.send_button": {
+        "en": "Send to Enrich and Deck",
+        "zh-tw": "送往豐富化與投影片",
+        "zh-cn": "发送到丰富化与幻灯片",
+        "ja": "強化とスライドへ送る",
+        "es": "Enviar a Enriquecer y Diapositivas",
+        "fr": "Envoyer vers Enrichir et Diapos",
+        "de": "An Anreichern und Folien senden",
+        "ko": "보강과 슬라이드로 보내기",
+        "pt": "Enviar para Enriquecer e Slides",
+        "ru": "Передать в Обогащение и Слайды",
+        "it": "Invia ad Arricchisci e Diapositive",
+        "vi": "Gửi sang Làm giàu và Slide",
+        "hi": "समृद्ध करें और स्लाइड को भेजें",
+        "id": "Kirim ke Perkaya dan Slide",
+    },
+    "library.tab_papers": {
+        "en": "Papers",
+        "zh-tw": "論文",
+        "zh-cn": "论文",
+        "ja": "論文",
+        "es": "Artículos",
+        "fr": "Articles",
+        "de": "Artikel",
+        "ko": "논문",
+        "pt": "Artigos",
+        "ru": "Статьи",
+        "it": "Articoli",
+        "vi": "Bài báo",
+        "hi": "शोध-पत्र",
+        "id": "Makalah",
+    },
+    "library.tab_runs": {
+        "en": "Searches",
+        "zh-tw": "搜尋紀錄",
+        "zh-cn": "搜索记录",
+        "ja": "検索履歴",
+        "es": "Búsquedas",
+        "fr": "Recherches",
+        "de": "Suchen",
+        "ko": "검색 기록",
+        "pt": "Pesquisas",
+        "ru": "Поиски",
+        "it": "Ricerche",
+        "vi": "Lần tìm kiếm",
+        "hi": "खोजें",
+        "id": "Pencarian",
+    },
+    "library.col_sources": {
+        "en": "Sources",
+        "zh-tw": "來源",
+        "zh-cn": "来源",
+        "ja": "ソース",
+        "es": "Fuentes",
+        "fr": "Sources",
+        "de": "Quellen",
+        "ko": "소스",
+        "pt": "Fontes",
+        "ru": "Источники",
+        "it": "Fonti",
+        "vi": "Nguồn",
+        "hi": "स्रोत",
+        "id": "Sumber",
+    },
+    "library.col_seen": {
+        "en": "Times seen",
+        "zh-tw": "出現次數",
+        "zh-cn": "出现次数",
+        "ja": "出現回数",
+        "es": "Veces vista",
+        "fr": "Vu",
+        "de": "Gesehen",
+        "ko": "등장 횟수",
+        "pt": "Vezes vista",
+        "ru": "Встречалась",
+        "it": "Volte vista",
+        "vi": "Số lần gặp",
+        "hi": "कितनी बार मिला",
+        "id": "Kali terlihat",
+    },
+    "library.col_last_seen": {
+        "en": "Last seen",
+        "zh-tw": "最近出現",
+        "zh-cn": "最近出现",
+        "ja": "最終出現",
+        "es": "Última vez",
+        "fr": "Vu en dernier",
+        "de": "Zuletzt gesehen",
+        "ko": "마지막 등장",
+        "pt": "Última vez",
+        "ru": "Последний раз",
+        "it": "Ultima volta",
+        "vi": "Lần cuối",
+        "hi": "आख़िरी बार",
+        "id": "Terakhir terlihat",
+    },
+    "library.col_date": {
+        "en": "Date",
+        "zh-tw": "日期",
+        "zh-cn": "日期",
+        "ja": "日時",
+        "es": "Fecha",
+        "fr": "Date",
+        "de": "Datum",
+        "ko": "날짜",
+        "pt": "Data",
+        "ru": "Дата",
+        "it": "Data",
+        "vi": "Ngày",
+        "hi": "तारीख़",
+        "id": "Tanggal",
+    },
+    "library.col_kind": {
+        "en": "Kind",
+        "zh-tw": "類型",
+        "zh-cn": "类型",
+        "ja": "種類",
+        "es": "Tipo",
+        "fr": "Type",
+        "de": "Art",
+        "ko": "종류",
+        "pt": "Tipo",
+        "ru": "Тип",
+        "it": "Tipo",
+        "vi": "Loại",
+        "hi": "प्रकार",
+        "id": "Jenis",
+    },
+    "library.col_keywords": {
+        "en": "Keywords",
+        "zh-tw": "關鍵字",
+        "zh-cn": "关键词",
+        "ja": "キーワード",
+        "es": "Palabras clave",
+        "fr": "Mots-clés",
+        "de": "Suchbegriffe",
+        "ko": "키워드",
+        "pt": "Palavras-chave",
+        "ru": "Ключевые слова",
+        "it": "Parole chiave",
+        "vi": "Từ khóa",
+        "hi": "कीवर्ड",
+        "id": "Kata kunci",
+    },
+    "library.col_papers": {
+        "en": "Papers",
+        "zh-tw": "論文數",
+        "zh-cn": "论文数",
+        "ja": "論文数",
+        "es": "Artículos",
+        "fr": "Articles",
+        "de": "Artikel",
+        "ko": "논문 수",
+        "pt": "Artigos",
+        "ru": "Статей",
+        "it": "Articoli",
+        "vi": "Bài báo",
+        "hi": "शोध-पत्र",
+        "id": "Makalah",
+    },
+    "library.detail_cites": {
+        "en": "Cites ({count} in the library)",
+        "zh-tw": "引用了(文獻庫中 {count} 篇)",
+        "zh-cn": "引用了(文献库中 {count} 篇)",
+        "ja": "引用している論文(ライブラリ内 {count} 件)",
+        "es": "Cita a ({count} en la biblioteca)",
+        "fr": "Cite ({count} dans la bibliothèque)",
+        "de": "Zitiert ({count} in der Bibliothek)",
+        "ko": "인용한 논문 (라이브러리 내 {count}편)",
+        "pt": "Cita ({count} na biblioteca)",
+        "ru": "Цитирует ({count} в библиотеке)",
+        "it": "Cita ({count} nella biblioteca)",
+        "vi": "Trích dẫn ({count} trong thư viện)",
+        "hi": "उद्धृत करता है (लाइब्रेरी में {count})",
+        "id": "Mengutip ({count} di pustaka)",
+    },
+    "library.detail_cited_by": {
+        "en": "Cited by ({count} in the library)",
+        "zh-tw": "被引用(文獻庫中 {count} 篇)",
+        "zh-cn": "被引用(文献库中 {count} 篇)",
+        "ja": "引用されている論文(ライブラリ内 {count} 件)",
+        "es": "Citado por ({count} en la biblioteca)",
+        "fr": "Cité par ({count} dans la bibliothèque)",
+        "de": "Zitiert von ({count} in der Bibliothek)",
+        "ko": "이 논문을 인용한 논문 (라이브러리 내 {count}편)",
+        "pt": "Citado por ({count} na biblioteca)",
+        "ru": "Цитируется ({count} в библиотеке)",
+        "it": "Citato da ({count} nella biblioteca)",
+        "vi": "Được trích dẫn bởi ({count} trong thư viện)",
+        "hi": "इनके द्वारा उद्धृत (लाइब्रेरी में {count})",
+        "id": "Dikutip oleh ({count} di pustaka)",
+    },
+    "library.detail_checks": {
+        "en": "Identifier checks ({count})",
+        "zh-tw": "識別碼檢查({count})",
+        "zh-cn": "标识符检查({count})",
+        "ja": "識別子の確認({count})",
+        "es": "Comprobaciones de identificadores ({count})",
+        "fr": "Vérifications d'identifiants ({count})",
+        "de": "Kennungsprüfungen ({count})",
+        "ko": "식별자 검사 ({count})",
+        "pt": "Verificações de identificadores ({count})",
+        "ru": "Проверки идентификаторов ({count})",
+        "it": "Verifiche degli identificatori ({count})",
+        "vi": "Kiểm tra định danh ({count})",
+        "hi": "पहचानकर्ता जाँच ({count})",
+        "id": "Pemeriksaan pengenal ({count})",
+    },
+    "library.detail_none": {
+        "en": "None.",
+        "zh-tw": "無。",
+        "zh-cn": "无。",
+        "ja": "なし。",
+        "es": "Ninguno.",
+        "fr": "Aucun.",
+        "de": "Keine.",
+        "ko": "없음.",
+        "pt": "Nenhum.",
+        "ru": "Нет.",
+        "it": "Nessuno.",
+        "vi": "Không có.",
+        "hi": "कोई नहीं।",
+        "id": "Tidak ada.",
+    },
+    "library.detail_hint": {
+        "en": "Select a paper to see its citation links and identifier checks.",
+        "zh-tw": "選取一篇論文以查看其引用關係與識別碼檢查。",
+        "zh-cn": "选择一篇论文以查看其引用关系与标识符检查。",
+        "ja": "論文を選ぶと、引用関係と識別子の確認結果が表示されます。",
+        "es": (
+            "Seleccione un artículo para ver sus enlaces de citas y comprobaciones de "
+            "identificadores."
+        ),
+        "fr": (
+            "Sélectionnez un article pour voir ses liens de citation et ses vérifications "
+            "d'identifiants."
+        ),
+        "de": "Wählen Sie einen Artikel, um seine Zitationen und Kennungsprüfungen zu sehen.",
+        "ko": "논문을 선택하면 인용 관계와 식별자 검사 결과를 볼 수 있습니다.",
+        "pt": (
+            "Selecione um artigo para ver seus vínculos de citação e verificações de "
+            "identificadores."
+        ),
+        "ru": "Выберите статью, чтобы увидеть её связи цитирования и проверки идентификаторов.",
+        "it": (
+            "Seleziona un articolo per vedere i suoi legami di citazione e le verifiche degli "
+            "identificatori."
+        ),
+        "vi": "Chọn một bài báo để xem liên kết trích dẫn và kết quả kiểm tra định danh.",
+        "hi": "उद्धरण संबंध और पहचानकर्ता जाँच देखने के लिए कोई शोध-पत्र चुनें।",
+        "id": "Pilih makalah untuk melihat tautan sitasi dan pemeriksaan pengenalnya.",
+    },
+    "library.status_loaded": {
+        "en": "Showing {shown} of {papers} papers. {runs} searches, {relations} citation links.",
+        "zh-tw": "顯示 {papers} 篇中的 {shown} 篇。共 {runs} 次搜尋、{relations} 條引用關係。",
+        "zh-cn": "显示 {papers} 篇中的 {shown} 篇。共 {runs} 次搜索、{relations} 条引用关系。",
+        "ja": "{papers} 件中 {shown} 件を表示。検索 {runs} 回、引用リンク {relations} 件。",
+        "es": (
+            "Se muestran {shown} de {papers} artículos. {runs} búsquedas, {relations} enlaces de "
+            "citas."
+        ),
+        "fr": (
+            "{shown} articles affichés sur {papers}. {runs} recherches, {relations} liens de "
+            "citation."
+        ),
+        "de": "{shown} von {papers} Artikeln angezeigt. {runs} Suchen, {relations} Zitationen.",
+        "ko": "{papers}편 중 {shown}편 표시. 검색 {runs}회, 인용 관계 {relations}개.",
+        "pt": (
+            "Mostrando {shown} de {papers} artigos. {runs} pesquisas, {relations} vínculos de "
+            "citação."
+        ),
+        "ru": (
+            "Показано {shown} из {papers} статей. Поисков: {runs}, связей цитирования: {relations}."
+        ),
+        "it": (
+            "Mostrati {shown} di {papers} articoli. {runs} ricerche, {relations} legami di "
+            "citazione."
+        ),
+        "vi": (
+            "Đang hiển thị {shown}/{papers} bài báo. {runs} lần tìm kiếm, {relations} liên kết "
+            "trích dẫn."
+        ),
+        "hi": "{papers} में से {shown} शोध-पत्र दिखाए गए। {runs} खोजें, {relations} उद्धरण संबंध।",
+        "id": (
+            "Menampilkan {shown} dari {papers} makalah. {runs} pencarian, {relations} tautan "
+            "sitasi."
+        ),
+    },
+    "library.status_sent": {
+        "en": "{count} papers sent to Enrich and Deck.",
+        "zh-tw": "已將 {count} 篇論文送往豐富化與投影片。",
+        "zh-cn": "已将 {count} 篇论文发送到丰富化与幻灯片。",
+        "ja": "{count} 件の論文を強化とスライドへ送りました。",
+        "es": "{count} artículos enviados a Enriquecer y Diapositivas.",
+        "fr": "{count} articles envoyés vers Enrichir et Diapos.",
+        "de": "{count} Artikel an Anreichern und Folien gesendet.",
+        "ko": "논문 {count}편을 보강과 슬라이드로 보냈습니다.",
+        "pt": "{count} artigos enviados para Enriquecer e Slides.",
+        "ru": "Передано статей в Обогащение и Слайды: {count}.",
+        "it": "{count} articoli inviati ad Arricchisci e Diapositive.",
+        "vi": "Đã gửi {count} bài báo sang Làm giàu và Slide.",
+        "hi": "{count} शोध-पत्र समृद्ध करें और स्लाइड को भेजे गए।",
+        "id": "{count} makalah dikirim ke Perkaya dan Slide.",
+    },
+    "library.error": {
+        "en": "Could not open the library: {error}",
+        "zh-tw": "無法開啟文獻庫：{error}",
+        "zh-cn": "无法打开文献库：{error}",
+        "ja": "ライブラリを開けませんでした: {error}",
+        "es": "No se pudo abrir la biblioteca: {error}",
+        "fr": "Impossible d'ouvrir la bibliothèque : {error}",
+        "de": "Bibliothek konnte nicht geöffnet werden: {error}",
+        "ko": "라이브러리를 열 수 없습니다: {error}",
+        "pt": "Não foi possível abrir a biblioteca: {error}",
+        "ru": "Не удалось открыть библиотеку: {error}",
+        "it": "Impossibile aprire la biblioteca: {error}",
+        "vi": "Không mở được thư viện: {error}",
+        "hi": "लाइब्रेरी नहीं खुल सकी: {error}",
+        "id": "Tidak dapat membuka pustaka: {error}",
+    },
+    # Stage C: template check, deck review, agent hand-off ----------------
+    "action.copy": {
+        "en": "Copy",
+        "zh-tw": "複製",
+        "zh-cn": "复制",
+        "ja": "コピー",
+        "es": "Copiar",
+        "fr": "Copier",
+        "de": "Kopieren",
+        "ko": "복사",
+        "pt": "Copiar",
+        "ru": "Копировать",
+        "it": "Copia",
+        "vi": "Sao chép",
+        "hi": "कॉपी करें",
+        "id": "Salin",
+    },
+    "action.close": {
+        "en": "Close",
+        "zh-tw": "關閉",
+        "zh-cn": "关闭",
+        "ja": "閉じる",
+        "es": "Cerrar",
+        "fr": "Fermer",
+        "de": "Schließen",
+        "ko": "닫기",
+        "pt": "Fechar",
+        "ru": "Закрыть",
+        "it": "Chiudi",
+        "vi": "Đóng",
+        "hi": "बंद करें",
+        "id": "Tutup",
+    },
+    "deck.check_template_button": {
+        "en": "Check template",
+        "zh-tw": "檢查範本",
+        "zh-cn": "检查模板",
+        "ja": "テンプレートを確認",
+        "es": "Comprobar la plantilla",
+        "fr": "Vérifier le modèle",
+        "de": "Vorlage prüfen",
+        "ko": "템플릿 검사",
+        "pt": "Verificar o modelo",
+        "ru": "Проверить шаблон",
+        "it": "Verifica il modello",
+        "vi": "Kiểm tra mẫu",
+        "hi": "टेम्पलेट जाँचें",
+        "id": "Periksa templat",
+    },
+    "deck.error_no_template": {
+        "en": "Choose a template (.pptx) first.",
+        "zh-tw": "請先選擇範本(.pptx)。",
+        "zh-cn": "请先选择模板(.pptx)。",
+        "ja": "先にテンプレート(.pptx)を選んでください。",
+        "es": "Elija primero una plantilla (.pptx).",
+        "fr": "Choisissez d'abord un modèle (.pptx).",
+        "de": "Wählen Sie zuerst eine Vorlage (.pptx).",
+        "ko": "먼저 템플릿(.pptx)을 선택하세요.",
+        "pt": "Escolha primeiro um modelo (.pptx).",
+        "ru": "Сначала выберите шаблон (.pptx).",
+        "it": "Scegli prima un modello (.pptx).",
+        "vi": "Hãy chọn mẫu (.pptx) trước.",
+        "hi": "पहले एक टेम्पलेट (.pptx) चुनें।",
+        "id": "Pilih templat (.pptx) terlebih dahulu.",
+    },
+    "deck.template_ok": {
+        "en": "Template check: usable.",
+        "zh-tw": "範本檢查：可以使用。",
+        "zh-cn": "模板检查：可以使用。",
+        "ja": "テンプレートの確認: 使用できます。",
+        "es": "Comprobación de la plantilla: utilizable.",
+        "fr": "Vérification du modèle : utilisable.",
+        "de": "Vorlagenprüfung: verwendbar.",
+        "ko": "템플릿 검사: 사용 가능.",
+        "pt": "Verificação do modelo: utilizável.",
+        "ru": "Проверка шаблона: можно использовать.",
+        "it": "Verifica del modello: utilizzabile.",
+        "vi": "Kiểm tra mẫu: dùng được.",
+        "hi": "टेम्पलेट जाँच: उपयोग योग्य।",
+        "id": "Pemeriksaan templat: dapat dipakai.",
+    },
+    "deck.template_not_usable": {
+        "en": "Template check: not usable, {errors} problem(s). See the report.",
+        "zh-tw": "範本檢查：無法使用，共 {errors} 個問題，詳見報告。",
+        "zh-cn": "模板检查：无法使用，共 {errors} 个问题，详见报告。",
+        "ja": "テンプレートの確認: 使用できません。問題 {errors} 件、詳しくはレポートを参照。",
+        "es": "Comprobación de la plantilla: no utilizable, {errors} problema(s). Vea el informe.",
+        "fr": "Vérification du modèle : inutilisable, {errors} problème(s). Voir le rapport.",
+        "de": "Vorlagenprüfung: nicht verwendbar, {errors} Problem(e). Siehe Bericht.",
+        "ko": "템플릿 검사: 사용 불가, 문제 {errors}건. 보고서를 확인하세요.",
+        "pt": "Verificação do modelo: não utilizável, {errors} problema(s). Veja o relatório.",
+        "ru": "Проверка шаблона: нельзя использовать, проблем: {errors}. См. отчёт.",
+        "it": "Verifica del modello: non utilizzabile, {errors} problema/i. Vedi il rapporto.",
+        "vi": "Kiểm tra mẫu: không dùng được, {errors} vấn đề. Xem báo cáo.",
+        "hi": "टेम्पलेट जाँच: उपयोग योग्य नहीं, {errors} समस्या। रिपोर्ट देखें।",
+        "id": "Pemeriksaan templat: tidak dapat dipakai, {errors} masalah. Lihat laporan.",
+    },
+    "deck.review_button": {
+        "en": "Review a deck…",
+        "zh-tw": "審查投影片…",
+        "zh-cn": "审查幻灯片…",
+        "ja": "スライドをレビュー…",
+        "es": "Revisar una presentación…",
+        "fr": "Contrôler un diaporama…",
+        "de": "Foliensatz prüfen …",
+        "ko": "슬라이드 검토…",
+        "pt": "Revisar uma apresentação…",
+        "ru": "Проверить презентацию…",
+        "it": "Controlla una presentazione…",
+        "vi": "Rà soát slide…",
+        "hi": "स्लाइड की समीक्षा करें…",
+        "id": "Tinjau slide…",
+    },
+    "deck.review_dialog_title": {
+        "en": "Choose a deck to review",
+        "zh-tw": "選擇要審查的投影片",
+        "zh-cn": "选择要审查的幻灯片",
+        "ja": "レビューするスライドを選択",
+        "es": "Elija la presentación que revisar",
+        "fr": "Choisissez le diaporama à contrôler",
+        "de": "Zu prüfenden Foliensatz wählen",
+        "ko": "검토할 슬라이드 선택",
+        "pt": "Escolha a apresentação a revisar",
+        "ru": "Выберите презентацию для проверки",
+        "it": "Scegli la presentazione da controllare",
+        "vi": "Chọn slide cần rà soát",
+        "hi": "समीक्षा के लिए स्लाइड चुनें",
+        "id": "Pilih slide yang ditinjau",
+    },
+    "deck.review_pass": {
+        "en": "Deck review: PASS.",
+        "zh-tw": "投影片審查：通過。",
+        "zh-cn": "幻灯片审查：通过。",
+        "ja": "スライドのレビュー: 合格。",
+        "es": "Revisión de la presentación: APROBADA.",
+        "fr": "Contrôle du diaporama : RÉUSSI.",
+        "de": "Foliensatzprüfung: BESTANDEN.",
+        "ko": "슬라이드 검토: 통과.",
+        "pt": "Revisão da apresentação: APROVADA.",
+        "ru": "Проверка презентации: ПРОЙДЕНА.",
+        "it": "Controllo della presentazione: SUPERATO.",
+        "vi": "Rà soát slide: ĐẠT.",
+        "hi": "स्लाइड समीक्षा: पास।",
+        "id": "Tinjauan slide: LULUS.",
+    },
+    "deck.review_fail": {
+        "en": "Deck review: FAIL, {problems} problem(s). See the report.",
+        "zh-tw": "投影片審查：未通過，共 {problems} 個問題，詳見報告。",
+        "zh-cn": "幻灯片审查：未通过，共 {problems} 个问题，详见报告。",
+        "ja": "スライドのレビュー: 不合格。問題 {problems} 件、詳しくはレポートを参照。",
+        "es": "Revisión de la presentación: FALLA, {problems} problema(s). Vea el informe.",
+        "fr": "Contrôle du diaporama : ÉCHEC, {problems} problème(s). Voir le rapport.",
+        "de": "Foliensatzprüfung: NICHT BESTANDEN, {problems} Problem(e). Siehe Bericht.",
+        "ko": "슬라이드 검토: 실패, 문제 {problems}건. 보고서를 확인하세요.",
+        "pt": "Revisão da apresentação: FALHOU, {problems} problema(s). Veja o relatório.",
+        "ru": "Проверка презентации: НЕ ПРОЙДЕНА, проблем: {problems}. См. отчёт.",
+        "it": (
+            "Controllo della presentazione: NON SUPERATO, {problems} problema/i. Vedi il rapporto."
+        ),
+        "vi": "Rà soát slide: KHÔNG ĐẠT, {problems} vấn đề. Xem báo cáo.",
+        "hi": "स्लाइड समीक्षा: फ़ेल, {problems} समस्या। रिपोर्ट देखें।",
+        "id": "Tinjauan slide: GAGAL, {problems} masalah. Lihat laporan.",
+    },
+    "deck.report_template_title": {
+        "en": "Template check",
+        "zh-tw": "範本檢查",
+        "zh-cn": "模板检查",
+        "ja": "テンプレートの確認",
+        "es": "Comprobación de la plantilla",
+        "fr": "Vérification du modèle",
+        "de": "Vorlagenprüfung",
+        "ko": "템플릿 검사",
+        "pt": "Verificação do modelo",
+        "ru": "Проверка шаблона",
+        "it": "Verifica del modello",
+        "vi": "Kiểm tra mẫu",
+        "hi": "टेम्पलेट जाँच",
+        "id": "Pemeriksaan templat",
+    },
+    "deck.report_review_title": {
+        "en": "Deck review",
+        "zh-tw": "投影片審查",
+        "zh-cn": "幻灯片审查",
+        "ja": "スライドのレビュー",
+        "es": "Revisión de la presentación",
+        "fr": "Contrôle du diaporama",
+        "de": "Foliensatzprüfung",
+        "ko": "슬라이드 검토",
+        "pt": "Revisão da apresentação",
+        "ru": "Проверка презентации",
+        "it": "Controllo della presentazione",
+        "vi": "Rà soát slide",
+        "hi": "स्लाइड समीक्षा",
+        "id": "Tinjauan slide",
+    },
+    "enrich.card_agent": {
+        "en": "No API key? Hand off to an agent",
+        "zh-tw": "沒有 API 金鑰？交給 AI 代理",
+        "zh-cn": "没有 API 密钥？交给 AI 代理",
+        "ja": "API キーがない場合: エージェントに任せる",
+        "es": "¿Sin clave de API? Páselo a un agente",
+        "fr": "Pas de clé API ? Confiez-le à un agent",
+        "de": "Kein API-Schlüssel? An einen Agenten übergeben",
+        "ko": "API 키가 없나요? 에이전트에게 맡기기",
+        "pt": "Sem chave de API? Passe para um agente",
+        "ru": "Нет ключа API? Передайте агенту",
+        "it": "Nessuna chiave API? Affidalo a un agente",
+        "vi": "Không có khóa API? Giao cho tác tử",
+        "hi": "API कुंजी नहीं है? किसी एजेंट को सौंपें",
+        "id": "Tanpa kunci API? Serahkan ke agen",
+    },
+    "enrich.agent_hint": {
+        "en": (
+            "Export the papers to a JSON file, let an MCP-aware LLM agent fill in each summary, "
+            "then import the file to send the summaries to the Deck page."
+        ),
+        "zh-tw": (
+            "把論文匯出成 JSON 檔，讓支援 MCP 的 LLM 代理填入每篇摘要，再匯入該檔案，"
+            "把摘要送往投影片頁面。"
+        ),
+        "zh-cn": (
+            "把论文导出成 JSON 文件，让支持 MCP 的 LLM 代理填写每篇摘要，再导入该文件，"
+            "把摘要发送到幻灯片页面。"
+        ),
+        "ja": (
+            "論文を JSON ファイルに書き出し、MCP 対応の LLM エージェントに各要約を書いてもらい、"
+            "そのファイルを読み込むと要約がスライドページへ送られます。"
+        ),
+        "es": (
+            "Exporte los artículos a un archivo JSON, deje que un agente LLM compatible con MCP "
+            "rellene cada resumen y luego importe el archivo para enviar los resúmenes a la página "
+            "Diapositivas."
+        ),
+        "fr": (
+            "Exportez les articles dans un fichier JSON, laissez un agent LLM compatible MCP "
+            "remplir chaque résumé, puis importez le fichier pour envoyer les résumés à la page "
+            "Diapos."
+        ),
+        "de": (
+            "Artikel als JSON-Datei exportieren, einen MCP-fähigen LLM-Agenten jede "
+            "Zusammenfassung ausfüllen lassen und die Datei importieren, um die Zusammenfassungen "
+            "an die Seite Folien zu senden."
+        ),
+        "ko": (
+            "논문을 JSON 파일로 내보내고 MCP를 지원하는 LLM 에이전트가 각 요약을 채우게 한 뒤, "
+            "파일을 가져오면 요약이 슬라이드 페이지로 전달됩니다."
+        ),
+        "pt": (
+            "Exporte os artigos para um arquivo JSON, deixe um agente LLM compatível com MCP "
+            "preencher cada resumo e depois importe o arquivo para enviar os resumos à página "
+            "Slides."
+        ),
+        "ru": (
+            "Экспортируйте статьи в JSON-файл, дайте LLM-агенту с поддержкой MCP заполнить резюме, "
+            "затем импортируйте файл, чтобы передать резюме на страницу Слайды."
+        ),
+        "it": (
+            "Esporta gli articoli in un file JSON, lascia che un agente LLM compatibile con MCP "
+            "compili ogni riassunto, poi importa il file per inviare i riassunti alla pagina "
+            "Diapositive."
+        ),
+        "vi": (
+            "Xuất các bài báo ra tệp JSON, để một tác tử LLM hỗ trợ MCP điền từng bản tóm tắt, rồi "
+            "nhập tệp để gửi các bản tóm tắt sang trang Slide."
+        ),
+        "hi": (
+            "शोध-पत्रों को JSON फ़ाइल में निर्यात करें, किसी MCP-सक्षम LLM एजेंट से हर सारांश "
+            "भरवाएँ, फिर फ़ाइल आयात करें ताकि सारांश स्लाइड पेज पर जाएँ।"
+        ),
+        "id": (
+            "Ekspor makalah ke berkas JSON, biarkan agen LLM yang mendukung MCP mengisi setiap "
+            "ringkasan, lalu impor berkasnya untuk mengirim ringkasan ke halaman Slide."
+        ),
+    },
+    "enrich.agent_export_button": {
+        "en": "Export for an agent…",
+        "zh-tw": "匯出給代理…",
+        "zh-cn": "导出给代理…",
+        "ja": "エージェント用に書き出す…",
+        "es": "Exportar para un agente…",
+        "fr": "Exporter pour un agent…",
+        "de": "Für einen Agenten exportieren …",
+        "ko": "에이전트용으로 내보내기…",
+        "pt": "Exportar para um agente…",
+        "ru": "Экспорт для агента…",
+        "it": "Esporta per un agente…",
+        "vi": "Xuất cho tác tử…",
+        "hi": "एजेंट के लिए निर्यात करें…",
+        "id": "Ekspor untuk agen…",
+    },
+    "enrich.agent_import_button": {
+        "en": "Import summaries…",
+        "zh-tw": "匯入摘要…",
+        "zh-cn": "导入摘要…",
+        "ja": "要約を読み込む…",
+        "es": "Importar resúmenes…",
+        "fr": "Importer les résumés…",
+        "de": "Zusammenfassungen importieren …",
+        "ko": "요약 가져오기…",
+        "pt": "Importar resumos…",
+        "ru": "Импорт резюме…",
+        "it": "Importa i riassunti…",
+        "vi": "Nhập bản tóm tắt…",
+        "hi": "सारांश आयात करें…",
+        "id": "Impor ringkasan…",
+    },
+    "enrich.agent_exported": {
+        "en": "Wrote {count} papers for an agent to {path}.",
+        "zh-tw": "已將 {count} 篇論文寫入 {path}，可交給代理處理。",
+        "zh-cn": "已将 {count} 篇论文写入 {path}，可交给代理处理。",
+        "ja": "{count} 件の論文をエージェント用に {path} へ書き出しました。",
+        "es": "Se escribieron {count} artículos para un agente en {path}.",
+        "fr": "{count} articles écrits pour un agent dans {path}.",
+        "de": "{count} Artikel für einen Agenten nach {path} geschrieben.",
+        "ko": "에이전트용 논문 {count}편을 {path}에 저장했습니다.",
+        "pt": "{count} artigos gravados para um agente em {path}.",
+        "ru": "Статей для агента записано в {path}: {count}.",
+        "it": "{count} articoli scritti per un agente in {path}.",
+        "vi": "Đã ghi {count} bài báo cho tác tử vào {path}.",
+        "hi": "एजेंट के लिए {count} शोध-पत्र {path} में लिखे गए।",
+        "id": "{count} makalah untuk agen ditulis ke {path}.",
+    },
+    "enrich.agent_imported": {
+        "en": (
+            "Imported {count} summaries ({unmatched} entries matched no paper here). Sent to the "
+            "Deck page."
+        ),
+        "zh-tw": "已匯入 {count} 篇摘要(另有 {unmatched} 筆對不上目前的論文)，已送往投影片頁面。",
+        "zh-cn": "已导入 {count} 篇摘要(另有 {unmatched} 条对不上当前的论文)，已发送到幻灯片页面。",
+        "ja": (
+            "要約 {count} 件を読み込みました(現在の論文と一致しない項目 {unmatched} 件)。"
+            "スライドページへ送りました。"
+        ),
+        "es": (
+            "Se importaron {count} resúmenes ({unmatched} entradas no coinciden con ningún "
+            "artículo). Enviados a la página Diapositivas."
+        ),
+        "fr": (
+            "{count} résumés importés ({unmatched} entrées sans article correspondant). Envoyés à "
+            "la page Diapos."
+        ),
+        "de": (
+            "{count} Zusammenfassungen importiert ({unmatched} Einträge ohne passenden Artikel). "
+            "An die Seite Folien gesendet."
+        ),
+        "ko": (
+            "요약 {count}편을 가져왔습니다 (일치하는 논문이 없는 항목 {unmatched}개). 슬라이드 "
+            "페이지로 보냈습니다."
+        ),
+        "pt": (
+            "{count} resumos importados ({unmatched} entradas sem artigo correspondente). Enviados "
+            "à página Slides."
+        ),
+        "ru": (
+            "Импортировано резюме: {count} (записей без подходящей статьи: {unmatched}). Переданы "
+            "на страницу Слайды."
+        ),
+        "it": (
+            "Importati {count} riassunti ({unmatched} voci senza articolo corrispondente). Inviati "
+            "alla pagina Diapositive."
+        ),
+        "vi": (
+            "Đã nhập {count} bản tóm tắt ({unmatched} mục không khớp bài báo nào). Đã gửi sang "
+            "trang Slide."
+        ),
+        "hi": (
+            "{count} सारांश आयात किए गए ({unmatched} प्रविष्टियाँ किसी शोध-पत्र से मेल नहीं "
+            "खातीं)। स्लाइड पेज पर भेजे गए।"
+        ),
+        "id": (
+            "{count} ringkasan diimpor ({unmatched} entri tidak cocok dengan makalah mana pun). "
+            "Dikirim ke halaman Slide."
+        ),
+    },
+    "enrich.agent_error": {
+        "en": "Hand-off failed: {error}",
+        "zh-tw": "交接失敗：{error}",
+        "zh-cn": "交接失败：{error}",
+        "ja": "引き渡しに失敗しました: {error}",
+        "es": "Error en la entrega: {error}",
+        "fr": "Échec du transfert : {error}",
+        "de": "Übergabe fehlgeschlagen: {error}",
+        "ko": "넘겨주기 실패: {error}",
+        "pt": "Falha na entrega: {error}",
+        "ru": "Ошибка передачи: {error}",
+        "it": "Passaggio non riuscito: {error}",
+        "vi": "Bàn giao thất bại: {error}",
+        "hi": "हस्तांतरण विफल: {error}",
+        "id": "Serah terima gagal: {error}",
+    },
+    "deck.check_failed": {
+        "en": "Check failed: {error}",
+        "zh-tw": "檢查失敗：{error}",
+        "zh-cn": "检查失败：{error}",
+        "ja": "確認に失敗しました: {error}",
+        "es": "La comprobación falló: {error}",
+        "fr": "Échec de la vérification : {error}",
+        "de": "Prüfung fehlgeschlagen: {error}",
+        "ko": "검사 실패: {error}",
+        "pt": "A verificação falhou: {error}",
+        "ru": "Проверка не удалась: {error}",
+        "it": "Verifica non riuscita: {error}",
+        "vi": "Kiểm tra thất bại: {error}",
+        "hi": "जाँच विफल: {error}",
+        "id": "Pemeriksaan gagal: {error}",
+    },
+    # Stage D: PDF stage with the access switch, language switch ----------
+    "settings.vpn_access": {
+        "en": "I have institutional / VPN access (download IEEE PDFs)",
+        "zh-tw": "我有學校或機構的 VPN 存取權(可下載 IEEE PDF)",
+        "zh-cn": "我有学校或机构的 VPN 访问权限(可下载 IEEE PDF)",
+        "ja": "大学・機関の VPN アクセスがある(IEEE の PDF をダウンロード)",
+        "es": "Tengo acceso institucional / VPN (descargar los PDF de IEEE)",
+        "fr": "J'ai un accès institutionnel / VPN (télécharger les PDF IEEE)",
+        "de": "Ich habe institutionellen / VPN-Zugang (IEEE-PDFs herunterladen)",
+        "ko": "기관 / VPN 접근 권한이 있음 (IEEE PDF 다운로드)",
+        "pt": "Tenho acesso institucional / VPN (baixar os PDFs do IEEE)",
+        "ru": "Есть институциональный / VPN-доступ (скачивать PDF из IEEE)",
+        "it": "Ho accesso istituzionale / VPN (scarica i PDF IEEE)",
+        "vi": "Tôi có quyền truy cập qua tổ chức / VPN (tải PDF của IEEE)",
+        "hi": "मेरे पास संस्थागत / VPN पहुँच है (IEEE PDF डाउनलोड करें)",
+        "id": "Saya punya akses institusi / VPN (unduh PDF IEEE)",
+    },
+    "deck.download_pdfs_label": {
+        "en": "Download the PDFs into a pdfs folder",
+        "zh-tw": "下載 PDF 到 pdfs 資料夾",
+        "zh-cn": "下载 PDF 到 pdfs 文件夹",
+        "ja": "PDF を pdfs フォルダーにダウンロード",
+        "es": "Descargar los PDF en una carpeta pdfs",
+        "fr": "Télécharger les PDF dans un dossier pdfs",
+        "de": "PDFs in einen Ordner pdfs herunterladen",
+        "ko": "PDF를 pdfs 폴더에 다운로드",
+        "pt": "Baixar os PDFs para uma pasta pdfs",
+        "ru": "Скачать PDF в папку pdfs",
+        "it": "Scarica i PDF in una cartella pdfs",
+        "vi": "Tải PDF vào thư mục pdfs",
+        "hi": "PDF को pdfs फ़ोल्डर में डाउनलोड करें",
+        "id": "Unduh PDF ke folder pdfs",
+    },
+    "deck.pdfs_summary": {
+        "en": "PDFs: {saved} saved, {skipped} not downloaded.",
+        "zh-tw": "PDF：已儲存 {saved} 篇，{skipped} 篇未下載。",
+        "zh-cn": "PDF：已保存 {saved} 篇，{skipped} 篇未下载。",
+        "ja": "PDF: {saved} 件保存、{skipped} 件はダウンロードできず。",
+        "es": "PDF: {saved} guardados, {skipped} sin descargar.",
+        "fr": "PDF : {saved} enregistrés, {skipped} non téléchargés.",
+        "de": "PDFs: {saved} gespeichert, {skipped} nicht heruntergeladen.",
+        "ko": "PDF: {saved}편 저장, {skipped}편 다운로드 안 됨.",
+        "pt": "PDFs: {saved} salvos, {skipped} não baixados.",
+        "ru": "PDF: сохранено {saved}, не скачано {skipped}.",
+        "it": "PDF: {saved} salvati, {skipped} non scaricati.",
+        "vi": "PDF: đã lưu {saved}, {skipped} chưa tải được.",
+        "hi": "PDF: {saved} सहेजे गए, {skipped} डाउनलोड नहीं हुए।",
+        "id": "PDF: {saved} tersimpan, {skipped} tidak terunduh.",
+    },
+    "deck.pdfs_ieee_held": {
+        "en": "{count} IEEE PDFs left out: institutional / VPN access is off in Settings.",
+        "zh-tw": "有 {count} 篇 IEEE PDF 未下載：「設定」中未勾選機構 / VPN 存取權。",
+        "zh-cn": "有 {count} 篇 IEEE PDF 未下载：“设置”中未勾选机构 / VPN 访问权限。",
+        "ja": "IEEE の PDF {count} 件を除外しました: 設定で機関 / VPN アクセスがオフです。",
+        "es": (
+            "{count} PDF de IEEE omitidos: el acceso institucional / VPN está desactivado en "
+            "Ajustes."
+        ),
+        "fr": (
+            "{count} PDF IEEE écartés : l'accès institutionnel / VPN est désactivé dans les "
+            "Paramètres."
+        ),
+        "de": (
+            "{count} IEEE-PDFs ausgelassen: institutioneller / VPN-Zugang ist in den Einstellungen "
+            "aus."
+        ),
+        "ko": "IEEE PDF {count}편 제외: 설정에서 기관 / VPN 접근이 꺼져 있습니다.",
+        "pt": (
+            "{count} PDFs do IEEE deixados de fora: o acesso institucional / VPN está desligado em "
+            "Configurações."
+        ),
+        "ru": (
+            "Пропущено PDF из IEEE: {count}. Институциональный / VPN-доступ выключен в настройках."
+        ),
+        "it": (
+            "{count} PDF IEEE esclusi: l'accesso istituzionale / VPN è disattivato nelle "
+            "Impostazioni."
+        ),
+        "vi": "Bỏ qua {count} PDF của IEEE: quyền truy cập tổ chức / VPN đang tắt trong Cài đặt.",
+        "hi": "{count} IEEE PDF छोड़े गए: सेटिंग्स में संस्थागत / VPN पहुँच बंद है।",
+        "id": "{count} PDF IEEE dilewati: akses institusi / VPN dimatikan di Pengaturan.",
+    },
+    "status.language_later": {
+        "en": "Work is still running, so the new interface language applies at the next start.",
+        "zh-tw": "仍有工作在執行，新的介面語言將在下次啟動時套用。",
+        "zh-cn": "仍有工作在执行，新的界面语言将在下次启动时应用。",
+        "ja": "処理が実行中のため、新しい表示言語は次回起動時に反映されます。",
+        "es": (
+            "Todavía hay trabajo en curso, así que el nuevo idioma se aplicará en el próximo "
+            "inicio."
+        ),
+        "fr": "Un traitement est en cours : la nouvelle langue s'appliquera au prochain lancement.",
+        "de": "Es läuft noch eine Aufgabe, daher gilt die neue Sprache ab dem nächsten Start.",
+        "ko": "작업이 아직 실행 중이라 새 인터페이스 언어는 다음 실행 때 적용됩니다.",
+        "pt": (
+            "Ainda há trabalho em andamento, então o novo idioma será aplicado na próxima execução."
+        ),
+        "ru": (
+            "Работа ещё выполняется, поэтому новый язык интерфейса применится при следующем "
+            "запуске."
+        ),
+        "it": (
+            "C'è ancora un'elaborazione in corso, quindi la nuova lingua si applica al prossimo "
+            "avvio."
+        ),
+        "vi": "Vẫn còn tác vụ đang chạy, nên ngôn ngữ mới sẽ áp dụng ở lần khởi động sau.",
+        "hi": "काम अभी चल रहा है, इसलिए नई इंटरफ़ेस भाषा अगली बार शुरू करने पर लागू होगी।",
+        "id": (
+            "Masih ada pekerjaan berjalan, jadi bahasa antarmuka baru berlaku pada peluncuran "
+            "berikutnya."
+        ),
+    },
+    "search.ieee_locked_note": {
+        "en": (
+            "IEEE is off: it needs institutional / VPN access, which you can declare in Settings."
+        ),
+        "zh-tw": "IEEE 已停用：需要機構 / VPN 存取權，可在「設定」中勾選。",
+        "zh-cn": "IEEE 已停用：需要机构 / VPN 访问权限，可在“设置”中勾选。",
+        "ja": "IEEE はオフです: 機関 / VPN アクセスが必要です。設定で有効にできます。",
+        "es": (
+            "IEEE está desactivado: necesita acceso institucional / VPN, que puede declarar en "
+            "Ajustes."
+        ),
+        "fr": (
+            "IEEE est désactivé : il faut un accès institutionnel / VPN, à déclarer dans les "
+            "Paramètres."
+        ),
+        "de": (
+            "IEEE ist aus: Es braucht institutionellen / VPN-Zugang, den Sie in den Einstellungen "
+            "angeben können."
+        ),
+        "ko": "IEEE 꺼짐: 기관 / VPN 접근 권한이 필요하며, 설정에서 지정할 수 있습니다.",
+        "pt": (
+            "O IEEE está desligado: ele exige acesso institucional / VPN, que você pode declarar "
+            "em Configurações."
+        ),
+        "ru": (
+            "IEEE отключён: нужен институциональный / VPN-доступ, его можно указать в настройках."
+        ),
+        "it": (
+            "IEEE è disattivato: serve l'accesso istituzionale / VPN, che puoi dichiarare nelle "
+            "Impostazioni."
+        ),
+        "vi": "IEEE đang tắt: cần quyền truy cập tổ chức / VPN, có thể khai báo trong Cài đặt.",
+        "hi": (
+            "IEEE बंद है: इसके लिए संस्थागत / VPN पहुँच चाहिए, जिसे सेटिंग्स में बताया जा सकता है।"
+        ),
+        "id": "IEEE nonaktif: perlu akses institusi / VPN, yang dapat dinyatakan di Pengaturan.",
+    },
+    "search.local_button": {
+        "en": "Use local PDFs…",
+        "zh-tw": "使用本機 PDF…",
+        "zh-cn": "使用本地 PDF…",
+        "ja": "ローカルの PDF を使う…",
+        "es": "Usar PDF locales…",
+        "fr": "Utiliser des PDF locaux…",
+        "de": "Lokale PDFs verwenden …",
+        "ko": "로컬 PDF 사용…",
+        "pt": "Usar PDFs locais…",
+        "ru": "Использовать локальные PDF…",
+        "it": "Usa PDF locali…",
+        "vi": "Dùng PDF trên máy…",
+        "hi": "स्थानीय PDF इस्तेमाल करें…",
+        "id": "Gunakan PDF lokal…",
+    },
+    "search.local_dialog_title": {
+        "en": "Choose PDF files",
+        "zh-tw": "選擇 PDF 檔案",
+        "zh-cn": "选择 PDF 文件",
+        "ja": "PDF ファイルを選択",
+        "es": "Elija archivos PDF",
+        "fr": "Choisissez des fichiers PDF",
+        "de": "PDF-Dateien wählen",
+        "ko": "PDF 파일 선택",
+        "pt": "Escolha arquivos PDF",
+        "ru": "Выберите PDF-файлы",
+        "it": "Scegli i file PDF",
+        "vi": "Chọn tệp PDF",
+        "hi": "PDF फ़ाइलें चुनें",
+        "id": "Pilih berkas PDF",
+    },
+    "search.local_running": {
+        "en": "Reading the PDFs…",
+        "zh-tw": "正在讀取 PDF…",
+        "zh-cn": "正在读取 PDF…",
+        "ja": "PDF を読み込んでいます…",
+        "es": "Leyendo los PDF…",
+        "fr": "Lecture des PDF…",
+        "de": "PDFs werden gelesen …",
+        "ko": "PDF를 읽는 중…",
+        "pt": "Lendo os PDFs…",
+        "ru": "Чтение PDF…",
+        "it": "Lettura dei PDF…",
+        "vi": "Đang đọc PDF…",
+        "hi": "PDF पढ़े जा रहे हैं…",
+        "id": "Membaca PDF…",
+    },
+    "search.local_done": {
+        "en": "Read {count} local PDF(s). Copies are in {folder}.",
+        "zh-tw": "已讀取 {count} 份本機 PDF，副本放在 {folder}。",
+        "zh-cn": "已读取 {count} 份本地 PDF，副本放在 {folder}。",
+        "ja": "ローカルの PDF を {count} 件読み込みました。コピーは {folder} にあります。",
+        "es": "Se leyeron {count} PDF locales. Las copias están en {folder}.",
+        "fr": "{count} PDF locaux lus. Les copies sont dans {folder}.",
+        "de": "{count} lokale PDF(s) gelesen. Die Kopien liegen in {folder}.",
+        "ko": "로컬 PDF {count}개를 읽었습니다. 사본은 {folder}에 있습니다.",
+        "pt": "{count} PDFs locais lidos. As cópias estão em {folder}.",
+        "ru": "Прочитано локальных PDF: {count}. Копии в {folder}.",
+        "it": "Letti {count} PDF locali. Le copie sono in {folder}.",
+        "vi": "Đã đọc {count} PDF trên máy. Bản sao nằm trong {folder}.",
+        "hi": "{count} स्थानीय PDF पढ़े गए। प्रतियाँ {folder} में हैं।",
+        "id": "{count} PDF lokal dibaca. Salinannya ada di {folder}.",
+    },
+    "deck.pdfs_via_browser": {
+        "en": "{count} through Chrome.",
+        "zh-tw": "其中 {count} 篇經由 Chrome 下載。",
+        "zh-cn": "其中 {count} 篇通过 Chrome 下载。",
+        "ja": "うち {count} 件は Chrome 経由。",
+        "es": "{count} a través de Chrome.",
+        "fr": "{count} via Chrome.",
+        "de": "{count} über Chrome.",
+        "ko": "그중 {count}편은 Chrome 경유.",
+        "pt": "{count} pelo Chrome.",
+        "ru": "Через Chrome: {count}.",
+        "it": "{count} tramite Chrome.",
+        "vi": "{count} qua Chrome.",
+        "hi": "{count} Chrome के ज़रिए।",
+        "id": "{count} melalui Chrome.",
+    },
+    "deck.pdfs_no_browser": {
+        "en": (
+            "Chrome automation was not available, so {count} publisher PDFs were tried without it, "
+            "which publishers usually refuse. Install selenium, or unset "
+            "THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "zh-tw": (
+            "無法使用 Chrome 自動化，所以有 {count} 篇出版商 PDF 改以一般請求下載，"
+            "出版商通常會拒絕。請安裝 selenium，或取消設定 THESISAGENTS_DISABLE_WEBRUNNER。"
+        ),
+        "zh-cn": (
+            "无法使用 Chrome 自动化，所以有 {count} 篇出版商 PDF 改用普通请求下载，"
+            "出版商通常会拒绝。请安装 selenium，或取消设置 THESISAGENTS_DISABLE_WEBRUNNER。"
+        ),
+        "ja": (
+            "Chrome の自動操作が使えないため、出版社の PDF {count} "
+            "件を通常のリクエストで試しました。出版社は通常これを拒否します。selenium を入れるか、"
+            "THESISAGENTS_DISABLE_WEBRUNNER を解除してください。"
+        ),
+        "es": (
+            "La automatización de Chrome no estaba disponible, así que {count} PDF de editoriales "
+            "se intentaron sin ella, algo que las editoriales suelen rechazar. Instale selenium o "
+            "quite THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "fr": (
+            "L'automatisation de Chrome n'était pas disponible : {count} PDF d'éditeurs ont été "
+            "tentés sans elle, ce que les éditeurs refusent en général. Installez selenium ou "
+            "retirez THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "de": (
+            "Die Chrome-Automatisierung war nicht verfügbar, daher wurden {count} Verlags-PDFs "
+            "ohne sie versucht, was Verlage meist ablehnen. Installieren Sie selenium oder "
+            "entfernen Sie THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "ko": (
+            "Chrome 자동화를 사용할 수 없어 출판사 PDF {count}편을 일반 요청으로 시도했으며, "
+            "출판사는 보통 이를 거부합니다. selenium 을 설치하거나 THESISAGENTS_DISABLE_WEBRUNNER "
+            "설정을 해제하세요."
+        ),
+        "pt": (
+            "A automação do Chrome não estava disponível, então {count} PDFs de editoras foram "
+            "tentados sem ela, o que as editoras costumam recusar. Instale o selenium ou remova "
+            "THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "ru": (
+            "Автоматизация Chrome недоступна, поэтому PDF издательств ({count}) запрошены без неё, "
+            "а издательства обычно такое отклоняют. Установите selenium или уберите "
+            "THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "it": (
+            "L'automazione di Chrome non era disponibile, quindi {count} PDF di editori sono stati "
+            "tentati senza, cosa che gli editori di solito rifiutano. Installa selenium o rimuovi "
+            "THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "vi": (
+            "Không dùng được tự động hóa Chrome, nên {count} PDF của nhà xuất bản được thử bằng "
+            "yêu cầu thường, điều mà nhà xuất bản thường từ chối. Hãy cài selenium hoặc bỏ đặt "
+            "THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "hi": (
+            "Chrome स्वचालन उपलब्ध नहीं था, इसलिए प्रकाशकों के {count} PDF उसके बिना आज़माए गए, "
+            "जिन्हें प्रकाशक आमतौर पर अस्वीकार करते हैं। selenium इंस्टॉल करें या "
+            "THESISAGENTS_DISABLE_WEBRUNNER हटाएँ।"
+        ),
+        "id": (
+            "Otomasi Chrome tidak tersedia, jadi {count} PDF penerbit dicoba tanpanya, yang "
+            "biasanya ditolak penerbit. Pasang selenium atau hapus THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+    },
+    "deck.pdfs_browser_failed": {
+        "en": "Chrome could not fetch {count} publisher PDFs, so they were retried without it.",
+        "zh-tw": "Chrome 無法取得 {count} 篇出版商 PDF，已改以一般請求重試。",
+        "zh-cn": "Chrome 无法获取 {count} 篇出版商 PDF，已改用普通请求重试。",
+        "ja": (
+            "Chrome で出版社の PDF {count} 件を取得できなかったため、"
+            "通常のリクエストで再試行しました。"
+        ),
+        "es": "Chrome no pudo obtener {count} PDF de editoriales, así que se reintentaron sin él.",
+        "fr": "Chrome n'a pas pu récupérer {count} PDF d'éditeurs, ils ont été retentés sans lui.",
+        "de": (
+            "Chrome konnte {count} Verlags-PDFs nicht abrufen, sie wurden ohne Chrome erneut "
+            "versucht."
+        ),
+        "ko": "Chrome 이 출판사 PDF {count}편을 가져오지 못해 일반 요청으로 다시 시도했습니다.",
+        "pt": (
+            "O Chrome não conseguiu obter {count} PDFs de editoras, então foram tentados de novo "
+            "sem ele."
+        ),
+        "ru": (
+            "Chrome не смог получить PDF издательств ({count}), поэтому они запрошены повторно без "
+            "него."
+        ),
+        "it": (
+            "Chrome non è riuscito a scaricare {count} PDF di editori, quindi sono stati ritentati "
+            "senza."
+        ),
+        "vi": (
+            "Chrome không lấy được {count} PDF của nhà xuất bản, nên đã thử lại bằng yêu cầu "
+            "thường."
+        ),
+        "hi": (
+            "Chrome प्रकाशकों के {count} PDF नहीं ला सका, इसलिए उन्हें उसके बिना फिर आज़माया गया।"
+        ),
+        "id": "Chrome tidak dapat mengambil {count} PDF penerbit, jadi dicoba ulang tanpanya.",
     },
 }
 

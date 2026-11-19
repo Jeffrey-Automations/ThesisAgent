@@ -406,7 +406,12 @@ paper once. A record that arrives later fills in what the stored one
 lacked (a DOI, a venue, a PDF link), and the stored record keeps its
 source and URL. The citation count is the exception: a later, higher
 count replaces the stored one, so the number does not stay at what the
-first run saw.
+first run saw. The summary is the other one: a later summary replaces
+the stored one when it is at least as rich (no summary, then a flat
+summary, then a thesis-style one), so adding a hand-written or enriched
+summary to a paper the library already holds takes effect, while a
+plain search result (no summary) or a flatter summary never removes a
+richer one.
 
 **Identifier checks are remembered.** With `--library`, a DOI or URL
 that verified is not checked again for 30 days, in any run that names

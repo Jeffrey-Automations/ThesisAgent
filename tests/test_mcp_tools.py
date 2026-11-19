@@ -369,6 +369,7 @@ def test_download_pdfs_tool(monkeypatch, server, sample_papers, tmp_path):
                 if p.pdf_url
                 else None,
                 skipped_reason=None if p.pdf_url else "no_pdf_url",
+                route="browser" if p.pdf_url else "",
             )
             for p in collection.papers
         ]
@@ -395,6 +396,8 @@ def test_download_pdfs_tool(monkeypatch, server, sample_papers, tmp_path):
     assert payload["skipped"] == 1
     assert any(r["reason"] == "no_pdf_url" for r in payload["results"])
     assert all(("path" in r and "reason" in r) for r in payload["results"])
+    # Each result says how the PDF was fetched (progress #31).
+    assert sorted(r["route"] for r in payload["results"]) == ["", "browser"]
 
 
 def test_pptx_delete_reorder_add_via_mcp(server, sample_papers, tmp_path):
