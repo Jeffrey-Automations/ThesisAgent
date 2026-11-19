@@ -127,7 +127,7 @@ termine:
            print(f"! {p.bibtex_key()} authored {p.url} vs real {actual}")
 
 **L'esportazione lo verifica in fase di esecuzione.** Prima di scrivere
-qualsiasi cosa, la CLI, lo strumento MCP ``export`` e la scheda Deck
+qualsiasi cosa, la CLI, lo strumento MCP ``export`` e la pagina Deck
 della GUI cercano il DOI di ogni articolo su doi.org e richiedono ogni
 URL una volta. Un DOI non registrato, un URL che risponde 404 o un host
 irraggiungibile fermano l'esportazione e indicano l'articolo e

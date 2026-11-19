@@ -136,7 +136,7 @@ Regen-Script am Ende:
            print(f"! {p.bibtex_key()} authored {p.url} vs real {actual}")
 
 **Der Export prüft das zur Laufzeit.** Bevor etwas geschrieben wird,
-schlagen die CLI, das MCP-Tool ``export`` und der Deck-Tab der GUI die
+schlagen die CLI, das MCP-Tool ``export`` und die Deck-Seite der GUI die
 DOI jedes Papers bei doi.org nach und rufen jede URL einmal ab. Eine
 nicht registrierte DOI, eine URL, die 404 antwortet, oder ein nicht
 erreichbarer Host stoppen den Export und nennen das Paper und den

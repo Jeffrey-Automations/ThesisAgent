@@ -123,7 +123,7 @@ column 7 = DOI, column 8 = URL. Audit your regen script after running:
            print(f"! {p.bibtex_key()} authored {p.url} vs real {actual}")
 
 **The export checks this at run time.** Before anything is written, the
-CLI, the MCP ``export`` tool and the GUI Deck tab look up every paper's
+CLI, the MCP ``export`` tool and the GUI Deck page look up every paper's
 DOI at doi.org and request every URL once. A DOI that is not registered,
 a URL that answers 404, or a host that cannot be reached stops the
 export and names the paper and the identifier. The check proves that an
@@ -413,7 +413,7 @@ The **light navy-band deck is the default** render path: white
 slides, a full-width navy header band with a white title, and a
 full-bleed navy cover panel. Opt **in** to dark mode per render with
 ``--dark-mode`` on the CLI, the **Dark mode** checkbox on the GUI's
-Deck tab, or ``ExportOptions(dark_mode=True)`` in Python (over MCP,
+Deck page, or ``ExportOptions(dark_mode=True)`` in Python (over MCP,
 pass ``dark_mode: true`` to the ``export`` tool). The dark post-build
 pass swaps to a dark deck (slide bg ``#12151B``, body text
 ``#E5E7EB``, brighter teal accent ``#2DD4BF``) and lightens the navy

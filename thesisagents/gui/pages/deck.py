@@ -20,14 +20,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt, QThreadPool, QUrl
+from PySide6.QtCore import Qt, QThreadPool, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QFileDialog,
     QFormLayout,
-    QGroupBox,
     QHBoxLayout,
     QHeaderView,
     QLabel,
@@ -43,6 +42,13 @@ from thesisagents.core.models import ExportOptions, PaperCollection
 from thesisagents.exporters import export_collection
 from thesisagents.exporters.i18n import SUPPORTED_LANGUAGES as DECK_LANGUAGES
 from thesisagents.gui.i18n import LANGUAGE_DISPLAY_NAMES, t
+from thesisagents.gui.widgets.responsive import (
+    AdaptiveSplit,
+    Breakpoint,
+    ReflowGrid,
+    adapt_form_rows,
+    make_card,
+)
 from thesisagents.gui.workers import BlockingWorker
 from thesisagents.library import Library
 
@@ -64,6 +70,10 @@ _DEFAULT_MAX_SLIDES = 25
 class DeckPage(QWidget):
     """Granular export controls for the active collection."""
 
+    #: ``True`` when an export starts on a worker thread, ``False`` when it
+    #: ends either way. Drives the main window's progress indicator.
+    busy_changed = Signal(bool)
+
     def __init__(self, ui_language: str = "en", parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self._ui_language = ui_language
@@ -79,82 +89,78 @@ class DeckPage(QWidget):
         self._build_ui()
 
     def _build_ui(self) -> None:
+        """Output, format and option cards beside / above the written files."""
+        language = self._ui_language
         outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
 
-        # Output dir + filename row
-        output_box = QGroupBox(t("deck.output_group", self._ui_language), self)
-        output_form = QFormLayout(output_box)
+        controls = QWidget(self)
+        controls_layout = QVBoxLayout(controls)
+        controls_layout.setContentsMargins(0, 0, 6, 0)
+        controls_layout.setSpacing(12)
+
+        # Output dir + filename + deck language
+        output_card, output_layout = make_card(t("deck.output_group", language), controls)
+        output_form = QFormLayout()
+        output_layout.addLayout(output_form)
 
         dir_row = QWidget(self)
         dir_layout = QHBoxLayout(dir_row)
         dir_layout.setContentsMargins(0, 0, 0, 0)
         self._out_dir_input = QLineEdit(self)
         self._out_dir_input.setText(str(Path.cwd() / "exports"))
-        browse = QPushButton(t("deck.browse_button", self._ui_language), self)
+        browse = QPushButton(t("deck.browse_button", language), self)
         browse.clicked.connect(self._on_browse_out_dir)
         dir_layout.addWidget(self._out_dir_input, stretch=1)
         dir_layout.addWidget(browse)
-        output_form.addRow(t("deck.out_dir_label", self._ui_language), dir_row)
+        output_form.addRow(t("deck.out_dir_label", language), dir_row)
 
         self._filename_stem_input = QLineEdit(self)
         self._filename_stem_input.setPlaceholderText(
-            t("deck.filename_stem_placeholder", self._ui_language),
+            t("deck.filename_stem_placeholder", language),
         )
-        output_form.addRow(
-            t("deck.filename_stem_label", self._ui_language),
-            self._filename_stem_input,
-        )
+        output_form.addRow(t("deck.filename_stem_label", language), self._filename_stem_input)
 
         self._language_combo = QComboBox(self)
         for code in DECK_LANGUAGES:
             display = LANGUAGE_DISPLAY_NAMES.get(code, code)
             self._language_combo.addItem(display, code)
-        output_form.addRow(
-            t("deck.language_label", self._ui_language), self._language_combo,
-        )
+        output_form.addRow(t("deck.language_label", language), self._language_combo)
+        adapt_form_rows(output_card, output_form)
+        controls_layout.addWidget(output_card)
 
-        outer.addWidget(output_box)
-
-        # Format checkboxes
-        format_box = QGroupBox(t("deck.format_group", self._ui_language), self)
-        format_row = QHBoxLayout(format_box)
+        # Format check boxes, re-flowed to the pane width
+        format_card, format_layout = make_card(t("deck.format_group", language), controls)
         self._format_checks: dict[str, QCheckBox] = {}
         for fmt, label_key in _FORMAT_CHOICES:
-            chk = QCheckBox(t(label_key, self._ui_language), self)
+            chk = QCheckBox(t(label_key, language))
             chk.setChecked(fmt in _DEFAULT_FORMATS)
-            format_row.addWidget(chk)
             self._format_checks[fmt] = chk
-        format_row.addStretch(1)
-        outer.addWidget(format_box)
+        self._format_grid = ReflowGrid(list(self._format_checks.values()), parent=format_card)
+        format_layout.addWidget(self._format_grid)
+        controls_layout.addWidget(format_card)
 
         # Options
-        options_box = QGroupBox(t("deck.options_group", self._ui_language), self)
-        options_form = QFormLayout(options_box)
+        options_card, options_layout = make_card(t("deck.options_group", language), controls)
+        options_form = QFormLayout()
+        options_layout.addLayout(options_form)
         self._max_slides_spin = QSpinBox(self)
         self._max_slides_spin.setRange(0, 200)
         self._max_slides_spin.setValue(_DEFAULT_MAX_SLIDES)
-        self._max_slides_spin.setSpecialValueText(
-            t("deck.unlimited", self._ui_language),
-        )
-        options_form.addRow(
-            t("deck.max_slides_label", self._ui_language), self._max_slides_spin,
-        )
-        self._include_abstract_check = QCheckBox(
-            t("deck.include_abstract_label", self._ui_language), self,
-        )
+        self._max_slides_spin.setSpecialValueText(t("deck.unlimited", language))
+        options_form.addRow(t("deck.max_slides_label", language), self._max_slides_spin)
+        self._include_abstract_check = QCheckBox(t("deck.include_abstract_label", language), self)
         self._include_abstract_check.setChecked(True)
         options_form.addRow(self._include_abstract_check)
         # Default is the light navy-band deck; this checkbox is the
         # opt-IN toggle for dark mode (OLED / low-light venues).
-        self._dark_mode_check = QCheckBox(
-            t("deck.dark_mode_label", self._ui_language), self,
-        )
+        self._dark_mode_check = QCheckBox(t("deck.dark_mode_label", language), self)
         self._dark_mode_check.setChecked(False)
         options_form.addRow(self._dark_mode_check)
         # Export preflight: on by default. Unchecking it is the GUI form of
         # the CLI's --no-verify-identifiers, for a machine with no network.
         self._verify_identifiers_check = QCheckBox(
-            t("deck.verify_identifiers_label", self._ui_language), self,
+            t("deck.verify_identifiers_label", language), self,
         )
         self._verify_identifiers_check.setChecked(True)
         options_form.addRow(self._verify_identifiers_check)
@@ -168,41 +174,59 @@ class DeckPage(QWidget):
             options_form, "deck.template_config_label", "deck.template_config_placeholder",
             "deck.template_config_dialog_title", "Config (*.toml *.json);;All files (*)",
         )
-        outer.addWidget(options_box)
+        adapt_form_rows(options_card, options_form)
+        controls_layout.addWidget(options_card)
+        controls_layout.addStretch(1)
 
-        # Action row
-        button_row = QHBoxLayout()
-        self._export_button = QPushButton(
-            t("deck.export_button", self._ui_language), self,
-        )
+        # Action row, pinned below the cards
+        footer = QWidget(self)
+        button_row = QHBoxLayout(footer)
+        button_row.setContentsMargins(0, 0, 6, 0)
+        self._export_button = QPushButton(t("deck.export_button", language), self)
+        self._export_button.setProperty("primary", True)
         self._export_button.setEnabled(False)
         self._export_button.clicked.connect(self._on_export_clicked)
-        self._open_folder_button = QPushButton(
-            t("deck.open_folder_button", self._ui_language), self,
-        )
+        self._open_folder_button = QPushButton(t("deck.open_folder_button", language), self)
         self._open_folder_button.setEnabled(False)
         self._open_folder_button.clicked.connect(self._on_open_folder_clicked)
-        button_row.addWidget(self._export_button)
+        button_row.addWidget(self._export_button, stretch=1)
         button_row.addWidget(self._open_folder_button)
-        button_row.addStretch(1)
-        outer.addLayout(button_row)
 
-        # Output table
+        # Written files
+        results = QWidget(self)
+        results_layout = QVBoxLayout(results)
+        results_layout.setContentsMargins(6, 0, 0, 0)
         self._table = QTableView(self)
         self._table.setModel(self._files_model)
         self._table.setSelectionBehavior(QTableView.SelectRows)
         self._table.setEditTriggers(QTableView.NoEditTriggers)
+        self._table.setAlternatingRowColors(True)
+        self._table.setShowGrid(False)
+        self._table.verticalHeader().setVisible(False)
         header = self._table.horizontalHeader()
         header.setStretchLastSection(False)
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, QHeaderView.Stretch)
-        outer.addWidget(self._table, stretch=1)
+        results_layout.addWidget(self._table, stretch=1)
 
-        self._status_label = QLabel(
-            t("deck.status_no_collection", self._ui_language), self,
-        )
+        self._status_label = QLabel(t("deck.status_no_collection", language), self)
+        self._status_label.setObjectName("Muted")
+        self._status_label.setWordWrap(True)
         self._status_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        outer.addWidget(self._status_label)
+        results_layout.addWidget(self._status_label)
+
+        self._split = AdaptiveSplit(controls, results, footer=footer, parent=self)
+        outer.addWidget(self._split)
+
+    def apply_breakpoint(self, breakpoint: Breakpoint) -> None:
+        """Re-arrange for the window size class (called by the main window)."""
+        self._split.apply_breakpoint(breakpoint)
+
+    def split(self) -> AdaptiveSplit:
+        return self._split
+
+    def format_grid(self) -> ReflowGrid:
+        return self._format_grid
 
     # --- public API -----------------------------------------------------
 
@@ -349,6 +373,7 @@ class DeckPage(QWidget):
         self._open_folder_button.setEnabled(False)
         self._files_model.removeRows(0, self._files_model.rowCount())
         self._status_label.setText(t("deck.status_running", self._ui_language))
+        self.busy_changed.emit(True)
 
         library_path = self._library_path
 
@@ -366,6 +391,7 @@ class DeckPage(QWidget):
         QThreadPool.globalInstance().start(worker)
 
     def _on_export_finished(self, written: object) -> None:
+        self.busy_changed.emit(False)
         self._export_button.setEnabled(True)
         if not isinstance(written, dict) or not written:
             self._status_label.setText(
@@ -387,6 +413,7 @@ class DeckPage(QWidget):
         )
 
     def _on_export_failed(self, err: object) -> None:
+        self.busy_changed.emit(False)
         self._export_button.setEnabled(True)
         self._status_label.setText(
             t("deck.error_generic", self._ui_language, error=str(err)),

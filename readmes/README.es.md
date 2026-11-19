@@ -98,7 +98,7 @@ Dos fabricaciones detectadas así en producción: volumen AAAI incorrecto
 (`view/fang2026` en lugar de `v40i5.37389`).
 
 **La exportación lo comprueba en tiempo de ejecución.** Antes de
-escribir nada, la CLI, la herramienta MCP `export` y la pestaña Deck de
+escribir nada, la CLI, la herramienta MCP `export` y la página Deck de
 la GUI consultan el DOI de cada artículo en doi.org y solicitan cada URL
 una vez. Un DOI no registrado, una URL que responde 404 o un host
 inalcanzable detienen la exportación e indican el artículo y el
@@ -223,7 +223,7 @@ multi-artículo sigue la misma forma con una entrada
     / blanco) con el rojo **prohibido** para el texto (use en su lugar negrita +
     turquesa `#0E7490` para enfatizar).
   - **El modo claro es la ruta de renderizado por defecto.** Pase `--dark-mode`,
-    active **Dark mode** en la pestaña Deck de la GUI, o configure
+    active **Dark mode** en la página Deck de la GUI, o configure
     `ExportOptions(dark_mode=True)` para aplicar el post-pass oscuro (fondo de
     diapositiva `#12151B`, texto de cuerpo `#E5E7EB`).
   - `.xlsx` — hoja Papers + hoja de procedencia de la Query, URL / PDF con
@@ -575,16 +575,17 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-La ventana tiene cuatro pestañas — **Search**, **Settings** (persiste las
-claves API vía QSettings), **Enrich** (dirige el enriquecimiento LLM-as-agent /
-pipeline Python sobre una señal `collection_ready`) y **Deck** (el toggle de
-modo claro + los controles de tope de diapositivas + máximo de figuras fluyen a
-`ExportOptions`). El zip de release de Windows trae el paquete compilado con
+La ventana tiene una barra lateral con cuatro páginas: **Search**, **Enrich**
+(dirige el enriquecimiento LLM-as-agent / pipeline Python sobre una señal
+`collection_ready`), **Deck** (el toggle de modo oscuro, el tope de
+diapositivas, la comprobación de identificadores y la plantilla de la
+presentación fluyen a `ExportOptions`) y **Settings** (persiste las claves API
+vía QSettings). El zip de release de Windows trae el paquete compilado con
 Nuitka con PySide6 incluido, de modo que `thesisagents.exe gui` funciona sin
 una instalación de Python separada.
-La pestaña Search también puede seguir las citas de los primeros
+La página Search también puede seguir las citas de los primeros
 resultados (bola de nieve), guardar los resultados en un archivo de
-biblioteca y buscar en esa biblioteca sin red, y la pestaña Deck puede
+biblioteca y buscar en esa biblioteca sin red, y la página Deck puede
 construir la presentación sobre su propia plantilla de PowerPoint.
 **La UI se distribuye en los 14 idiomas** (English, 繁體中文, 简体中文,
 日本語, Español, Français, Deutsch, 한국어, Português, Русский,
@@ -592,9 +593,14 @@ Italiano, Tiếng Việt, हिन्दी, Bahasa Indonesia) — la primera e
 idioma desde la locale de su SO, luego **Settings → Interface language** le
 permite cambiarlo. El idioma de salida de la presentación es un desplegable
 separado, así que puede ejecutar la UI en un idioma y emitir diapositivas en
-otro. La disposición es responsive: cada formulario está en un `QScrollArea` y
-la ventana se redimensiona hasta 900×600 (aún cabe en 720p), con escalado HiDPI
-activado por defecto.
+otro. La disposición se adapta al ancho de la ventana: en una ventana ancha los
+controles de cada página van en una columna junto a sus resultados, en una
+mediana encima de ellos, y por debajo de 760 px la barra lateral se contrae a
+iconos y las etiquetas de los formularios pasan encima de sus campos. La
+ventana se redimensiona hasta 640×480, con escalado HiDPI activado por
+defecto. **Settings → Theme** elige claro, oscuro o seguir el sistema, se
+aplica al instante y es independiente del modo oscuro propio de la
+presentación. `Ctrl+1` … `Ctrl+4` cambian de página.
 
 Referencia completa: [`docs/gui.md`](../docs/gui.md).
 

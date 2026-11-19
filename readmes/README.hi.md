@@ -61,7 +61,7 @@ for p in ALL_PAPERS:
 प्रोडक्शन में इसी तरीके से पकड़े गए दो कूट: गलत AAAI खंड (`v39i23.34521` बनाम वास्तविक `v39i22.34537`) और मनगढ़ंत लेखक-स्लग पथ (`v40i5.37389` के बजाय `view/fang2026`)।
 
 **Export इसे run time पर जाँचता है।** कुछ भी लिखने से पहले CLI, MCP
-`export` tool और GUI का Deck tab हर paper का DOI doi.org पर देखते हैं और
+`export` tool और GUI का Deck पेज हर paper का DOI doi.org पर देखते हैं और
 हर URL को एक बार request करते हैं। जो DOI registered नहीं है, जो URL 404
 लौटाता है, या जिस host तक पहुँचा नहीं जा सकता, वह export को रोक देता है
 और paper तथा identifier का नाम बताता है। यह जाँच सिद्ध करती है कि
@@ -116,7 +116,7 @@ output directory में `diagnostics.json` में भी लिखता �
 - **आठ एक्सपोर्टर**:
   - `.pptx` — 16:9 वाइडस्क्रीन, पृष्ठ-संख्यित, तीन रेंडरिंग स्तर (हल्का केवल-सार · enriched-flat · **थीसिस-शैली** दर्द-बिंदु चतुष्कोण, KPI कॉलआउट, तकनीक-तुलना तालिकाएँ, प्रति-RQ परिणाम तालिकाएँ, योगदान सारांश, मूल अवलोकन, सीमाएँ & भविष्य कार्य, Q&A, संदर्भ के साथ)। सभी टेम्पलेट स्ट्रिंग्स **14 भाषाओं** में i18n हैं: English, 繁體中文, 简体中文, 日本語, Español, Français, Deutsch, 한국어, Português, Русский, Italiano, Tiếng Việt, हिन्दी, Bahasa Indonesia।
   - **डिज़ाइन किए गए डेक की विज़ुअल पहचान** (डिफ़ॉल्ट Calibri-on-white रूप नहीं): प्रति-भाषा टाइपोग्राफी (Latin के लिए Inter, CJK + Hindi के लिए Microsoft JhengHei UI / YaHei UI / Yu Gothic UI / Malgun Gothic / Nirmala UI), प्रोग्रामेटिक accent geometry (हर content slide के ऊपर accent bar + cover के बाएँ band), academic-style table formatting (डिफ़ॉल्ट grid हटाई गई, navy header rule, soft inter-row dividers, alternating row stripe, middle-vertical alignment, bold row labels), और एक पाँच-रंगी palette अनुशासन (navy / teal / grey / light / white) जिसमें टेक्स्ट के लिए लाल **प्रतिबंधित** है (emphasis के लिए इसके बजाय bold + teal `#0E7490` उपयोग करें)।
-  - **Light mode डिफ़ॉल्ट render पथ है।** dark post-pass लागू करने के लिए `--dark-mode` पास करें, GUI Deck tab में **Dark mode** सक्षम करें, या `ExportOptions(dark_mode=True)` सेट करें (slide background `#12151B`, body text `#E5E7EB`)।
+  - **Light mode डिफ़ॉल्ट render पथ है।** dark post-pass लागू करने के लिए `--dark-mode` पास करें, GUI Deck पेज पर **Dark mode** सक्षम करें, या `ExportOptions(dark_mode=True)` सेट करें (slide background `#12151B`, body text `#E5E7EB`)।
   - `.xlsx` — Papers शीट + Query प्रोवेनेंस शीट, हाइपरलिंक्ड URL / PDF, फ़्रोज़न हेडर, स्वचालित कॉलम चौड़ाई। कॉलम 5 (**Source**) वास्तविक प्रकाशन स्थान (जैसे "IEEE Access") दिखाता है; कॉलम 6 (**Indexed via**) दिखाता है कि किस fetcher ने मेटाडेटा लौटाया (जैसे "openalex"), ताकि दोनों जानकारियाँ कभी न टकराएँ।
   - `.md` — पूर्ण स्रोत / शीर्षक / सार सूची।
   - `.bib` — टकराव-मुक्त उद्धरण कुंजियाँ, LaTeX-एस्केप्ड फ़ील्ड्स।
@@ -399,12 +399,12 @@ pip install thesisagents[gui]
 thesisagents-gui                 # या: thesisagents gui
 ```
 
-विंडो में चार tab हैं — **Search**, **Settings** (QSettings के माध्यम से API keys बनाए रखता है), **Enrich** (एक `collection_ready` सिग्नल पर LLM-as-agent / Python-pipeline समृद्धि चलाता है), और **Deck** (Light mode toggle + slide-cap + max-figures नियंत्रण `ExportOptions` तक प्रवाहित होते हैं)। Windows रिलीज़ zip में PySide6 सहित Nuitka-compiled बंडल आता है, इसलिए `thesisagents.exe gui` एक अलग Python इंस्टॉल के बिना काम करता है।
-Search tab शीर्ष परिणामों से citations का पीछा भी कर सकता है (snowball),
+विंडो में एक sidebar है जिसमें चार पेज हैं: **Search**, **Enrich** (एक `collection_ready` सिग्नल पर LLM-as-agent / Python-pipeline समृद्धि चलाता है), **Deck** (Dark mode toggle, slide cap, identifier check और deck template `ExportOptions` तक प्रवाहित होते हैं), और **Settings** (QSettings के माध्यम से API keys बनाए रखता है)। Windows रिलीज़ zip में PySide6 सहित Nuitka-compiled बंडल आता है, इसलिए `thesisagents.exe gui` एक अलग Python इंस्टॉल के बिना काम करता है।
+Search पेज शीर्ष परिणामों से citations का पीछा भी कर सकता है (snowball),
 results को एक library file में रख सकता है और बिना network के उस library
-में खोज सकता है, और Deck tab आपके अपने PowerPoint template पर deck बना
+में खोज सकता है, और Deck पेज आपके अपने PowerPoint template पर deck बना
 सकता है।
-**UI सभी 14 भाषाओं में आता है** (English, 繁體中文, 简体中文, 日本語, Español, Français, Deutsch, 한국어, Português, Русский, Italiano, Tiếng Việt, हिन्दी, Bahasa Indonesia) — पहला रन आपके OS locale से भाषा चुनता है, फिर **Settings → Interface language** आपको इसे बदलने देता है। डेक आउटपुट भाषा एक अलग dropdown है ताकि आप UI को एक भाषा में चला सकें और स्लाइड दूसरी में जारी कर सकें। लेआउट उत्तरदायी है: हर फ़ॉर्म एक `QScrollArea` में बैठता है और विंडो 900×600 तक नीचे resize होती है (फिर भी 720p में फ़िट), डिफ़ॉल्ट रूप से HiDPI स्केलिंग चालू के साथ।
+**UI सभी 14 भाषाओं में आता है** (English, 繁體中文, 简体中文, 日本語, Español, Français, Deutsch, 한국어, Português, Русский, Italiano, Tiếng Việt, हिन्दी, Bahasa Indonesia) — पहला रन आपके OS locale से भाषा चुनता है, फिर **Settings → Interface language** आपको इसे बदलने देता है। डेक आउटपुट भाषा एक अलग dropdown है ताकि आप UI को एक भाषा में चला सकें और स्लाइड दूसरी में जारी कर सकें। लेआउट विंडो की चौड़ाई के अनुसार बदलता है: चौड़ी विंडो में हर पेज के नियंत्रण उसके परिणामों के बगल में एक कॉलम में रहते हैं, मध्यम चौड़ाई पर उनके ऊपर, और 760 px से कम पर sidebar सिमटकर केवल icons दिखाता है और फ़ॉर्म labels अपने fields के ऊपर चले जाते हैं। विंडो 640×480 तक नीचे resize होती है, डिफ़ॉल्ट रूप से HiDPI स्केलिंग चालू के साथ। **Settings → Theme** में light, dark या system का अनुसरण चुना जा सकता है, जो तुरंत लागू होता है और deck के अपने dark mode से स्वतंत्र है। `Ctrl+1` … `Ctrl+4` पेज बदलते हैं।
 
 पूर्ण संदर्भ: [`docs/gui.md`](../docs/gui.md)।
 

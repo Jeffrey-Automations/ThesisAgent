@@ -101,7 +101,7 @@ Deux fabrications détectées ainsi en production : mauvais volume AAAI
 inventé (`view/fang2026` au lieu de `v40i5.37389`).
 
 **L'export le vérifie à l'exécution.** Avant toute écriture, la CLI,
-l'outil MCP `export` et l'onglet Deck de la GUI interrogent doi.org pour
+l'outil MCP `export` et la page Deck de la GUI interrogent doi.org pour
 le DOI de chaque article et demandent chaque URL une fois. Un DOI non
 enregistré, une URL qui répond 404 ou un hôte injoignable arrêtent
 l'export et indiquent l'article et l'identifiant concernés. Le contrôle
@@ -226,7 +226,7 @@ dans le tuple `PaperCollection`.
     avec le rouge **interdit** pour le texte (utilisez plutôt gras + sarcelle
     `#0E7490` pour la mise en valeur).
   - **Le mode clair est le chemin de rendu par défaut.** Passez `--dark-mode`,
-    activez **Dark mode** dans l'onglet Deck de l'interface, ou définissez
+    activez **Dark mode** sur la page Deck de l'interface, ou définissez
     `ExportOptions(dark_mode=True)` pour appliquer la passe sombre
     (arrière-plan de diapositive `#12151B`, texte du corps `#E5E7EB`).
   - `.xlsx` — feuille Papers + feuille de provenance de la requête, URL / PDF
@@ -577,17 +577,18 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-La fenêtre a quatre onglets — **Search**, **Settings** (persiste les clés API
-via QSettings), **Enrich** (pilote l'enrichissement LLM-as-agent / pipeline
-Python via un signal `collection_ready`) et **Deck** (le bouton Light mode + les
-contrôles de plafond de diapositives + max-figures se répercutent dans
-`ExportOptions`). Le zip de release Windows livre le bundle compilé par Nuitka
+La fenêtre a une barre latérale avec quatre pages : **Search**, **Enrich**
+(pilote l'enrichissement LLM-as-agent / pipeline Python via un signal
+`collection_ready`), **Deck** (le bouton Dark mode, le plafond de diapositives,
+la vérification des identifiants et le modèle de présentation se répercutent
+dans `ExportOptions`) et **Settings** (persiste les clés API via QSettings).
+Le zip de release Windows livre le bundle compilé par Nuitka
 avec PySide6 inclus, de sorte que `thesisagents.exe gui` fonctionne sans
 installation Python séparée.
-L'onglet Search peut aussi suivre les citations des premiers résultats
+La page Search peut aussi suivre les citations des premiers résultats
 (boule de neige), conserver les résultats dans un fichier de
 bibliothèque et chercher dans cette bibliothèque sans réseau, et
-l'onglet Deck peut construire la présentation sur votre propre modèle
+la page Deck peut construire la présentation sur votre propre modèle
 PowerPoint.
 **L'interface est livrée dans les 14 langues** (English, 繁體中文, 简体中文,
 日本語, Español, Français, Deutsch, 한국어, Português, Русский,
@@ -595,10 +596,15 @@ Italiano, Tiếng Việt, हिन्दी, Bahasa Indonesia) — le premier l
 la langue depuis la locale de votre OS, puis **Settings → Interface language**
 vous permet de la changer. La langue de sortie de la présentation est un menu
 déroulant séparé, de sorte que vous pouvez exécuter l'interface dans une langue
-et émettre des diapositives dans une autre. La mise en page est responsive :
-chaque formulaire se trouve dans une `QScrollArea` et la fenêtre se redimensionne
-jusqu'à 900×600 (tient encore en 720p), avec la mise à l'échelle HiDPI activée
-par défaut.
+et émettre des diapositives dans une autre. La mise en page s'adapte à la largeur
+de la fenêtre : dans une fenêtre large, les contrôles de chaque page forment une
+colonne à côté de ses résultats, dans une fenêtre moyenne ils passent au-dessus,
+et sous 760 px la barre latérale se replie en icônes et les libellés des
+formulaires passent au-dessus de leurs champs. La fenêtre se redimensionne
+jusqu'à 640×480, avec la mise à l'échelle HiDPI activée par défaut.
+**Settings → Theme** choisit clair, sombre ou suivre le système, s'applique
+immédiatement et reste indépendant du mode sombre propre à la présentation.
+`Ctrl+1` … `Ctrl+4` changent de page.
 
 Référence complète : [`docs/gui.md`](../docs/gui.md).
 

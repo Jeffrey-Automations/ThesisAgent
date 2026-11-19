@@ -33,7 +33,6 @@ from PySide6.QtGui import QStandardItem, QStandardItemModel
 from PySide6.QtWidgets import (
     QComboBox,
     QFormLayout,
-    QGroupBox,
     QHBoxLayout,
     QHeaderView,
     QLabel,
@@ -47,6 +46,12 @@ from PySide6.QtWidgets import (
 from thesisagents.core.models import Paper, PaperCollection
 from thesisagents.exporters.i18n import SUPPORTED_LANGUAGES as DECK_LANGUAGES
 from thesisagents.gui.i18n import LANGUAGE_DISPLAY_NAMES, t
+from thesisagents.gui.widgets.responsive import (
+    AdaptiveSplit,
+    Breakpoint,
+    adapt_form_rows,
+    make_card,
+)
 from thesisagents.gui.workers import AsyncWorker
 
 # Anthropic env var name — mirrors intelligence.summarise._API_KEY_ENV
@@ -62,6 +67,9 @@ class EnrichPage(QWidget):
     # Re-emitted to downstream tabs (Deck) whenever an enrichment run
     # finishes — even partially — so they can render whatever survived.
     collection_ready = Signal(object)
+    #: ``True`` when an enrichment run starts, ``False`` when its last paper
+    #: is done. Drives the main window's progress indicator.
+    busy_changed = Signal(bool)
 
     def __init__(self, ui_language: str = "en", parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -78,51 +86,74 @@ class EnrichPage(QWidget):
         self._build_ui()
 
     def _build_ui(self) -> None:
+        """Settings card and Enrich button beside / above the per-paper table."""
+        language = self._ui_language
         outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
 
-        settings_box = QGroupBox(t("enrich.settings_group", self._ui_language), self)
-        form = QFormLayout(settings_box)
+        controls = QWidget(self)
+        controls_layout = QVBoxLayout(controls)
+        controls_layout.setContentsMargins(0, 0, 6, 0)
+        settings_card, settings_layout = make_card(
+            t("enrich.settings_group", language), controls
+        )
+        form = QFormLayout()
+        settings_layout.addLayout(form)
 
         self._language_combo = QComboBox(self)
         for code in DECK_LANGUAGES:
             display = LANGUAGE_DISPLAY_NAMES.get(code, code)
             self._language_combo.addItem(display, code)
-        form.addRow(
-            t("enrich.language_label", self._ui_language), self._language_combo,
-        )
+        form.addRow(t("enrich.language_label", language), self._language_combo)
 
         self._model_input = QLineEdit(self)
         self._model_input.setPlaceholderText(_DEFAULT_MODEL)
-        form.addRow(t("enrich.model_label", self._ui_language), self._model_input)
+        form.addRow(t("enrich.model_label", language), self._model_input)
+        adapt_form_rows(settings_card, form)
+        controls_layout.addWidget(settings_card)
+        controls_layout.addStretch(1)
 
-        outer.addWidget(settings_box)
-
-        button_row = QHBoxLayout()
-        self._enrich_button = QPushButton(
-            t("enrich.enrich_button", self._ui_language), self,
-        )
+        footer = QWidget(self)
+        button_row = QHBoxLayout(footer)
+        button_row.setContentsMargins(0, 0, 6, 0)
+        self._enrich_button = QPushButton(t("enrich.enrich_button", language), self)
+        self._enrich_button.setProperty("primary", True)
         self._enrich_button.setEnabled(False)
         self._enrich_button.clicked.connect(self._on_enrich_clicked)
-        button_row.addWidget(self._enrich_button)
-        button_row.addStretch(1)
-        outer.addLayout(button_row)
+        button_row.addWidget(self._enrich_button, stretch=1)
 
+        results = QWidget(self)
+        results_layout = QVBoxLayout(results)
+        results_layout.setContentsMargins(6, 0, 0, 0)
         self._table = QTableView(self)
         self._table.setModel(self._table_model)
         self._table.setSelectionBehavior(QTableView.SelectRows)
         self._table.setEditTriggers(QTableView.NoEditTriggers)
+        self._table.setAlternatingRowColors(True)
+        self._table.setShowGrid(False)
+        self._table.verticalHeader().setVisible(False)
         header = self._table.horizontalHeader()
         header.setStretchLastSection(False)
         header.setSectionResizeMode(0, QHeaderView.Stretch)
         header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        outer.addWidget(self._table, stretch=1)
+        results_layout.addWidget(self._table, stretch=1)
 
-        self._status_label = QLabel(
-            t("enrich.status_no_collection", self._ui_language), self,
-        )
+        self._status_label = QLabel(t("enrich.status_no_collection", language), self)
+        self._status_label.setObjectName("Muted")
+        self._status_label.setWordWrap(True)
         self._status_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        outer.addWidget(self._status_label)
+        results_layout.addWidget(self._status_label)
+
+        self._split = AdaptiveSplit(controls, results, footer=footer, parent=self)
+        outer.addWidget(self._split)
+
+    def apply_breakpoint(self, breakpoint: Breakpoint) -> None:
+        """Re-arrange for the window size class (called by the main window)."""
+        self._split.apply_breakpoint(breakpoint)
+
+    def split(self) -> AdaptiveSplit:
+        return self._split
 
     # --- public API -----------------------------------------------------
 
@@ -200,6 +231,7 @@ class EnrichPage(QWidget):
         self._enriched_papers = []
         self._pending_index = 0
         self._enrich_button.setEnabled(False)
+        self.busy_changed.emit(True)
         self._status_label.setText(
             t(
                 "enrich.status_running",
@@ -285,6 +317,7 @@ class EnrichPage(QWidget):
             1 for p in self._enriched_papers if p.summary is not None
         )
         self._enrich_button.setEnabled(True)
+        self.busy_changed.emit(False)
         self._status_label.setText(
             t(
                 "enrich.status_done",

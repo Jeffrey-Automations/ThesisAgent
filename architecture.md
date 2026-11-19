@@ -36,7 +36,7 @@
 | `thesisagents/library/` | Literature library kept across runs in one SQLite file: `store.py` (`Library`: merge an import on the identity keys of `core/dedup.py`, search with `rank_with_scores`, `LibraryVerificationCache` for the export preflight), `schema.py` (tables, `SCHEMA_VERSION`, migrations). Reads and writes the core models, and nothing in `core/` imports it |
 | `thesisagents/intelligence/` | PDF text / asset / metadata extraction and the API summariser (`summarise.py`), `[intelligence]` extra |
 | `thesisagents/mcp/` | FastMCP server (`server.build_server()`, with the library tools in `library_tools.py`), `[mcp]` extra (held below mcp 2.0, which renamed FastMCP) |
-| `thesisagents/gui/` | PySide6 desktop app (`app.py`, `main_window.py`, `pages/`, `workers.py` on `QThreadPool`, `i18n.py`), `[gui]` extra |
+| `thesisagents/gui/` | PySide6 desktop app, `[gui]` extra: `app.py` (boot, HiDPI, theme), `main_window.py` (sidebar `widgets/nav_rail.py` + page stack + status bar), `pages/` (Search, Enrich, Deck, Settings), `widgets/responsive.py` (size classes compact / medium / expanded that every page re-arranges for), `theme.py` (light / dark / system palettes and the app stylesheet), `icons.py` (painted icons), `workers.py` on `QThreadPool`, `i18n.py` |
 | `thesisagents/evaluation/` | Offline search-quality benchmark (`search_quality.py`; see `docs/search-quality.md`) |
 | `thesisagents/utils/` | Logging, path safety, and `async_helpers.run_blocking` (finish a coroutine from synchronous code, inside or outside a running loop) |
 | `tests/` | pytest suite with recorded fixtures under `tests/fixtures/<source>/`; no live HTTP |
@@ -166,6 +166,11 @@ no key, no model → lightweight, abstract-based deck
   (UI); every supported language must be filled (`tests/test_i18n.py`, `tests/gui/test_i18n.py`).
 - **New summary field**: `PaperSummary` in `thesisagents/core/models.py`, consumed by the thesis-style
   tier in `thesisagents/exporters/pptx.py`.
+- **New GUI page**: a `QWidget` in `thesisagents/gui/pages/` with `apply_breakpoint(Breakpoint)` (put
+  controls and results in an `AdaptiveSplit` from `widgets/responsive.py`) and, when it runs work on
+  a worker thread, a `busy_changed = Signal(bool)`. Register it in `_PAGE_META` and the page tuple in
+  `thesisagents/gui/main_window.py`, add a painter in `icons.py` for its sidebar icon, and take
+  colours from the stylesheet's object names (`#Card`, `primary`) rather than hard-coded values.
 
 ## 6. Cross-project boundaries
 

@@ -99,7 +99,7 @@ AAAI-Band (`v39i23.34521` statt echt `v39i22.34537`) und erfundener
 Autoren-Slug-Pfad (`view/fang2026` statt `v40i5.37389`).
 
 **Der Export prüft das zur Laufzeit.** Bevor etwas geschrieben wird,
-schlagen die CLI, das MCP-Tool `export` und der Deck-Tab der GUI die DOI
+schlagen die CLI, das MCP-Tool `export` und die Deck-Seite der GUI die DOI
 jedes Papers bei doi.org nach und rufen jede URL einmal ab. Eine nicht
 registrierte DOI, eine URL, die 404 antwortet, oder ein nicht
 erreichbarer Host stoppen den Export und nennen das Paper und den
@@ -224,7 +224,7 @@ Eine Suche über mehrere Paper folgt derselben Form mit einem
     Hell / Weiß), wobei Rot für Text **verboten** ist (verwende stattdessen
     fett + Petrol `#0E7490` zur Betonung).
   - **Der Hell-Modus ist der Standard-Rendering-Pfad.** Übergib `--dark-mode`,
-    aktiviere **Dark mode** im GUI-Tab „Deck" oder setze
+    aktiviere **Dark mode** auf der GUI-Seite „Deck" oder setze
     `ExportOptions(dark_mode=True)`, um den Dunkel-Nachlauf anzuwenden
     (Folienhintergrund `#12151B`, Fließtext `#E5E7EB`).
   - `.xlsx` — Papers-Blatt + Blatt zur Query-Provenienz, verlinkte URL /
@@ -570,16 +570,17 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-Das Fenster hat vier Tabs — **Search**, **Settings** (persistiert API-Schlüssel
-über QSettings), **Enrich** (steuert die LLM-as-agent-/Python-Pipeline-Anreicherung
-über ein `collection_ready`-Signal) und **Deck** (der Light-mode-Umschalter +
-die Folienobergrenze- und Max-Figures-Steuerungen fließen in `ExportOptions`
-ein). Das Windows-Release-Zip liefert das mit Nuitka kompilierte Bündel mit
+Das Fenster hat eine Seitenleiste mit vier Seiten: **Search**, **Enrich**
+(steuert die LLM-as-agent-/Python-Pipeline-Anreicherung über ein
+`collection_ready`-Signal), **Deck** (der Dark-mode-Umschalter, die
+Folienobergrenze, die Kennungsprüfung und die Foliensatz-Vorlage fließen in
+`ExportOptions` ein) und **Settings** (persistiert API-Schlüssel über
+QSettings). Das Windows-Release-Zip liefert das mit Nuitka kompilierte Bündel mit
 enthaltenem PySide6, sodass `thesisagents.exe gui` ohne separate
 Python-Installation funktioniert.
-Der Tab Search kann außerdem den Zitationen der obersten Ergebnisse
+Die Seite Search kann außerdem den Zitationen der obersten Ergebnisse
 folgen (Schneeball), Ergebnisse in einer Bibliotheksdatei aufbewahren
-und diese Bibliothek ohne Netzwerk durchsuchen, und der Tab Deck kann
+und diese Bibliothek ohne Netzwerk durchsuchen, und die Seite Deck kann
 das Deck auf Ihrer eigenen PowerPoint-Vorlage aufbauen.
 **Die UI wird in allen 14 Sprachen ausgeliefert** (English, 繁體中文, 简体中文,
 日本語, Español, Français, Deutsch, 한국어, Português, Русский,
@@ -587,9 +588,14 @@ Italiano, Tiếng Việt, हिन्दी, Bahasa Indonesia) — der erste St
 Sprache aus deiner OS-Locale, danach kannst du sie über **Settings → Interface
 language** ändern. Die Ausgabesprache des Foliensatzes ist ein separates
 Dropdown, sodass du die UI in einer Sprache betreiben und Folien in einer
-anderen erzeugen kannst. Das Layout ist responsiv: Jedes Formular sitzt in
-einer `QScrollArea` und das Fenster lässt sich bis auf 900×600 verkleinern
-(passt noch auf 720p), mit standardmäßig aktivierter HiDPI-Skalierung.
+anderen erzeugen kannst. Das Layout passt sich der Fensterbreite an: In einem
+breiten Fenster stehen die Bedienelemente jeder Seite in einer Spalte neben
+den Ergebnissen, in einem mittelbreiten darüber, und unter 760 px klappt die
+Seitenleiste auf Symbole zusammen und die Formularbeschriftungen rücken über
+ihre Felder. Das Fenster lässt sich bis auf 640×480 verkleinern, mit
+standardmäßig aktivierter HiDPI-Skalierung. **Settings → Theme** wählt hell,
+dunkel oder dem System folgend, wirkt sofort und ist unabhängig vom eigenen
+Dunkelmodus des Foliensatzes. `Ctrl+1` … `Ctrl+4` wechseln die Seiten.
 
 Vollständige Referenz: [`docs/gui.md`](../docs/gui.md).
 

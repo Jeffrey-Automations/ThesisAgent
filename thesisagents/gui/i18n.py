@@ -1303,20 +1303,55 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "id": "Simpan",
     },
     "settings.saved_message": {
-        "en": "Settings saved. Restart the app to apply.",
-        "zh-tw": "設定已儲存,重新啟動 App 後生效。",
-        "zh-cn": "设置已保存,重启 App 后生效。",
-        "ja": "設定を保存しました。アプリを再起動すると反映されます。",
-        "es": "Ajustes guardados. Reinicie la app para aplicar.",
-        "fr": "Paramètres enregistrés. Redémarrez l'app pour appliquer.",
-        "de": "Einstellungen gespeichert. App neu starten zum Anwenden.",
-        "ko": "설정이 저장되었습니다. 적용하려면 앱을 재시작하세요.",
-        "pt": "Configurações salvas. Reinicie o app para aplicar.",
-        "ru": "Настройки сохранены. Перезапустите приложение.",
-        "it": "Impostazioni salvate. Riavvia l'app per applicare.",
-        "vi": "Đã lưu cài đặt. Khởi động lại app để áp dụng.",
-        "hi": "सेटिंग्स सहेजी गईं। लागू करने के लिए ऐप पुनः शुरू करें।",
-        "id": "Pengaturan disimpan. Mulai ulang app untuk menerapkan.",
+        "en": (
+            "Settings saved. The theme applies now. Restart the app to apply the interface "
+            "language."
+        ),
+        "zh-tw": "設定已儲存。主題立即套用，介面語言需重新啟動 App 後生效。",
+        "zh-cn": "设置已保存。主题立即应用，界面语言需重启 App 后生效。",
+        "ja": (
+            "設定を保存しました。テーマはすぐに反映され、"
+            "表示言語はアプリを再起動すると反映されます。"
+        ),
+        "es": (
+            "Ajustes guardados. El tema se aplica ya. Reinicie la app para aplicar el idioma de la "
+            "interfaz."
+        ),
+        "fr": (
+            "Paramètres enregistrés. Le thème s'applique tout de suite. Redémarrez l'app pour "
+            "appliquer la langue de l'interface."
+        ),
+        "de": (
+            "Einstellungen gespeichert. Das Design gilt sofort. Für die Oberflächensprache die App "
+            "neu starten."
+        ),
+        "ko": (
+            "설정이 저장되었습니다. 테마는 바로 적용되며, 인터페이스 언어는 앱을 재시작하면 "
+            "적용됩니다."
+        ),
+        "pt": (
+            "Configurações salvas. O tema já foi aplicado. Reinicie o app para aplicar o idioma da "
+            "interface."
+        ),
+        "ru": (
+            "Настройки сохранены. Тема применена сразу, а язык интерфейса сменится после "
+            "перезапуска приложения."
+        ),
+        "it": (
+            "Impostazioni salvate. Il tema si applica subito. Riavvia l'app per applicare la "
+            "lingua dell'interfaccia."
+        ),
+        "vi": (
+            "Đã lưu cài đặt. Chủ đề áp dụng ngay, khởi động lại app để áp dụng ngôn ngữ giao diện."
+        ),
+        "hi": (
+            "सेटिंग्स सहेजी गईं। थीम तुरंत लागू होती है, इंटरफ़ेस भाषा लागू करने के लिए ऐप पुनः "
+            "शुरू करें।"
+        ),
+        "id": (
+            "Pengaturan disimpan. Tema langsung diterapkan, mulai ulang app untuk menerapkan "
+            "bahasa antarmuka."
+        ),
     },
     "settings.cookies_dialog_title": {
         "en": "Choose cookies file",
@@ -2249,6 +2284,357 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "vi": "Xuất thất bại: {error}",
         "hi": "Export विफल: {error}",
         "id": "Ekspor gagal: {error}",
+    },
+    # Shell: sidebar, status bar, page subtitles ----------------------
+    "nav.toggle": {
+        "en": "Collapse or expand the sidebar",
+        "zh-tw": "收合或展開側邊欄",
+        "zh-cn": "收起或展开侧边栏",
+        "ja": "サイドバーを折りたたむ／展開する",
+        "es": "Contraer o expandir la barra lateral",
+        "fr": "Réduire ou développer la barre latérale",
+        "de": "Seitenleiste ein- oder ausklappen",
+        "ko": "사이드바 접기/펼치기",
+        "pt": "Recolher ou expandir a barra lateral",
+        "ru": "Свернуть или развернуть боковую панель",
+        "it": "Comprimi o espandi la barra laterale",
+        "vi": "Thu gọn hoặc mở rộng thanh bên",
+        "hi": "साइडबार को छोटा या बड़ा करें",
+        "id": "Ciutkan atau bentangkan bilah samping",
+    },
+    "status.busy": {
+        "en": "Working…",
+        "zh-tw": "處理中…",
+        "zh-cn": "处理中…",
+        "ja": "処理中…",
+        "es": "Procesando…",
+        "fr": "Traitement en cours…",
+        "de": "Wird bearbeitet …",
+        "ko": "처리 중…",
+        "pt": "Processando…",
+        "ru": "Выполняется…",
+        "it": "Elaborazione in corso…",
+        "vi": "Đang xử lý…",
+        "hi": "काम जारी है…",
+        "id": "Sedang memproses…",
+    },
+    "page.search_subtitle": {
+        "en": (
+            "Find papers across the academic sources, follow their citations, and keep them in a "
+            "library."
+        ),
+        "zh-tw": "跨學術來源搜尋論文，可沿引用延伸，並存入文獻庫。",
+        "zh-cn": "跨学术来源搜索论文，可沿引用扩展，并存入文献库。",
+        "ja": "複数の学術ソースから論文を検索し、引用をたどってライブラリに保存します。",
+        "es": (
+            "Busque artículos en las fuentes académicas, siga sus citas y guárdelos en una "
+            "biblioteca."
+        ),
+        "fr": (
+            "Recherchez des articles dans les sources académiques, suivez leurs citations et "
+            "gardez-les dans une bibliothèque."
+        ),
+        "de": (
+            "Artikel in den Fachquellen suchen, ihren Zitationen folgen und in einer Bibliothek "
+            "ablegen."
+        ),
+        "ko": "여러 학술 소스에서 논문을 검색하고, 인용을 따라가며, 라이브러리에 보관합니다.",
+        "pt": (
+            "Pesquise artigos nas fontes acadêmicas, siga suas citações e guarde-os em uma "
+            "biblioteca."
+        ),
+        "ru": (
+            "Ищите статьи в академических источниках, переходите по цитированиям и сохраняйте их в "
+            "библиотеке."
+        ),
+        "it": (
+            "Cerca articoli nelle fonti accademiche, segui le loro citazioni e conservali in una "
+            "biblioteca."
+        ),
+        "vi": "Tìm bài báo trên các nguồn học thuật, lần theo trích dẫn và lưu chúng vào thư viện.",
+        "hi": (
+            "अकादमिक स्रोतों में शोध-पत्र खोजें, उनके उद्धरणों का अनुसरण करें और उन्हें लाइब्रेरी "
+            "में रखें।"
+        ),
+        "id": (
+            "Cari makalah di berbagai sumber akademik, telusuri sitasinya, dan simpan di pustaka."
+        ),
+    },
+    "page.enrich_subtitle": {
+        "en": (
+            "Read each paper's PDF and write a thesis-structured summary. Needs an Anthropic API "
+            "key in Settings."
+        ),
+        "zh-tw": (
+            "讀取每篇論文的 PDF，產生依論文章節編排的摘要。需在「設定」填入 Anthropic API 金鑰。"
+        ),
+        "zh-cn": (
+            "读取每篇论文的 PDF，生成按论文章节编排的摘要。需在“设置”中填写 Anthropic API 密钥。"
+        ),
+        "ja": (
+            "各論文の PDF を読み、論文の章立てに沿った要約を作成します。設定で Anthropic API "
+            "キーが必要です。"
+        ),
+        "es": (
+            "Lee el PDF de cada artículo y redacta un resumen con estructura de tesis. Requiere "
+            "una clave de API de Anthropic en Ajustes."
+        ),
+        "fr": (
+            "Lit le PDF de chaque article et rédige un résumé structuré comme une thèse. Nécessite "
+            "une clé API Anthropic dans les Paramètres."
+        ),
+        "de": (
+            "Liest das PDF jedes Artikels und schreibt eine Zusammenfassung im Aufbau einer "
+            "Abschlussarbeit. Benötigt einen Anthropic-API-Schlüssel in den Einstellungen."
+        ),
+        "ko": (
+            "각 논문의 PDF를 읽고 학위논문 구조에 맞춘 요약을 작성합니다. 설정에 Anthropic API "
+            "키가 필요합니다."
+        ),
+        "pt": (
+            "Lê o PDF de cada artigo e escreve um resumo com estrutura de tese. Requer uma chave "
+            "de API da Anthropic em Configurações."
+        ),
+        "ru": (
+            "Читает PDF каждой статьи и составляет резюме по структуре диссертации. Нужен ключ API "
+            "Anthropic в настройках."
+        ),
+        "it": (
+            "Legge il PDF di ogni articolo e scrive un riassunto con la struttura di una tesi. "
+            "Richiede una chiave API Anthropic nelle Impostazioni."
+        ),
+        "vi": (
+            "Đọc PDF của từng bài báo và viết bản tóm tắt theo cấu trúc luận văn. Cần khóa API "
+            "Anthropic trong Cài đặt."
+        ),
+        "hi": (
+            "हर शोध-पत्र की PDF पढ़कर थीसिस-संरचना वाला सारांश लिखता है। सेटिंग्स में Anthropic "
+            "API कुंजी चाहिए।"
+        ),
+        "id": (
+            "Membaca PDF setiap makalah dan menulis ringkasan berstruktur tesis. Memerlukan kunci "
+            "API Anthropic di Pengaturan."
+        ),
+    },
+    "page.deck_subtitle": {
+        "en": "Pick the output formats and deck options, then write the files.",
+        "zh-tw": "選擇輸出格式與投影片選項，然後寫出檔案。",
+        "zh-cn": "选择输出格式与幻灯片选项，然后写出文件。",
+        "ja": "出力形式とスライドのオプションを選び、ファイルを書き出します。",
+        "es": (
+            "Elija los formatos de salida y las opciones de diapositivas, y luego escriba los "
+            "archivos."
+        ),
+        "fr": (
+            "Choisissez les formats de sortie et les options des diapos, puis écrivez les fichiers."
+        ),
+        "de": "Ausgabeformate und Folienoptionen wählen, dann die Dateien schreiben.",
+        "ko": "출력 형식과 슬라이드 옵션을 고른 뒤 파일을 저장합니다.",
+        "pt": (
+            "Escolha os formatos de saída e as opções dos slides e, em seguida, grave os arquivos."
+        ),
+        "ru": "Выберите форматы вывода и параметры слайдов, затем запишите файлы.",
+        "it": "Scegli i formati di output e le opzioni delle diapositive, poi scrivi i file.",
+        "vi": "Chọn định dạng đầu ra và tùy chọn slide, sau đó ghi tệp.",
+        "hi": "आउटपुट फ़ॉर्मैट और स्लाइड विकल्प चुनें, फिर फ़ाइलें लिखें।",
+        "id": "Pilih format keluaran dan opsi slide, lalu tulis berkasnya.",
+    },
+    "page.settings_subtitle": {
+        "en": (
+            "API keys, browser access, interface language and theme. Everything is stored on this "
+            "computer only."
+        ),
+        "zh-tw": "API 金鑰、瀏覽器存取、介面語言與主題。所有設定只儲存在這台電腦。",
+        "zh-cn": "API 密钥、浏览器访问、界面语言与主题。所有设置只保存在这台电脑。",
+        "ja": (
+            "API キー、ブラウザーアクセス、表示言語とテーマ。"
+            "すべてこのコンピューターにのみ保存されます。"
+        ),
+        "es": (
+            "Claves de API, acceso del navegador, idioma de la interfaz y tema. Todo se guarda "
+            "solo en este equipo."
+        ),
+        "fr": (
+            "Clés API, accès navigateur, langue de l'interface et thème. Tout est enregistré sur "
+            "cet ordinateur uniquement."
+        ),
+        "de": (
+            "API-Schlüssel, Browserzugriff, Oberflächensprache und Design. Alles wird nur auf "
+            "diesem Computer gespeichert."
+        ),
+        "ko": (
+            "API 키, 브라우저 접근, 인터페이스 언어와 테마. 모든 설정은 이 컴퓨터에만 저장됩니다."
+        ),
+        "pt": (
+            "Chaves de API, acesso do navegador, idioma da interface e tema. Tudo fica salvo "
+            "apenas neste computador."
+        ),
+        "ru": (
+            "Ключи API, доступ браузера, язык интерфейса и тема. Всё хранится только на этом "
+            "компьютере."
+        ),
+        "it": (
+            "Chiavi API, accesso del browser, lingua dell'interfaccia e tema. Tutto è salvato solo "
+            "su questo computer."
+        ),
+        "vi": (
+            "Khóa API, truy cập trình duyệt, ngôn ngữ giao diện và chủ đề. Mọi thứ chỉ được lưu "
+            "trên máy tính này."
+        ),
+        "hi": (
+            "API कुंजियाँ, ब्राउज़र पहुँच, इंटरफ़ेस भाषा और थीम। सब कुछ केवल इसी कंप्यूटर पर सहेजा "
+            "जाता है।"
+        ),
+        "id": (
+            "Kunci API, akses peramban, bahasa antarmuka, dan tema. Semuanya hanya disimpan di "
+            "komputer ini."
+        ),
+    },
+    # Card titles -------------------------------------------------------
+    "search.card_query": {
+        "en": "What to search",
+        "zh-tw": "搜尋內容",
+        "zh-cn": "搜索内容",
+        "ja": "検索内容",
+        "es": "Qué buscar",
+        "fr": "Que rechercher",
+        "de": "Suchanfrage",
+        "ko": "검색 내용",
+        "pt": "O que pesquisar",
+        "ru": "Что искать",
+        "it": "Cosa cercare",
+        "vi": "Tìm gì",
+        "hi": "क्या खोजें",
+        "id": "Apa yang dicari",
+    },
+    "search.card_filters": {
+        "en": "Filters",
+        "zh-tw": "篩選條件",
+        "zh-cn": "筛选条件",
+        "ja": "絞り込み",
+        "es": "Filtros",
+        "fr": "Filtres",
+        "de": "Filter",
+        "ko": "필터",
+        "pt": "Filtros",
+        "ru": "Фильтры",
+        "it": "Filtri",
+        "vi": "Bộ lọc",
+        "hi": "फ़िल्टर",
+        "id": "Filter",
+    },
+    "search.card_library": {
+        "en": "Snowball and library",
+        "zh-tw": "引用滾雪球與文獻庫",
+        "zh-cn": "引用滚雪球与文献库",
+        "ja": "引用スノーボールとライブラリ",
+        "es": "Bola de nieve y biblioteca",
+        "fr": "Boule de neige et bibliothèque",
+        "de": "Schneeball und Bibliothek",
+        "ko": "인용 스노볼과 라이브러리",
+        "pt": "Bola de neve e biblioteca",
+        "ru": "Снежный ком и библиотека",
+        "it": "Palla di neve e biblioteca",
+        "vi": "Lăn cầu tuyết và thư viện",
+        "hi": "Citation snowball और लाइब्रेरी",
+        "id": "Bola salju dan pustaka",
+    },
+    "search.results_title": {
+        "en": "Results",
+        "zh-tw": "搜尋結果",
+        "zh-cn": "搜索结果",
+        "ja": "検索結果",
+        "es": "Resultados",
+        "fr": "Résultats",
+        "de": "Ergebnisse",
+        "ko": "결과",
+        "pt": "Resultados",
+        "ru": "Результаты",
+        "it": "Risultati",
+        "vi": "Kết quả",
+        "hi": "परिणाम",
+        "id": "Hasil",
+    },
+    "settings.card_browser": {
+        "en": "Browser and PDF access",
+        "zh-tw": "瀏覽器與 PDF 存取",
+        "zh-cn": "浏览器与 PDF 访问",
+        "ja": "ブラウザーと PDF へのアクセス",
+        "es": "Navegador y acceso a PDF",
+        "fr": "Navigateur et accès aux PDF",
+        "de": "Browser und PDF-Zugriff",
+        "ko": "브라우저 및 PDF 접근",
+        "pt": "Navegador e acesso a PDF",
+        "ru": "Браузер и доступ к PDF",
+        "it": "Browser e accesso ai PDF",
+        "vi": "Trình duyệt và truy cập PDF",
+        "hi": "ब्राउज़र और PDF पहुँच",
+        "id": "Peramban dan akses PDF",
+    },
+    # Theme ---------------------------------------------------------------
+    "settings.theme_label": {
+        "en": "Theme",
+        "zh-tw": "主題",
+        "zh-cn": "主题",
+        "ja": "テーマ",
+        "es": "Tema",
+        "fr": "Thème",
+        "de": "Design",
+        "ko": "테마",
+        "pt": "Tema",
+        "ru": "Тема",
+        "it": "Tema",
+        "vi": "Chủ đề",
+        "hi": "थीम",
+        "id": "Tema",
+    },
+    "settings.theme_system": {
+        "en": "Follow the system",
+        "zh-tw": "跟隨系統",
+        "zh-cn": "跟随系统",
+        "ja": "システムに合わせる",
+        "es": "Seguir el sistema",
+        "fr": "Suivre le système",
+        "de": "Wie System",
+        "ko": "시스템 설정 따르기",
+        "pt": "Seguir o sistema",
+        "ru": "Как в системе",
+        "it": "Segui il sistema",
+        "vi": "Theo hệ thống",
+        "hi": "सिस्टम के अनुसार",
+        "id": "Ikuti sistem",
+    },
+    "settings.theme_light": {
+        "en": "Light",
+        "zh-tw": "淺色",
+        "zh-cn": "浅色",
+        "ja": "ライト",
+        "es": "Claro",
+        "fr": "Clair",
+        "de": "Hell",
+        "ko": "라이트",
+        "pt": "Claro",
+        "ru": "Светлая",
+        "it": "Chiaro",
+        "vi": "Sáng",
+        "hi": "लाइट",
+        "id": "Terang",
+    },
+    "settings.theme_dark": {
+        "en": "Dark",
+        "zh-tw": "深色",
+        "zh-cn": "深色",
+        "ja": "ダーク",
+        "es": "Oscuro",
+        "fr": "Sombre",
+        "de": "Dunkel",
+        "ko": "다크",
+        "pt": "Escuro",
+        "ru": "Тёмная",
+        "it": "Scuro",
+        "vi": "Tối",
+        "hi": "डार्क",
+        "id": "Gelap",
     },
 }
 

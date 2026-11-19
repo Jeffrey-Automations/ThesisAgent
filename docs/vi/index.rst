@@ -123,7 +123,7 @@ xlsx được ghi vào ``exports/<run>/<slug>-<timestamp>.xlsx`` với cột 7
            print(f"! {p.bibtex_key()} authored {p.url} vs real {actual}")
 
 **Bước xuất kiểm tra điều này khi chạy.** Trước khi ghi bất cứ thứ gì,
-CLI, công cụ MCP ``export`` và tab Deck của GUI tra cứu DOI của từng bài
+CLI, công cụ MCP ``export`` và trang Deck của GUI tra cứu DOI của từng bài
 báo tại doi.org và gửi một yêu cầu tới từng URL. Một DOI chưa đăng ký,
 một URL trả về 404 hoặc một máy chủ không thể kết nối sẽ dừng việc xuất
 và nêu rõ bài báo cùng mã định danh. Phép kiểm tra chứng minh rằng mã

@@ -60,7 +60,7 @@ for p in ALL_PAPERS:
 
 この方法で本番で検出された 2 件の偽造: AAAI 巻号の誤り(`v39i23.34521` 対 実際の `v39i22.34537`)と、捏造された著者 slug パス(`v40i5.37389` の代わりに `view/fang2026`)。
 
-**エクスポート時に実行時チェックが入ります。** ファイルを書き出す前に、CLI、MCP の `export` ツール、GUI の Deck タブが各論文の DOI を doi.org で照会し、各 URL に 1 回ずつリクエストを送ります。未登録の DOI、404 を返す URL、到達できないホストがあるとエクスポートは中止され、該当する論文と識別子が示されます。このチェックが示すのは識別子が存在することだけで、その論文のものであることまでは保証しません。したがって上記の「xlsx から逐語コピー」の規則と監査は引き続き必要です。オフラインで作業する場合は `--no-verify-identifiers` (CLI) または `verify_identifiers=false` (MCP) を指定してください。
+**エクスポート時に実行時チェックが入ります。** ファイルを書き出す前に、CLI、MCP の `export` ツール、GUI の Deck ページが各論文の DOI を doi.org で照会し、各 URL に 1 回ずつリクエストを送ります。未登録の DOI、404 を返す URL、到達できないホストがあるとエクスポートは中止され、該当する論文と識別子が示されます。このチェックが示すのは識別子が存在することだけで、その論文のものであることまでは保証しません。したがって上記の「xlsx から逐語コピー」の規則と監査は引き続き必要です。オフラインで作業する場合は `--no-verify-identifiers` (CLI) または `verify_identifiers=false` (MCP) を指定してください。
 
 ### 必須: 納品前に無関係なダウンロードを整理
 
@@ -102,7 +102,7 @@ for key in irrelevant_keys:
 - **8 つのエクスポータ**:
   - `.pptx` — 16:9 ワイドスクリーン、ページ番号付き、3 つのレンダリング層(軽量な要約のみ · フラット強化 · **論文発表級**: ペインポイント四象限、KPI コールアウト、技術比較表、RQ ごとの結果表、貢献まとめ、コア観察、限界と今後の課題、Q&A、参考文献)。すべてのテンプレート文字列は **14 言語** に i18n 対応: English、繁體中文、简体中文、日本語、Español、Français、Deutsch、한국어、Português、Русский、Italiano、Tiếng Việt、हिन्दी、Bahasa Indonesia。
   - **デザイン済みデッキのビジュアルアイデンティティ**(デフォルトの Calibri-on-white ではありません): 言語ごとのタイポグラフィ(Latin に Inter、CJK + Hindi に Microsoft JhengHei UI / YaHei UI / Yu Gothic UI / Malgun Gothic / Nirmala UI)、プログラム生成のアクセント幾何(全コンテンツスライド上端のアクセントバー + カバーの左帯)、学術風テーブル書式(デフォルトのグリッド除去、navy ヘッダールール、淡い行間 divider、交互の行ストライプ、垂直中央揃え、行ラベルは太字)、5 色 palette の規律(navy / teal / grey / light / white)、テキストの赤色は **禁止**(強調には代わりに太字 + teal `#0E7490` を使用)。
-  - **ライトモードがデフォルトのレンダーパス**。`--dark-mode` を渡すか、GUI の Deck タブで **Dark mode** を有効化するか、`ExportOptions(dark_mode=True)` を設定すると、ダークの post-pass(slide 背景 `#12151B`、本文 `#E5E7EB`)を適用します。
+  - **ライトモードがデフォルトのレンダーパス**。`--dark-mode` を渡すか、GUI の Deck ページで **Dark mode** を有効化するか、`ExportOptions(dark_mode=True)` を設定すると、ダークの post-pass(slide 背景 `#12151B`、本文 `#E5E7EB`)を適用します。
   - `.xlsx` — Papers シート + Query 出典シート、URL / PDF ハイパーリンク、ヘッダー固定、列幅自動調整。列 5(**Source**)は実際の出版場所(例「IEEE Access」)を、列 6(**Indexed via**)はメタデータを返したフェッチャ(例「openalex」)を表示するので、2 つの情報が決して衝突しません。
   - `.md` — 完全なソース / タイトル / 要約リスト。
   - `.bib` — 衝突しない引用キー、LaTeX エスケープ済みフィールド。
@@ -336,9 +336,9 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-ウィンドウには 4 つのタブがあります — **Search**、**Settings**(QSettings 経由で API キーを永続化)、**Enrich**(`collection_ready` シグナルを介して LLM-as-agent / Python パイプラインのエンリッチを駆動)、**Deck**(Light モードトグル + スライド上限 + 最大図数のコントロールが `ExportOptions` に流れる)。Windows リリース zip は PySide6 を含む Nuitka コンパイル済みバンドルを同梱するので、別途 Python をインストールせずに `thesisagents.exe gui` が動作します。
-Search タブでは、上位の結果から引用をたどること (スノーボール)、結果をライブラリファイルに保存してネットワークなしでそのライブラリを検索することもでき、Deck タブでは手持ちの PowerPoint テンプレートの上にスライドを作れます。
-**UI は 14 言語すべてで提供**(English、繁體中文、简体中文、日本語、Español、Français、Deutsch、한국어、Português、Русский、Italiano、Tiếng Việt、हिन्दी、Bahasa Indonesia) — 初回起動は OS ロケールから言語を選び、その後 **Settings → Interface language** で変更できます。デッキ出力言語は別のドロップダウンなので、UI を 1 つの言語で動かしつつ別の言語でスライドを出力できます。レイアウトはレスポンシブ: すべてのフォームが `QScrollArea` に収まり、ウィンドウは 900×600 まで縮小可能(720p にもなお収まる)、HiDPI スケーリングはデフォルトで有効です。
+ウィンドウにはサイドバーと 4 つのページがあります: **Search**、**Enrich**(`collection_ready` シグナルを介して LLM-as-agent / Python パイプラインのエンリッチを駆動)、**Deck**(Dark mode トグル、スライド上限、識別子チェック、デッキテンプレートが `ExportOptions` に流れる)、**Settings**(QSettings 経由で API キーを永続化)。Windows リリース zip は PySide6 を含む Nuitka コンパイル済みバンドルを同梱するので、別途 Python をインストールせずに `thesisagents.exe gui` が動作します。
+Search ページでは、上位の結果から引用をたどること (スノーボール)、結果をライブラリファイルに保存してネットワークなしでそのライブラリを検索することもでき、Deck ページでは手持ちの PowerPoint テンプレートの上にスライドを作れます。
+**UI は 14 言語すべてで提供**(English、繁體中文、简体中文、日本語、Español、Français、Deutsch、한국어、Português、Русский、Italiano、Tiếng Việt、हिन्दी、Bahasa Indonesia) — 初回起動は OS ロケールから言語を選び、その後 **Settings → Interface language** で変更できます。デッキ出力言語は別のドロップダウンなので、UI を 1 つの言語で動かしつつ別の言語でスライドを出力できます。レイアウトはウィンドウ幅に合わせて変わります。広いウィンドウでは各ページのコントロールが結果の横に列として並び、中くらいの幅では結果の上に置かれ、760 px 未満ではサイドバーがアイコンだけに折りたたまれ、フォームのラベルが入力欄の上に移ります。ウィンドウは 640×480 まで縮小でき、HiDPI スケーリングはデフォルトで有効です。**Settings → Theme** でライト、ダーク、システムに従うのいずれかを選べ、すぐに反映され、デッキ自体のダークモードとは独立しています。`Ctrl+1` … `Ctrl+4` でページを切り替えます。
 
 完全な参照: [`docs/gui.md`](../docs/gui.md)。
 

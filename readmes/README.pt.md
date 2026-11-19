@@ -95,7 +95,7 @@ Duas fabricações capturadas assim em produção: volume errado da AAAI
 (`view/fang2026` em vez de `v40i5.37389`).
 
 **A exportação verifica isso em tempo de execução.** Antes de gravar
-qualquer coisa, a CLI, a ferramenta MCP `export` e a aba Deck da GUI
+qualquer coisa, a CLI, a ferramenta MCP `export` e a página Deck da GUI
 consultam o DOI de cada artigo em doi.org e solicitam cada URL uma vez.
 Um DOI não registrado, uma URL que responde 404 ou um host inalcançável
 interrompem a exportação e indicam o artigo e o identificador. A
@@ -216,7 +216,7 @@ tupla `PaperCollection`.
     (azul-marinho / azul-petróleo / cinza / claro / branco) com o vermelho
     **proibido** para texto (use negrito + azul-petróleo `#0E7490` para ênfase).
   - **O modo claro é o caminho de renderização padrão.** Passe `--dark-mode`,
-    ative o **Dark mode** na aba Deck da GUI ou defina
+    ative o **Dark mode** na página Deck da GUI ou defina
     `ExportOptions(dark_mode=True)` para aplicar a pós-passagem escura (fundo do
     slide `#12151B`, texto do corpo `#E5E7EB`).
   - `.xlsx` — planilha Papers + planilha de proveniência da Query, URL / PDF com
@@ -562,25 +562,30 @@ pip install thesisagents[gui]
 thesisagents-gui                 # or: thesisagents gui
 ```
 
-A janela tem quatro abas — **Search**, **Settings** (persiste chaves de API
-via QSettings), **Enrich** (conduz o enriquecimento LLM-como-agente /
-pipeline-Python sobre um sinal `collection_ready`) e **Deck** (o toggle de modo
-claro + o limite de slides + os controles de máximo de figuras fluem para
-`ExportOptions`). O zip de release do Windows traz o pacote compilado com
+A janela tem uma barra lateral com quatro páginas: **Search**, **Enrich**
+(conduz o enriquecimento LLM-como-agente / pipeline-Python sobre um sinal
+`collection_ready`), **Deck** (o toggle de modo escuro, o limite de slides, a
+verificação de identificadores e o modelo da apresentação fluem para
+`ExportOptions`) e **Settings** (persiste chaves de API via QSettings). O zip de release do Windows traz o pacote compilado com
 Nuitka incluindo o PySide6, então `thesisagents.exe gui` funciona sem uma
 instalação separada de Python.
-A aba Search também pode seguir as citações dos primeiros resultados
+A página Search também pode seguir as citações dos primeiros resultados
 (bola de neve), guardar os resultados em um arquivo de biblioteca e
-buscar nessa biblioteca sem rede, e a aba Deck pode construir a
+buscar nessa biblioteca sem rede, e a página Deck pode construir a
 apresentação sobre o seu próprio modelo do PowerPoint.
 **A UI é distribuída em todos os 14 idiomas** (English, 繁體中文, 简体中文,
 日本語, Español, Français, Deutsch, 한국어, Português, Русский, Italiano,
 Tiếng Việt, हिन्दी, Bahasa Indonesia) — a primeira execução escolhe o idioma
 a partir do locale do seu SO, então **Settings → Interface language** permite
 alterá-lo. O idioma de saída do slide é uma lista suspensa separada, para que
-você possa rodar a UI num idioma e emitir slides em outro. O layout é
-responsivo: cada formulário fica numa `QScrollArea` e a janela redimensiona
-até 900×600 (ainda cabe em 720p), com escalonamento HiDPI ativado por padrão.
+você possa rodar a UI num idioma e emitir slides em outro. O layout se adapta
+à largura da janela: numa janela larga os controles de cada página ficam numa
+coluna ao lado dos resultados, numa média acima deles, e abaixo de 760 px a
+barra lateral se recolhe em ícones e os rótulos dos formulários passam para
+cima dos campos. A janela redimensiona até 640×480, com escalonamento HiDPI
+ativado por padrão. **Settings → Theme** escolhe claro, escuro ou seguir o
+sistema, aplicado na hora e independente do modo escuro da própria
+apresentação. `Ctrl+1` … `Ctrl+4` alternam entre as páginas.
 
 Referência completa: [`docs/gui.md`](../docs/gui.md).
 
