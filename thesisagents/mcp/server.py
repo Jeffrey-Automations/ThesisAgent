@@ -342,6 +342,7 @@ def _register_pdf_download_tool(server: FastMCP) -> None:
                     "paper_key": r.paper_key,
                     "path": str(r.path) if r.path is not None else None,
                     "reason": r.skipped_reason,
+                    "route": r.route,
                 }
                 for r in results
             ],

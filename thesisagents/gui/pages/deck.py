@@ -537,6 +537,12 @@ class DeckPage(QWidget):
         pdfs = outcome.pdfs
         if pdfs is not None:
             parts.append(t("deck.pdfs_summary", language, saved=pdfs.saved, skipped=pdfs.skipped))
+            if pdfs.via_browser:
+                parts.append(t("deck.pdfs_via_browser", language, count=pdfs.via_browser))
+            if pdfs.without_browser:
+                parts.append(t("deck.pdfs_no_browser", language, count=pdfs.without_browser))
+            if pdfs.browser_failed:
+                parts.append(t("deck.pdfs_browser_failed", language, count=pdfs.browser_failed))
             if pdfs.held:
                 parts.append(t("deck.pdfs_ieee_held", language, count=pdfs.held))
         return " ".join(parts)

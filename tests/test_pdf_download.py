@@ -394,3 +394,75 @@ async def test_download_pdfs_isolates_a_hard_failure(tmp_path: Path, monkeypatch
     assert saved.path is not None and saved.path.exists()
     assert failed.path is None
     assert failed.skipped_reason == "error_OSError"
+
+
+# --- the route each PDF took (progress #31) ------------------------------------
+
+_PAYWALLED = "https://dl.acm.org/doi/pdf/10.1145/1"
+
+
+def _browser(monkeypatch, *, available: bool, succeeds: bool = True) -> list[str]:
+    """Stub the visible-Chrome downloader and return the URLs it was given."""
+    from thesisagents.fetchers import webrunner_pdf
+
+    visited: list[str] = []
+
+    async def fake_download(url: str, target: Path) -> bool:
+        visited.append(url)
+        if succeeds:
+            target.write_bytes(b"%PDF-1.4\nfrom the browser")
+        return succeeds
+
+    monkeypatch.setattr(webrunner_pdf, "is_available", lambda: available)
+    monkeypatch.setattr(webrunner_pdf, "download_via_browser", fake_download)
+    return visited
+
+
+async def test_an_open_pdf_is_fetched_directly(tmp_path: Path, monkeypatch):
+    _install_transport(monkeypatch, _CannedTransport(200, b"%PDF-1.4\nx"))
+    visited = _browser(monkeypatch, available=True)
+    result = (await download_pdfs(_collection(_paper()), tmp_path))[0]
+    assert result.route == pdf_download_module.ROUTE_DIRECT
+    assert visited == []
+
+
+async def test_a_publisher_pdf_goes_through_the_browser(tmp_path: Path, monkeypatch):
+    transport = _CannedTransport(200, b"%PDF-1.4\nx")
+    _install_transport(monkeypatch, transport)
+    visited = _browser(monkeypatch, available=True)
+    result = (await download_pdfs(_collection(_paper(pdf_url=_PAYWALLED)), tmp_path))[0]
+    assert result.route == pdf_download_module.ROUTE_BROWSER
+    assert visited == [_PAYWALLED]
+    assert transport.calls == []
+
+
+async def test_a_browser_failure_is_retried_directly_and_logged(
+    tmp_path: Path, monkeypatch, caplog
+):
+    _install_transport(monkeypatch, _CannedTransport(403, b"denied", "text/html"))
+    _browser(monkeypatch, available=True, succeeds=False)
+    with caplog.at_level("WARNING", logger="thesisagents.core.pdf_download"):
+        result = (await download_pdfs(_collection(_paper(pdf_url=_PAYWALLED)), tmp_path))[0]
+    assert result.route == pdf_download_module.ROUTE_DIRECT_BROWSER_FAILED
+    assert result.path is None
+    assert any("browser could not fetch" in record.getMessage() for record in caplog.records)
+
+
+async def test_a_missing_browser_is_no_longer_silent(tmp_path: Path, monkeypatch, caplog):
+    """Before #31 a paywalled URL went to httpx with no log line at all when
+    browser automation was unavailable."""
+    _install_transport(monkeypatch, _CannedTransport(403, b"denied", "text/html"))
+    visited = _browser(monkeypatch, available=False)
+    with caplog.at_level("WARNING", logger="thesisagents.core.pdf_download"):
+        result = (await download_pdfs(_collection(_paper(pdf_url=_PAYWALLED)), tmp_path))[0]
+    assert result.route == pdf_download_module.ROUTE_DIRECT_NO_BROWSER
+    assert visited == []
+    assert any("browser automation is unavailable" in r.getMessage() for r in caplog.records)
+
+
+async def test_a_pdf_already_on_disk_reports_its_route(tmp_path: Path, monkeypatch):
+    _install_transport(monkeypatch, _CannedTransport(200, b"%PDF-1.4\nx"))
+    first = (await download_pdfs(_collection(_paper()), tmp_path))[0]
+    again = (await download_pdfs(_collection(_paper()), tmp_path))[0]
+    assert first.route == pdf_download_module.ROUTE_DIRECT
+    assert again.route == pdf_download_module.ROUTE_ON_DISK

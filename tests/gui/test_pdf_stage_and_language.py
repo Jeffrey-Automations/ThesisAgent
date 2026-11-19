@@ -246,3 +246,51 @@ def test_with_access_saved_ieee_starts_unlocked(qtbot):
     page = SearchPage(ui_language="en")
     qtbot.addWidget(page)
     assert "ieee" in page._sources_widget.selected()  # noqa: SLF001
+
+
+# --- #31 the route each PDF took is shown ----------------------------------------
+
+
+def test_the_stage_counts_the_routes(monkeypatch, tmp_path):
+    from thesisagents.core import pdf_download as core
+
+    routes = {"1": core.ROUTE_BROWSER, "2": core.ROUTE_DIRECT_NO_BROWSER,
+              "3": core.ROUTE_DIRECT_BROWSER_FAILED, "4": core.ROUTE_DIRECT}
+
+    async def download(collection, out_dir, **_kwargs):
+        return [
+            PdfDownloadResult(p.source_id, Path(out_dir) if p.source_id in "14" else None,
+                              None, routes[p.source_id])
+            for p in collection.papers
+        ]
+
+    async def shutdown():
+        return None
+
+    monkeypatch.setattr(pdf_stage, "download_pdfs", download)
+    monkeypatch.setattr(pdf_stage, "shutdown_clients", shutdown)
+    report = pdf_stage.run_pdf_stage(
+        _collection(*(_paper(i) for i in range(1, 5))), tmp_path, vpn_access=True
+    )
+    assert (report.saved, report.via_browser, report.without_browser, report.browser_failed) == (
+        2, 1, 1, 1,
+    )
+
+
+def test_the_deck_status_warns_when_chrome_was_not_used(qtbot, monkeypatch, tmp_path):
+    report = PdfStageReport(tmp_path / "pdfs", saved=3, skipped=2, held=0,
+                            via_browser=1, without_browser=2, browser_failed=0)
+    monkeypatch.setattr("thesisagents.gui.pages.deck.run_pdf_stage", lambda *_a, **_k: report)
+    page = DeckPage(ui_language="en")
+    qtbot.addWidget(page)
+    page.set_collection(_collection(_paper(1)))
+    for fmt in ("pptx", "xlsx", "bib"):
+        page.format_checkbox(fmt).setChecked(False)
+    page.download_pdfs_checkbox().setChecked(True)
+    page._out_dir_input.setText(str(tmp_path))  # noqa: SLF001
+    with qtbot.waitSignal(page.busy_changed, timeout=5000, check_params_cb=lambda b: not b):
+        page._on_export_clicked()  # noqa: SLF001
+    status = page.status_text()
+    assert "1 through Chrome." in status
+    assert "Chrome automation was not available, so 2 publisher PDFs" in status
+    assert "could not fetch" not in status

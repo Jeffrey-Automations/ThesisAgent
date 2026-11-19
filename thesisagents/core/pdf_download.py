@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import asyncio
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from urllib.parse import urljoin, urlparse
 
@@ -49,13 +49,39 @@ _BROWSER_UA = (
 )
 
 
+#: How a PDF was fetched, recorded in ``PdfDownloadResult.route``. The
+#: browser routes exist because the Browser Automation rule (``CLAUDE.md``,
+#: ``compliance-auditor``) says a paywalled publisher PDF goes through
+#: visible Chrome, and that a request that skipped it must be surfaced rather
+#: than trusted. Before these were recorded, a missing browser (selenium not
+#: installed, or ``THESISAGENTS_DISABLE_WEBRUNNER=1``) sent paywalled URLs to
+#: plain httpx with no log line, and a GUI user could not tell it happened.
+ROUTE_ON_DISK = "on_disk"
+ROUTE_BROWSER = "browser"
+ROUTE_DIRECT = "direct"
+ROUTE_DIRECT_BROWSER_FAILED = "direct_after_browser_failed"
+ROUTE_DIRECT_NO_BROWSER = "direct_without_browser"
+
+
 @dataclass(frozen=True, slots=True)
 class PdfDownloadResult:
-    """Outcome of one download attempt."""
+    """Outcome of one download attempt.
+
+    ``route`` says how the PDF was (or was not) fetched: ``on_disk`` (already
+    there), ``browser`` (visible Chrome), ``direct`` (an ordinary HTTPS
+    request to an open host), ``direct_after_browser_failed`` and
+    ``direct_without_browser`` (a paywalled publisher URL that went to a
+    direct request because the browser failed or was unavailable, which the
+    publisher usually refuses). Empty when nothing was requested (no
+    ``pdf_url``, or the attempt raised).
+
+    Example: ``PdfDownloadResult("vaswani2017attention", path, None, "browser")``.
+    """
 
     paper_key: str
     path: Path | None
     skipped_reason: str | None
+    route: str = ""
 
 
 async def download_pdfs(
@@ -130,22 +156,41 @@ async def _download_one(paper: Paper, pdf_dir: Path) -> PdfDownloadResult:
     target = pdf_dir / f"{safe_filename(key)[:_MAX_FILENAME_LENGTH]}.pdf"
     if target.exists() and target.stat().st_size > 0:
         _LOG.info("pdf already on disk for %s: %s", key, target)
-        return PdfDownloadResult(paper_key=key, path=target, skipped_reason=None)
+        return PdfDownloadResult(
+            paper_key=key, path=target, skipped_reason=None, route=ROUTE_ON_DISK
+        )
     # For paywalled publisher CDNs (IEEE, ACM, Springer, Elsevier, ...)
     # httpx-style requests reliably 403. Route those through WebRunner
     # (real visible Chrome) so the session cookie / TLS handshake / JS
     # fingerprint match what the publisher expects.
     from thesisagents.fetchers import webrunner_pdf
 
-    if webrunner_pdf.is_available() and webrunner_pdf.should_use_webrunner(paper.pdf_url):
-        _LOG.info("pdf via WebRunner for %s: %s", key, paper.pdf_url)
-        ok = await webrunner_pdf.download_via_browser(paper.pdf_url, target)
-        if ok:
-            return PdfDownloadResult(paper_key=key, path=target, skipped_reason=None)
-        _LOG.info(
-            "pdf WebRunner failed for %s; falling back to httpx", key,
-        )
-    return await _fetch_and_validate(paper, target, key)
+    route = ROUTE_DIRECT
+    if webrunner_pdf.should_use_webrunner(paper.pdf_url):
+        if webrunner_pdf.is_available():
+            _LOG.info("pdf via WebRunner for %s: %s", key, paper.pdf_url)
+            ok = await webrunner_pdf.download_via_browser(paper.pdf_url, target)
+            if ok:
+                return PdfDownloadResult(
+                    paper_key=key, path=target, skipped_reason=None, route=ROUTE_BROWSER
+                )
+            _LOG.warning(
+                "pdf for %s: the browser could not fetch the publisher PDF %s; "
+                "trying a direct request, which the publisher usually refuses",
+                key, paper.pdf_url,
+            )
+            route = ROUTE_DIRECT_BROWSER_FAILED
+        else:
+            _LOG.warning(
+                "pdf for %s: %s is a publisher page that needs the browser, but browser "
+                "automation is unavailable (selenium not installed, or "
+                "THESISAGENTS_DISABLE_WEBRUNNER=1); trying a direct request, which the "
+                "publisher usually refuses",
+                key, paper.pdf_url,
+            )
+            route = ROUTE_DIRECT_NO_BROWSER
+    result = await _fetch_and_validate(paper, target, key)
+    return replace(result, route=route)
 
 
 async def _fetch_and_validate(

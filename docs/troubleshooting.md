@@ -196,7 +196,7 @@ Springer; with `--source springer` explicitly requested, the
 error surfaces. Get a free key at
 <https://dev.springernature.com/>.
 
-### `error: --pdf path does not exist`
+### `error: PDF path does not exist`
 
 The path passed to `--pdf` resolves to nothing. Confirm the file
 exists and the path is absolute or relative to your current
@@ -280,6 +280,14 @@ failed. The result entry has a `skipped_reason`:
 | `unsupported_scheme` | The URL wasn't HTTPS. The HTTPS-only transport refuses it. |
 | `http_<code>` | Network error. 403 = paywall (set up cookies file), 404 = stale URL, 5xx = retry later. |
 | `too_large` | PDF exceeded the 100 MB safety cap. Increase locally or skip the paper. |
+
+Each result also has a `route`. `direct_without_browser` means browser
+automation is unavailable, so a paywalled publisher PDF was requested
+without Chrome and almost always fails: install `selenium` (it ships with
+the package) or unset `THESISAGENTS_DISABLE_WEBRUNNER`. The downloader
+logs a WARNING for it, and the GUI Deck page says so on its status line.
+`direct_after_browser_failed` means Chrome opened but could not fetch
+the PDF, often a missing VPN / institutional login in the Chrome profile.
 
 ### `fetch_pdf_text` returns truncated text
 

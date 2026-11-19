@@ -4136,6 +4136,127 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "hi": "{count} स्थानीय PDF पढ़े गए। प्रतियाँ {folder} में हैं।",
         "id": "{count} PDF lokal dibaca. Salinannya ada di {folder}.",
     },
+    "deck.pdfs_via_browser": {
+        "en": "{count} through Chrome.",
+        "zh-tw": "其中 {count} 篇經由 Chrome 下載。",
+        "zh-cn": "其中 {count} 篇通过 Chrome 下载。",
+        "ja": "うち {count} 件は Chrome 経由。",
+        "es": "{count} a través de Chrome.",
+        "fr": "{count} via Chrome.",
+        "de": "{count} über Chrome.",
+        "ko": "그중 {count}편은 Chrome 경유.",
+        "pt": "{count} pelo Chrome.",
+        "ru": "Через Chrome: {count}.",
+        "it": "{count} tramite Chrome.",
+        "vi": "{count} qua Chrome.",
+        "hi": "{count} Chrome के ज़रिए।",
+        "id": "{count} melalui Chrome.",
+    },
+    "deck.pdfs_no_browser": {
+        "en": (
+            "Chrome automation was not available, so {count} publisher PDFs were tried without it, "
+            "which publishers usually refuse. Install selenium, or unset "
+            "THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "zh-tw": (
+            "無法使用 Chrome 自動化，所以有 {count} 篇出版商 PDF 改以一般請求下載，"
+            "出版商通常會拒絕。請安裝 selenium，或取消設定 THESISAGENTS_DISABLE_WEBRUNNER。"
+        ),
+        "zh-cn": (
+            "无法使用 Chrome 自动化，所以有 {count} 篇出版商 PDF 改用普通请求下载，"
+            "出版商通常会拒绝。请安装 selenium，或取消设置 THESISAGENTS_DISABLE_WEBRUNNER。"
+        ),
+        "ja": (
+            "Chrome の自動操作が使えないため、出版社の PDF {count} "
+            "件を通常のリクエストで試しました。出版社は通常これを拒否します。selenium を入れるか、"
+            "THESISAGENTS_DISABLE_WEBRUNNER を解除してください。"
+        ),
+        "es": (
+            "La automatización de Chrome no estaba disponible, así que {count} PDF de editoriales "
+            "se intentaron sin ella, algo que las editoriales suelen rechazar. Instale selenium o "
+            "quite THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "fr": (
+            "L'automatisation de Chrome n'était pas disponible : {count} PDF d'éditeurs ont été "
+            "tentés sans elle, ce que les éditeurs refusent en général. Installez selenium ou "
+            "retirez THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "de": (
+            "Die Chrome-Automatisierung war nicht verfügbar, daher wurden {count} Verlags-PDFs "
+            "ohne sie versucht, was Verlage meist ablehnen. Installieren Sie selenium oder "
+            "entfernen Sie THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "ko": (
+            "Chrome 자동화를 사용할 수 없어 출판사 PDF {count}편을 일반 요청으로 시도했으며, "
+            "출판사는 보통 이를 거부합니다. selenium 을 설치하거나 THESISAGENTS_DISABLE_WEBRUNNER "
+            "설정을 해제하세요."
+        ),
+        "pt": (
+            "A automação do Chrome não estava disponível, então {count} PDFs de editoras foram "
+            "tentados sem ela, o que as editoras costumam recusar. Instale o selenium ou remova "
+            "THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "ru": (
+            "Автоматизация Chrome недоступна, поэтому PDF издательств ({count}) запрошены без неё, "
+            "а издательства обычно такое отклоняют. Установите selenium или уберите "
+            "THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "it": (
+            "L'automazione di Chrome non era disponibile, quindi {count} PDF di editori sono stati "
+            "tentati senza, cosa che gli editori di solito rifiutano. Installa selenium o rimuovi "
+            "THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "vi": (
+            "Không dùng được tự động hóa Chrome, nên {count} PDF của nhà xuất bản được thử bằng "
+            "yêu cầu thường, điều mà nhà xuất bản thường từ chối. Hãy cài selenium hoặc bỏ đặt "
+            "THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+        "hi": (
+            "Chrome स्वचालन उपलब्ध नहीं था, इसलिए प्रकाशकों के {count} PDF उसके बिना आज़माए गए, "
+            "जिन्हें प्रकाशक आमतौर पर अस्वीकार करते हैं। selenium इंस्टॉल करें या "
+            "THESISAGENTS_DISABLE_WEBRUNNER हटाएँ।"
+        ),
+        "id": (
+            "Otomasi Chrome tidak tersedia, jadi {count} PDF penerbit dicoba tanpanya, yang "
+            "biasanya ditolak penerbit. Pasang selenium atau hapus THESISAGENTS_DISABLE_WEBRUNNER."
+        ),
+    },
+    "deck.pdfs_browser_failed": {
+        "en": "Chrome could not fetch {count} publisher PDFs, so they were retried without it.",
+        "zh-tw": "Chrome 無法取得 {count} 篇出版商 PDF，已改以一般請求重試。",
+        "zh-cn": "Chrome 无法获取 {count} 篇出版商 PDF，已改用普通请求重试。",
+        "ja": (
+            "Chrome で出版社の PDF {count} 件を取得できなかったため、"
+            "通常のリクエストで再試行しました。"
+        ),
+        "es": "Chrome no pudo obtener {count} PDF de editoriales, así que se reintentaron sin él.",
+        "fr": "Chrome n'a pas pu récupérer {count} PDF d'éditeurs, ils ont été retentés sans lui.",
+        "de": (
+            "Chrome konnte {count} Verlags-PDFs nicht abrufen, sie wurden ohne Chrome erneut "
+            "versucht."
+        ),
+        "ko": "Chrome 이 출판사 PDF {count}편을 가져오지 못해 일반 요청으로 다시 시도했습니다.",
+        "pt": (
+            "O Chrome não conseguiu obter {count} PDFs de editoras, então foram tentados de novo "
+            "sem ele."
+        ),
+        "ru": (
+            "Chrome не смог получить PDF издательств ({count}), поэтому они запрошены повторно без "
+            "него."
+        ),
+        "it": (
+            "Chrome non è riuscito a scaricare {count} PDF di editori, quindi sono stati ritentati "
+            "senza."
+        ),
+        "vi": (
+            "Chrome không lấy được {count} PDF của nhà xuất bản, nên đã thử lại bằng yêu cầu "
+            "thường."
+        ),
+        "hi": (
+            "Chrome प्रकाशकों के {count} PDF नहीं ला सका, इसलिए उन्हें उसके बिना फिर आज़माया गया।"
+        ),
+        "id": "Chrome tidak dapat mengambil {count} PDF penerbit, jadi dicoba ulang tanpanya.",
+    },
 }
 
 

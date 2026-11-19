@@ -30,7 +30,13 @@ from typing import Final
 from urllib.parse import urlsplit
 
 from thesisagents.core.models import Paper, PaperCollection
-from thesisagents.core.pdf_download import download_pdfs
+from thesisagents.core.pdf_download import (
+    ROUTE_BROWSER,
+    ROUTE_DIRECT_BROWSER_FAILED,
+    ROUTE_DIRECT_NO_BROWSER,
+    PdfDownloadResult,
+    download_pdfs,
+)
 from thesisagents.fetchers.http import shutdown_clients
 
 #: Sources and hosts that need institutional access for their PDFs. IEEE is
@@ -47,12 +53,22 @@ class PdfStageReport:
     """What the PDF stage did: ``saved`` on disk (new or already there),
     ``skipped`` by the downloader (no PDF link, HTTP error, not a PDF), and
     ``held`` back because they need institutional access the user has not
-    declared."""
+    declared.
+
+    The route counts surface the browser rule (``progress.md`` #31):
+    ``via_browser`` PDFs came through visible Chrome, ``without_browser``
+    publisher PDFs were tried with a direct request because browser
+    automation was unavailable, and ``browser_failed`` ones because Chrome
+    could not fetch them. The last two are what the Deck page warns about.
+    """
 
     folder: Path
     saved: int
     skipped: int
     held: int
+    via_browser: int = 0
+    without_browser: int = 0
+    browser_failed: int = 0
 
 
 def needs_institutional_access(paper: Paper) -> bool:
@@ -82,17 +98,24 @@ def run_pdf_stage(
         if vpn_access or not needs_institutional_access(paper)
     )
 
-    async def download() -> int:
+    async def download() -> list[PdfDownloadResult]:
         try:
-            results = await download_pdfs(replace(collection, papers=batch), out_dir)
+            return await download_pdfs(replace(collection, papers=batch), out_dir)
         finally:
             await shutdown_clients()
-        return sum(1 for result in results if result.path is not None)
 
-    saved = asyncio.run(download()) if batch else 0
+    results = asyncio.run(download()) if batch else []
+    saved = sum(1 for result in results if result.path is not None)
+
+    def routed(route: str) -> int:
+        return sum(1 for result in results if result.route == route)
+
     return PdfStageReport(
         folder=Path(out_dir) / PDF_SUBDIR,
         saved=saved,
         skipped=len(batch) - saved,
         held=held,
+        via_browser=routed(ROUTE_BROWSER),
+        without_browser=routed(ROUTE_DIRECT_NO_BROWSER),
+        browser_failed=routed(ROUTE_DIRECT_BROWSER_FAILED),
     )

@@ -372,7 +372,13 @@ They wire `ExportOptions` fields behind Qt widgets:
   unless **Settings** declares institutional / VPN access. The table
   lists the `pdfs` folder and the status line counts them, for example
   `PDFs: 12 saved, 3 not downloaded. 2 IEEE PDFs left out: institutional
-  / VPN access is off in Settings.`
+  / VPN access is off in Settings.` It also says how many came through
+  Chrome, and warns when a publisher PDF was tried without it: *Chrome
+  automation was not available …* (selenium missing or
+  `THESISAGENTS_DISABLE_WEBRUNNER` set, the fix is in the message) or
+  *Chrome could not fetch N publisher PDFs …*. The project's browser rule
+  says a publisher download that skipped the visible Chrome window must be
+  surfaced, not trusted.
 - **Template (.pptx)** and **Template config** build the deck on your
   own PowerPoint template instead of the built-in design, and apply
   a TOML / JSON file of overrides to it (layout per kind of slide,
