@@ -58,6 +58,7 @@ In the same commit: delete the item from `progress.md`, add a `#done` entry here
 
 | ID | Date | Title | Tags | Batch |
 |---|---|---|---|---|
+| U-20261120-01 | 2026-11-20 | CI retries the Linux Qt library install | #done #ci | [2026-11](2026-11.md) |
 | U-20261119-13 | 2026-11-19 | PDF metadata reads flattened front matter: abstract, all authors, ORCID | #done #pdf #intelligence | [2026-11](2026-11.md) |
 | U-20261119-12 | 2026-11-19 | A library takes a richer summary for a paper it holds | #done #library | [2026-11](2026-11.md) |
 | U-20261119-11 | 2026-11-19 | DBLP pages instead of results are retried and say what came | #done #sources #dblp | [2026-11](2026-11.md) |
@@ -114,6 +115,6 @@ In the same commit: delete the item from `progress.md`, add a `#done` entry here
 
 | File | Period | Entries |
 |---|---|---:|
-| [2026-11.md](2026-11.md) | 2026-11 | 13 |
+| [2026-11.md](2026-11.md) | 2026-11 | 14 |
 | [2026-10.md](2026-10.md) | 2026-10 | 13 |
 | [2026-09.md](2026-09.md) | 2026-09 | 25 |
