@@ -307,6 +307,10 @@ class LibraryPage(QWidget):
     def snapshot(self) -> LibrarySnapshot | None:
         return self._snapshot
 
+    def show_snapshot(self, snapshot: LibrarySnapshot) -> None:
+        """Show an already-read library (a window rebuilt in another language)."""
+        self._on_loaded(snapshot)
+
     def status_text(self) -> str:
         return self._status_label.text()
 

@@ -20,6 +20,7 @@ from typing import Final
 from PySide6.QtCore import QSettings, Qt, Signal
 from PySide6.QtWidgets import (
     QBoxLayout,
+    QCheckBox,
     QComboBox,
     QFileDialog,
     QFormLayout,
@@ -86,6 +87,9 @@ _THEME_KEY: Final[str] = "ui/theme"
 #: One of ``theme.STYLE_CHOICES`` (classic navy or Material 3), applied on
 #: save like the theme.
 _STYLE_KEY: Final[str] = "ui/style"
+#: Whether the user has institutional / VPN access to paywalled publishers.
+#: The PDF stage (``gui/pdf_stage.py``) leaves IEEE PDFs out while it is off.
+_VPN_KEY: Final[str] = "access/vpn"
 
 _ORG: Final[str] = "ThesisAgents"
 _APP: Final[str] = "ThesisAgents"
@@ -155,12 +159,25 @@ def saved_style() -> str:
     return value if value in STYLE_CHOICES else STYLE_CLASSIC
 
 
+def saved_vpn_access() -> bool:
+    """Whether Settings declares institutional / VPN access (off by default).
+
+    Off is the safe default: the project's rule is to know about VPN access
+    before any paywalled-publisher download, and an unanswered question must
+    not count as a yes.
+    """
+    return bool(settings_store().value(_VPN_KEY, False, type=bool))
+
+
 class SettingsPage(QWidget):
     """Form for API keys + cookies-file + UI language + theme."""
 
     #: The theme saved by the user, emitted on every save (after the theme
     #: and the style are stored) so the window repaints at once.
     theme_changed = Signal(str)
+    #: A different interface language was saved. The main window rebuilds
+    #: itself in it, carrying the current work over.
+    language_changed = Signal(str)
 
     def __init__(self, ui_language: str = "en", parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -217,6 +234,8 @@ class SettingsPage(QWidget):
         self._chrome_profile_input = self._path_row(
             browser_form, "settings.chrome_profile_dir", self._on_browse_chrome_profile
         )
+        self._vpn_check = QCheckBox(t("settings.vpn_access", language), self)
+        browser_form.addRow(self._vpn_check)
         adapt_form_rows(browser_card, browser_form)
         left.addWidget(browser_card)
         left.addStretch(1)
@@ -276,6 +295,12 @@ class SettingsPage(QWidget):
     def theme_combo(self) -> QComboBox:
         return self._theme_combo
 
+    def vpn_checkbox(self) -> QCheckBox:
+        return self._vpn_check
+
+    def language_combo(self) -> QComboBox:
+        return self._ui_lang_combo
+
     def style_combo(self) -> QComboBox:
         return self._style_combo
 
@@ -326,11 +351,14 @@ class SettingsPage(QWidget):
         theme = self._theme_combo.currentData() or THEME_SYSTEM
         store.setValue(_THEME_KEY, theme)
         store.setValue(_STYLE_KEY, self._style_combo.currentData() or STYLE_CLASSIC)
+        store.setValue(_VPN_KEY, self._vpn_check.isChecked())
         store.sync()
         self.theme_changed.emit(theme)
         self._status_label.setText(
             t("settings.saved_message", self._ui_language)
         )
+        if lang != self._ui_language:
+            self.language_changed.emit(lang)
 
     def _load_from_store(self) -> None:
         store = settings_store()
@@ -347,6 +375,7 @@ class SettingsPage(QWidget):
                 break
         theme_index = self._theme_combo.findData(saved_theme())
         self._theme_combo.setCurrentIndex(max(0, theme_index))
+        self._vpn_check.setChecked(saved_vpn_access())
         style_index = self._style_combo.findData(saved_style())
         self._style_combo.setCurrentIndex(max(0, style_index))
 

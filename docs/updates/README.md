@@ -58,6 +58,7 @@ In the same commit: delete the item from `progress.md`, add a `#done` entry here
 
 | ID | Date | Title | Tags | Batch |
 |---|---|---|---|---|
+| U-20261119-06 | 2026-11-19 | GUI: PDF download with the VPN switch, language switch without restart | #done #gui #pdf #i18n | [2026-11](2026-11.md) |
 | U-20261119-05 | 2026-11-19 | GUI: template check, deck review, enrichment hand-off to an agent | #done #gui #pptx #i18n | [2026-11](2026-11.md) |
 | U-20261119-04 | 2026-11-19 | GUI Library page: overview, papers with links and checks, searches | #done #gui #library #i18n | [2026-11](2026-11.md) |
 | U-20261119-03 | 2026-11-19 | GUI: cancel, snowball bounds, results subset, remembered forms | #done #gui #i18n | [2026-11](2026-11.md) |
@@ -106,6 +107,6 @@ In the same commit: delete the item from `progress.md`, add a `#done` entry here
 
 | File | Period | Entries |
 |---|---|---:|
-| [2026-11.md](2026-11.md) | 2026-11 | 5 |
+| [2026-11.md](2026-11.md) | 2026-11 | 6 |
 | [2026-10.md](2026-10.md) | 2026-10 | 13 |
 | [2026-09.md](2026-09.md) | 2026-09 | 25 |

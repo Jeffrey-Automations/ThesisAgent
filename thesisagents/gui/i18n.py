@@ -1303,55 +1303,20 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "id": "Simpan",
     },
     "settings.saved_message": {
-        "en": (
-            "Settings saved. The theme applies now. Restart the app to apply the interface "
-            "language."
-        ),
-        "zh-tw": "設定已儲存。主題立即套用，介面語言需重新啟動 App 後生效。",
-        "zh-cn": "设置已保存。主题立即应用，界面语言需重启 App 后生效。",
-        "ja": (
-            "設定を保存しました。テーマはすぐに反映され、"
-            "表示言語はアプリを再起動すると反映されます。"
-        ),
-        "es": (
-            "Ajustes guardados. El tema se aplica ya. Reinicie la app para aplicar el idioma de la "
-            "interfaz."
-        ),
-        "fr": (
-            "Paramètres enregistrés. Le thème s'applique tout de suite. Redémarrez l'app pour "
-            "appliquer la langue de l'interface."
-        ),
-        "de": (
-            "Einstellungen gespeichert. Das Design gilt sofort. Für die Oberflächensprache die App "
-            "neu starten."
-        ),
-        "ko": (
-            "설정이 저장되었습니다. 테마는 바로 적용되며, 인터페이스 언어는 앱을 재시작하면 "
-            "적용됩니다."
-        ),
-        "pt": (
-            "Configurações salvas. O tema já foi aplicado. Reinicie o app para aplicar o idioma da "
-            "interface."
-        ),
-        "ru": (
-            "Настройки сохранены. Тема применена сразу, а язык интерфейса сменится после "
-            "перезапуска приложения."
-        ),
-        "it": (
-            "Impostazioni salvate. Il tema si applica subito. Riavvia l'app per applicare la "
-            "lingua dell'interfaccia."
-        ),
-        "vi": (
-            "Đã lưu cài đặt. Chủ đề áp dụng ngay, khởi động lại app để áp dụng ngôn ngữ giao diện."
-        ),
-        "hi": (
-            "सेटिंग्स सहेजी गईं। थीम तुरंत लागू होती है, इंटरफ़ेस भाषा लागू करने के लिए ऐप पुनः "
-            "शुरू करें।"
-        ),
-        "id": (
-            "Pengaturan disimpan. Tema langsung diterapkan, mulai ulang app untuk menerapkan "
-            "bahasa antarmuka."
-        ),
+        "en": "Settings saved and applied.",
+        "zh-tw": "設定已儲存並套用。",
+        "zh-cn": "设置已保存并应用。",
+        "ja": "設定を保存して反映しました。",
+        "es": "Ajustes guardados y aplicados.",
+        "fr": "Paramètres enregistrés et appliqués.",
+        "de": "Einstellungen gespeichert und angewendet.",
+        "ko": "설정을 저장하고 적용했습니다.",
+        "pt": "Configurações salvas e aplicadas.",
+        "ru": "Настройки сохранены и применены.",
+        "it": "Impostazioni salvate e applicate.",
+        "vi": "Đã lưu và áp dụng cài đặt.",
+        "hi": "सेटिंग्स सहेजी और लागू की गईं।",
+        "id": "Pengaturan disimpan dan diterapkan.",
     },
     "settings.cookies_dialog_title": {
         "en": "Choose cookies file",
@@ -3957,6 +3922,118 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "vi": "Kiểm tra thất bại: {error}",
         "hi": "जाँच विफल: {error}",
         "id": "Pemeriksaan gagal: {error}",
+    },
+    # Stage D: PDF stage with the access switch, language switch ----------
+    "settings.vpn_access": {
+        "en": "I have institutional / VPN access (download IEEE PDFs)",
+        "zh-tw": "我有學校或機構的 VPN 存取權(可下載 IEEE PDF)",
+        "zh-cn": "我有学校或机构的 VPN 访问权限(可下载 IEEE PDF)",
+        "ja": "大学・機関の VPN アクセスがある(IEEE の PDF をダウンロード)",
+        "es": "Tengo acceso institucional / VPN (descargar los PDF de IEEE)",
+        "fr": "J'ai un accès institutionnel / VPN (télécharger les PDF IEEE)",
+        "de": "Ich habe institutionellen / VPN-Zugang (IEEE-PDFs herunterladen)",
+        "ko": "기관 / VPN 접근 권한이 있음 (IEEE PDF 다운로드)",
+        "pt": "Tenho acesso institucional / VPN (baixar os PDFs do IEEE)",
+        "ru": "Есть институциональный / VPN-доступ (скачивать PDF из IEEE)",
+        "it": "Ho accesso istituzionale / VPN (scarica i PDF IEEE)",
+        "vi": "Tôi có quyền truy cập qua tổ chức / VPN (tải PDF của IEEE)",
+        "hi": "मेरे पास संस्थागत / VPN पहुँच है (IEEE PDF डाउनलोड करें)",
+        "id": "Saya punya akses institusi / VPN (unduh PDF IEEE)",
+    },
+    "deck.download_pdfs_label": {
+        "en": "Download the PDFs into a pdfs folder",
+        "zh-tw": "下載 PDF 到 pdfs 資料夾",
+        "zh-cn": "下载 PDF 到 pdfs 文件夹",
+        "ja": "PDF を pdfs フォルダーにダウンロード",
+        "es": "Descargar los PDF en una carpeta pdfs",
+        "fr": "Télécharger les PDF dans un dossier pdfs",
+        "de": "PDFs in einen Ordner pdfs herunterladen",
+        "ko": "PDF를 pdfs 폴더에 다운로드",
+        "pt": "Baixar os PDFs para uma pasta pdfs",
+        "ru": "Скачать PDF в папку pdfs",
+        "it": "Scarica i PDF in una cartella pdfs",
+        "vi": "Tải PDF vào thư mục pdfs",
+        "hi": "PDF को pdfs फ़ोल्डर में डाउनलोड करें",
+        "id": "Unduh PDF ke folder pdfs",
+    },
+    "deck.pdfs_summary": {
+        "en": "PDFs: {saved} saved, {skipped} not downloaded.",
+        "zh-tw": "PDF：已儲存 {saved} 篇，{skipped} 篇未下載。",
+        "zh-cn": "PDF：已保存 {saved} 篇，{skipped} 篇未下载。",
+        "ja": "PDF: {saved} 件保存、{skipped} 件はダウンロードできず。",
+        "es": "PDF: {saved} guardados, {skipped} sin descargar.",
+        "fr": "PDF : {saved} enregistrés, {skipped} non téléchargés.",
+        "de": "PDFs: {saved} gespeichert, {skipped} nicht heruntergeladen.",
+        "ko": "PDF: {saved}편 저장, {skipped}편 다운로드 안 됨.",
+        "pt": "PDFs: {saved} salvos, {skipped} não baixados.",
+        "ru": "PDF: сохранено {saved}, не скачано {skipped}.",
+        "it": "PDF: {saved} salvati, {skipped} non scaricati.",
+        "vi": "PDF: đã lưu {saved}, {skipped} chưa tải được.",
+        "hi": "PDF: {saved} सहेजे गए, {skipped} डाउनलोड नहीं हुए।",
+        "id": "PDF: {saved} tersimpan, {skipped} tidak terunduh.",
+    },
+    "deck.pdfs_ieee_held": {
+        "en": "{count} IEEE PDFs left out: institutional / VPN access is off in Settings.",
+        "zh-tw": "有 {count} 篇 IEEE PDF 未下載：「設定」中未勾選機構 / VPN 存取權。",
+        "zh-cn": "有 {count} 篇 IEEE PDF 未下载：“设置”中未勾选机构 / VPN 访问权限。",
+        "ja": "IEEE の PDF {count} 件を除外しました: 設定で機関 / VPN アクセスがオフです。",
+        "es": (
+            "{count} PDF de IEEE omitidos: el acceso institucional / VPN está desactivado en "
+            "Ajustes."
+        ),
+        "fr": (
+            "{count} PDF IEEE écartés : l'accès institutionnel / VPN est désactivé dans les "
+            "Paramètres."
+        ),
+        "de": (
+            "{count} IEEE-PDFs ausgelassen: institutioneller / VPN-Zugang ist in den Einstellungen "
+            "aus."
+        ),
+        "ko": "IEEE PDF {count}편 제외: 설정에서 기관 / VPN 접근이 꺼져 있습니다.",
+        "pt": (
+            "{count} PDFs do IEEE deixados de fora: o acesso institucional / VPN está desligado em "
+            "Configurações."
+        ),
+        "ru": (
+            "Пропущено PDF из IEEE: {count}. Институциональный / VPN-доступ выключен в настройках."
+        ),
+        "it": (
+            "{count} PDF IEEE esclusi: l'accesso istituzionale / VPN è disattivato nelle "
+            "Impostazioni."
+        ),
+        "vi": "Bỏ qua {count} PDF của IEEE: quyền truy cập tổ chức / VPN đang tắt trong Cài đặt.",
+        "hi": "{count} IEEE PDF छोड़े गए: सेटिंग्स में संस्थागत / VPN पहुँच बंद है।",
+        "id": "{count} PDF IEEE dilewati: akses institusi / VPN dimatikan di Pengaturan.",
+    },
+    "status.language_later": {
+        "en": "Work is still running, so the new interface language applies at the next start.",
+        "zh-tw": "仍有工作在執行，新的介面語言將在下次啟動時套用。",
+        "zh-cn": "仍有工作在执行，新的界面语言将在下次启动时应用。",
+        "ja": "処理が実行中のため、新しい表示言語は次回起動時に反映されます。",
+        "es": (
+            "Todavía hay trabajo en curso, así que el nuevo idioma se aplicará en el próximo "
+            "inicio."
+        ),
+        "fr": "Un traitement est en cours : la nouvelle langue s'appliquera au prochain lancement.",
+        "de": "Es läuft noch eine Aufgabe, daher gilt die neue Sprache ab dem nächsten Start.",
+        "ko": "작업이 아직 실행 중이라 새 인터페이스 언어는 다음 실행 때 적용됩니다.",
+        "pt": (
+            "Ainda há trabalho em andamento, então o novo idioma será aplicado na próxima execução."
+        ),
+        "ru": (
+            "Работа ещё выполняется, поэтому новый язык интерфейса применится при следующем "
+            "запуске."
+        ),
+        "it": (
+            "C'è ancora un'elaborazione in corso, quindi la nuova lingua si applica al prossimo "
+            "avvio."
+        ),
+        "vi": "Vẫn còn tác vụ đang chạy, nên ngôn ngữ mới sẽ áp dụng ở lần khởi động sau.",
+        "hi": "काम अभी चल रहा है, इसलिए नई इंटरफ़ेस भाषा अगली बार शुरू करने पर लागू होगी।",
+        "id": (
+            "Masih ada pekerjaan berjalan, jadi bahasa antarmuka baru berlaku pada peluncuran "
+            "berikutnya."
+        ),
     },
 }
 

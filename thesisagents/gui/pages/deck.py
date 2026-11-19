@@ -18,6 +18,7 @@ point — the page does not call the search pipeline itself.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 
 from PySide6.QtCore import QSettings, Qt, QThreadPool, QUrl, Signal
@@ -46,6 +47,8 @@ from thesisagents.exporters.review import format_report as format_review
 from thesisagents.exporters.template import TemplateValidationReport, validate_template
 from thesisagents.exporters.template import format_report as format_template_report
 from thesisagents.gui.i18n import LANGUAGE_DISPLAY_NAMES, t
+from thesisagents.gui.pages.settings import saved_vpn_access
+from thesisagents.gui.pdf_stage import PdfStageReport, run_pdf_stage
 from thesisagents.gui.widgets.report_dialog import ReportDialog
 from thesisagents.gui.widgets.responsive import (
     AdaptiveSplit,
@@ -72,6 +75,15 @@ _DEFAULT_FORMATS: frozenset[str] = frozenset({"pptx", "xlsx", "bib"})
 _DEFAULT_MAX_SLIDES = 25
 #: QSettings group the form is saved under when the window closes.
 _FORM_GROUP = "form/deck"
+
+
+@dataclass(frozen=True)
+class _ExportOutcome:
+    """What the export worker hands back: the files written per format, and
+    the PDF stage's counts when **Download the PDFs** was ticked."""
+
+    written: dict[str, Path]
+    pdfs: PdfStageReport | None = None
 
 
 class DeckPage(QWidget):
@@ -173,6 +185,11 @@ class DeckPage(QWidget):
         )
         self._verify_identifiers_check.setChecked(True)
         options_form.addRow(self._verify_identifiers_check)
+        # The PDF download stage (the CLI's --export pdf). IEEE PDFs need the
+        # institutional / VPN access declared in Settings, see gui/pdf_stage.py.
+        self._download_pdfs_check = QCheckBox(t("deck.download_pdfs_label", language), self)
+        self._download_pdfs_check.setChecked(False)
+        options_form.addRow(self._download_pdfs_check)
         # Deck template: the GUI form of --pptx-template and
         # --pptx-template-config. Empty means the built-in design.
         self._template_input = self._file_row(
@@ -320,6 +337,7 @@ class DeckPage(QWidget):
             "include_abstract": self._include_abstract_check.isChecked(),
             "dark_mode": self._dark_mode_check.isChecked(),
             "verify_identifiers": self._verify_identifiers_check.isChecked(),
+            "download_pdfs": self._download_pdfs_check.isChecked(),
             "template": self._template_input.text(),
             "template_config": self._template_config_input.text(),
         }
@@ -357,6 +375,7 @@ class DeckPage(QWidget):
             ("include_abstract", self._include_abstract_check),
             ("dark_mode", self._dark_mode_check),
             ("verify_identifiers", self._verify_identifiers_check),
+            ("download_pdfs", self._download_pdfs_check),
         ):
             flag = stored(key, bool)
             if flag is not None:
@@ -414,7 +433,8 @@ class DeckPage(QWidget):
             )
             return
         formats = self._selected_formats()
-        if not formats:
+        download_pdfs = self._download_pdfs_check.isChecked()
+        if not formats and not download_pdfs:
             self._status_label.setText(
                 t("deck.error_no_formats", self._ui_language),
             )
@@ -429,7 +449,8 @@ class DeckPage(QWidget):
         language = self._language_combo.currentData() or "en"
         try:
             options = ExportOptions(
-                formats=formats,
+                # ExportOptions needs one format; a PDFs-only run never uses it.
+                formats=formats or ("json",),
                 out_dir=out_dir,
                 filename_stem=stem,
                 include_abstract=self._include_abstract_check.isChecked(),
@@ -453,43 +474,75 @@ class DeckPage(QWidget):
         self.busy_changed.emit(True)
 
         library_path = self._library_path
+        vpn_access = saved_vpn_access()
 
-        def call() -> dict[str, Path]:
-            if not library_path:
-                return export_collection(collection, options)
-            with Library(library_path) as library:
-                return export_collection(
-                    collection, options, verification_cache=library.verification_cache()
-                )
+        def call() -> _ExportOutcome:
+            written: dict[str, Path] = {}
+            if formats and not library_path:
+                written = export_collection(collection, options)
+            elif formats:
+                with Library(library_path) as library:
+                    written = export_collection(
+                        collection, options, verification_cache=library.verification_cache()
+                    )
+            pdfs = (
+                run_pdf_stage(collection, out_dir, vpn_access=vpn_access)
+                if download_pdfs else None
+            )
+            return _ExportOutcome(dict(written), pdfs)
 
         worker = BlockingWorker(call)
         worker.signals.finished.connect(self._on_export_finished)
         worker.signals.failed.connect(self._on_export_failed)
         QThreadPool.globalInstance().start(worker)
 
-    def _on_export_finished(self, written: object) -> None:
+    def _on_export_finished(self, result: object) -> None:
         self.busy_changed.emit(False)
         self._export_button.setEnabled(True)
-        if not isinstance(written, dict) or not written:
+        outcome = result if isinstance(result, _ExportOutcome) else _ExportOutcome(
+            result if isinstance(result, dict) else {}
+        )
+        written = outcome.written
+        if not written and outcome.pdfs is None:
             self._status_label.setText(
                 t("deck.error_no_output", self._ui_language),
             )
             return
-        any_path: Path | None = None
+        folder: Path | None = None
         for fmt, path in written.items():
             self._files_model.appendRow([
                 QStandardItem(fmt),
                 QStandardItem(str(path)),
             ])
-            any_path = path
-        if any_path is not None:
-            self._last_written_dir = any_path.parent
+            folder = Path(path).parent
+        if outcome.pdfs is not None:
+            self._files_model.appendRow([
+                QStandardItem("pdf"), QStandardItem(str(outcome.pdfs.folder)),
+            ])
+            # A PDFs-only run has no other file: Open folder shows the PDFs.
+            folder = folder or outcome.pdfs.folder
+        if folder is not None:
+            self._last_written_dir = folder
             self._open_folder_button.setEnabled(True)
         deck = written.get("pptx")
         self._last_deck = Path(deck) if isinstance(deck, (str, Path)) else None
-        self._status_label.setText(
-            t("deck.status_done", self._ui_language, count=len(written)),
-        )
+        self._status_label.setText(self._done_status(outcome))
+
+    def _done_status(self, outcome: _ExportOutcome) -> str:
+        """Files written, then the PDF counts and any IEEE papers held back."""
+        language = self._ui_language
+        parts = []
+        if outcome.written:
+            parts.append(t("deck.status_done", language, count=len(outcome.written)))
+        pdfs = outcome.pdfs
+        if pdfs is not None:
+            parts.append(t("deck.pdfs_summary", language, saved=pdfs.saved, skipped=pdfs.skipped))
+            if pdfs.held:
+                parts.append(t("deck.pdfs_ieee_held", language, count=pdfs.held))
+        return " ".join(parts)
+
+    def download_pdfs_checkbox(self) -> QCheckBox:
+        return self._download_pdfs_check
 
     def _on_export_failed(self, err: object) -> None:
         self.busy_changed.emit(False)

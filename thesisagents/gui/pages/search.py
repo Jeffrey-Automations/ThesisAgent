@@ -885,6 +885,19 @@ class SearchPage(QWidget):
     def papers_model(self) -> PapersTableModel:
         return self._papers_model
 
+    def collection(self) -> PaperCollection | None:
+        """The whole current result (ticked or not), ``None`` before a search."""
+        return self._collection
+
+    def show_results(
+        self, collection: PaperCollection, unchecked_rows: tuple[int, ...] | list[int] = ()
+    ) -> None:
+        """Show ``collection`` as if a search had returned it, then untick
+        ``unchecked_rows``. Used when the window is rebuilt in another language."""
+        self._on_search_finished(collection)
+        if unchecked_rows:
+            self._papers_model.set_all_checked(False, list(unchecked_rows))
+
     def status_text(self) -> str:
         return self._status_label.text()
 

@@ -60,6 +60,10 @@ _DEFAULT_WIDTH = 1280
 _DEFAULT_HEIGHT = 800
 # QSettings key holding the window's size, position and maximised state.
 _GEOMETRY_KEY = "window/geometry"
+#: Windows built by a language switch. The window that replaces another has
+#: no other Python reference (``app.py`` holds the first one only), so it is
+#: kept here until Qt destroys it.
+_REPLACEMENTS: list[MainWindow] = []
 
 # Page order: (icon, nav label key, subtitle key). The index is the
 # sidebar index, the stack index and the Ctrl+N shortcut. The Library sits
@@ -213,6 +217,7 @@ class MainWindow(QMainWindow):
         ):
             page.busy_changed.connect(lambda busy, k=key: self._on_busy_changed(k, busy))
         self._settings_page.theme_changed.connect(self._on_theme_changed)
+        self._settings_page.language_changed.connect(self._on_language_changed)
 
     # --- responsive -----------------------------------------------------
 
@@ -259,6 +264,58 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(t("status.busy", self._ui_language))
         else:
             self.statusBar().clearMessage()
+
+    def _on_language_changed(self, language: str) -> None:
+        """Switch the interface language now, unless work is running.
+
+        Every label is read when its page is built, so the window is rebuilt
+        in the new language and the current work is carried over (owner's
+        decision for ``progress.md`` #25). Running work cannot be carried,
+        so then the switch waits for the next start.
+        """
+        if self.is_busy():
+            self.statusBar().showMessage(t("status.language_later", self._ui_language))
+            return
+        self.rebuild_in_language(language)
+
+    def rebuild_in_language(self, language: str) -> MainWindow:
+        """Replace this window with one in ``language``; return the new one.
+
+        Carried over: the window geometry, every form field (through the
+        same QSettings save the window does on close), the search result
+        with its ticks, the open library, the Enrich and Deck collections and
+        the current page.
+        """
+        store = settings_store()
+        store.setValue(_GEOMETRY_KEY, self.saveGeometry())
+        self.save_forms(store)
+        replacement = MainWindow(ui_language=language)
+        replacement.adopt_work(self)
+        replacement.statusBar().showMessage(t("settings.saved_message", language), 8000)
+        _REPLACEMENTS.append(replacement)
+        replacement.destroyed.connect(
+            lambda *_: _REPLACEMENTS.remove(replacement) if replacement in _REPLACEMENTS else None
+        )
+        replacement.show()
+        self.close()
+        return replacement
+
+    def adopt_work(self, old: MainWindow) -> None:
+        """Take over ``old``'s results, collections and current page."""
+        search = old.search_page()
+        result = search.collection()
+        if result is not None:
+            self._search_page.show_results(result, search.papers_model().unchecked_rows())
+        snapshot = old.library_page().snapshot()
+        if snapshot is not None:
+            self._library_page.show_snapshot(snapshot)
+        enriched = old.enrich_page().collection()
+        if enriched is not None:
+            self._enrich_page.set_collection(enriched)
+        deck = old.deck_page().collection()
+        if deck is not None:
+            self._deck_page.set_collection(deck)
+        self._nav.set_current(old.nav_rail().current())
 
     def _on_theme_changed(self, choice: str) -> None:
         app = QApplication.instance()

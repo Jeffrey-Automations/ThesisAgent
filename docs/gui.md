@@ -231,6 +231,16 @@ Empty values clear the corresponding env var. **Restart the app**
 to refresh fetcher singletons that cached the env value at
 construction time.
 
+**I have institutional / VPN access (download IEEE PDFs)**, off by
+default (QSettings key `access/vpn`), tells the PDF download stage
+whether IEEE PDFs can be fetched. The project's rule is to know about
+VPN / institutional access before any paywalled-publisher download:
+without it IEEE answers with an abstract page or a 403, after a browser
+window has opened for nothing. While the box is off, IEEE papers are
+left out of the PDF batch and counted on the status line. Tick it only
+when this computer reaches IEEE through a university or company
+network or VPN.
+
 **Theme** picks how the app looks: *Follow the system* (the default),
 *Light* or *Dark*. It is applied the moment you press **Save**, with no
 restart, and *Follow the system* keeps tracking the operating system
@@ -335,6 +345,16 @@ They wire `ExportOptions` fields behind Qt widgets:
   export with the failed papers listed in the status line. Untick it
   only when working offline. Mirrors the CLI `--no-verify-identifiers`
   flag. The Search page's one-button Export always runs the check.
+- **Download the PDFs into a pdfs folder**, unticked by default, is the
+  CLI's `--export pdf` stage: after the files are written it downloads
+  every paper's PDF into `{output folder}/pdfs/` with the same
+  `download_pdfs` the CLI and the MCP tool use (publisher pages go
+  through a visible Chrome window, PDFs already on disk are kept). It
+  can run on its own, with no file format ticked. IEEE PDFs are left out
+  unless **Settings** declares institutional / VPN access. The table
+  lists the `pdfs` folder and the status line counts them, for example
+  `PDFs: 12 saved, 3 not downloaded. 2 IEEE PDFs left out: institutional
+  / VPN access is off in Settings.`
 - **Template (.pptx)** and **Template config** build the deck on your
   own PowerPoint template instead of the built-in design, and apply
   a TOML / JSON file of overrides to it (layout per kind of slide,
@@ -375,8 +395,13 @@ Deutsch, 한국어, Português, Русский, Italiano, Tiếng Việt, हि
 Bahasa Indonesia.
 
 Pick the language under **Settings → Interface language** (the
-dropdown shows each language in its own script). Restart the app
-to apply.
+dropdown shows each language in its own script) and press **Save**.
+The window is rebuilt in the new language at once and keeps your work:
+its size and place, every form field, the search result with its
+ticks, the open library, the Enrich and Deck collections and the page
+you were on. While a search, enrichment or export is running the switch
+waits for the next start instead (the status bar says so), because
+running work cannot be moved to a new window.
 
 First-run behaviour: if no language is saved yet, the app reads
 the OS locale via `QLocale().name()` and maps it to the closest
@@ -485,8 +510,6 @@ leaves that field at its default.
   validation would leak the key into HTTP logs and slow down save.
   An invalid key surfaces later as a `ConfigError` / 401 from the
   relevant source plugin.
-- Changing the interface language still needs a restart. The theme
-  applies at once.
 - An export cannot be cancelled: stopping it half-way would leave
   partial files behind. A search and an enrichment run can.
 

@@ -89,6 +89,10 @@ class PapersTableModel(QAbstractTableModel):
     def checked_count(self) -> int:
         return sum(self._checked)
 
+    def unchecked_rows(self) -> list[int]:
+        """Rows whose box is not ticked (to carry ticks over to a rebuilt window)."""
+        return [row for row, ticked in enumerate(self._checked) if not ticked]
+
     def set_checked(self, row: int, checked: bool) -> None:
         if 0 <= row < len(self._checked) and self._checked[row] != checked:
             self._checked[row] = checked
