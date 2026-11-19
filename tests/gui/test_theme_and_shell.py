@@ -14,7 +14,12 @@ from thesisagents.gui import theme
 from thesisagents.gui.icons import ICON_NAMES, nav_icon, write_glyph
 from thesisagents.gui.main_window import MainWindow
 from thesisagents.gui.pages import search as search_module
-from thesisagents.gui.pages.settings import SettingsPage, saved_theme, settings_store
+from thesisagents.gui.pages.settings import (
+    SettingsPage,
+    saved_style,
+    saved_theme,
+    settings_store,
+)
 from thesisagents.gui.widgets.nav_rail import NavRail
 
 
@@ -46,20 +51,52 @@ def test_resolve_theme(choice, system_dark, expected):
     assert theme.resolve_theme(choice, system_dark).name == expected
 
 
-@pytest.mark.parametrize("tokens", [theme.LIGHT, theme.DARK])
+def _colours(palette: theme.Palette) -> set[str]:
+    values = vars(palette).values()
+    return {value for value in values if isinstance(value, str) and value.startswith("#")}
+
+
+@pytest.mark.parametrize("tokens", theme.ALL_PALETTES, ids=lambda p: p.name)
 def test_stylesheet_uses_only_its_own_palette(tokens):
-    """No colour of the other theme leaks into a stylesheet."""
-    other = theme.DARK if tokens is theme.LIGHT else theme.LIGHT
+    """No colour of another style or variant leaks into a stylesheet."""
+    own = _colours(tokens)
+    others = set().union(*(_colours(p) for p in theme.ALL_PALETTES if p is not tokens)) - own
     sheet = theme.build_stylesheet(tokens)
     assert tokens.accent in sheet
-    leaked = {
-        value for value in vars(other).values()
-        if value.startswith("#") and value not in vars(tokens).values() and value in sheet
-    }
-    assert not leaked
+    assert not {colour for colour in others if colour in sheet}
 
 
-@pytest.mark.parametrize("tokens", [theme.LIGHT, theme.DARK])
+@pytest.mark.parametrize(
+    ("style", "dark", "expected"),
+    [
+        ("classic", False, "light"),
+        ("classic", True, "dark"),
+        ("material", False, "material-light"),
+        ("material", True, "material-dark"),
+        ("not-a-style", False, "light"),
+    ],
+)
+def test_resolve_style(style, dark, expected):
+    choice = "dark" if dark else "light"
+    assert theme.resolve_theme(choice, system_is_dark=False, style=style).name == expected
+
+
+def test_palette_names_are_unique():
+    """The name keys the glyph files and current_palette(), so a clash would
+    paint one style's check marks in another's colours."""
+    names = [palette.name for palette in theme.ALL_PALETTES]
+    assert len(names) == len(set(names))
+
+
+def test_material_shape_reaches_the_stylesheet():
+    sheet = theme.build_stylesheet(theme.MATERIAL_LIGHT)
+    assert f"border-radius: {theme.MATERIAL_SHAPE.button_radius}px" in sheet
+    assert f"border-radius: {theme.MATERIAL_SHAPE.nav_radius}px" in sheet
+    classic = theme.build_stylesheet(theme.LIGHT)
+    assert f"border-radius: {theme.MATERIAL_SHAPE.button_radius}px" not in classic
+
+
+@pytest.mark.parametrize("tokens", theme.ALL_PALETTES, ids=lambda p: p.name)
 def test_text_contrasts_with_its_backgrounds(tokens):
     """Body text on the window / card fill and the sidebar labels stay
     readable: WCAG AA asks for 4.5:1 for normal text."""
@@ -126,6 +163,31 @@ def test_saving_stores_and_announces_the_theme(qtbot):
         page.trigger_save()
     assert signal.args == ["dark"]
     assert saved_theme() == "dark"
+
+
+def test_style_defaults_to_classic_and_is_saved(qtbot):
+    assert saved_style() == "classic"
+    page = SettingsPage(ui_language="en")
+    qtbot.addWidget(page)
+    assert page.style_combo().currentData() == "classic"
+    page.style_combo().setCurrentIndex(page.style_combo().findData("material"))
+    page.trigger_save()
+    assert saved_style() == "material"
+    settings_store().setValue("ui/style", "neon")
+    assert saved_style() == "classic"
+
+
+def test_window_repaints_in_the_saved_style(qtbot):
+    window = MainWindow(ui_language="en")
+    qtbot.addWidget(window)
+    page = window.settings_page()
+    page.theme_combo().setCurrentIndex(page.theme_combo().findData("dark"))
+    page.style_combo().setCurrentIndex(page.style_combo().findData("material"))
+    try:
+        page.trigger_save()
+        assert theme.current_palette() is theme.MATERIAL_DARK
+    finally:
+        theme.apply_theme(QApplication.instance(), "light")
 
 
 def test_unknown_saved_theme_reads_as_system():

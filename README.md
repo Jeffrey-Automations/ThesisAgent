@@ -576,7 +576,7 @@ medium one above them, and below 760 px the sidebar collapses to icons
 and form labels move above their fields. The window resizes down to
 640×480, with HiDPI scaling on by default. **Settings → Theme** picks
 light, dark or follow-the-system, applied at once and independent of
-the deck's own dark mode. `Ctrl+1` … `Ctrl+4` switch pages.
+the deck's own dark mode. **Settings → Style** switches between the classic navy look and Material 3. `Ctrl+1` … `Ctrl+4` switch pages.
 
 Full reference: [`docs/gui.md`](docs/gui.md).
 

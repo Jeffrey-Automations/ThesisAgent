@@ -135,7 +135,7 @@ Press **Export…**, pick an output directory, and the standard
 
 ### Settings
 
-Interface language, theme, API keys, contact email, cookies file and
+Interface language, theme, style, API keys, contact email, cookies file and
 Chrome profile directory are stored locally via Qt's
 [`QSettings`](https://doc.qt.io/qtforpython-6/PySide6/QtCore/QSettings.html)
 (Windows registry, macOS plist, Linux ini). Saving a value also
@@ -166,9 +166,20 @@ construction time.
 restart, and *Follow the system* keeps tracking the operating system
 when you switch it between light and dark while the app is open. The app
 theme is separate from the Deck page's **Dark mode** check box, which
-decides how the exported `.pptx` looks. The light theme's sidebar uses
-the deck's navy and its accent is the deck's highlight blue, so the app
-and its decks look like one product.
+decides how the exported `.pptx` looks.
+
+**Style** picks the visual language, also applied on **Save** (QSettings
+key `ui/style`), and works with either theme:
+
+| Style | Look |
+|---|---|
+| *Classic* (the default) | A navy sidebar and white cards with a thin border. The sidebar uses the deck's navy and the accent is the deck's highlight blue, so the app and its decks look like one product. |
+| *Material 3* | Google's Material 3 design system: tonal surfaces generated from one blue seed colour, borderless filled cards, a pill-shaped highlight on the active sidebar entry, fully rounded buttons with tonal secondary buttons, and regular-weight page titles. |
+
+Both styles are drawn by the app's own stylesheet
+(`thesisagents/gui/theme.py`), so neither needs an extra package. Every
+palette is tested for WCAG AA contrast (4.5:1) on body, secondary,
+sidebar and button text.
 
 On a wide window the cards sit in two columns (interface and browser
 access on the left, API keys on the right). On a compact window they

@@ -36,7 +36,7 @@ from thesisagents.gui.i18n import (
     SUPPORTED_LANGUAGES,
     t,
 )
-from thesisagents.gui.theme import THEME_CHOICES, THEME_SYSTEM
+from thesisagents.gui.theme import STYLE_CHOICES, STYLE_CLASSIC, THEME_CHOICES, THEME_SYSTEM
 from thesisagents.gui.widgets.responsive import Breakpoint, adapt_form_rows, make_card
 
 # QSettings key (under organization/app) → env var name. The page reads
@@ -83,6 +83,9 @@ _UI_LANG_KEY: Final[str] = "ui/language"
 #: One of ``theme.THEME_CHOICES``; applied as soon as Settings saves, with no
 #: restart (unlike the interface language, which every label reads once).
 _THEME_KEY: Final[str] = "ui/theme"
+#: One of ``theme.STYLE_CHOICES`` (classic navy or Material 3), applied on
+#: save like the theme.
+_STYLE_KEY: Final[str] = "ui/style"
 
 _ORG: Final[str] = "ThesisAgents"
 _APP: Final[str] = "ThesisAgents"
@@ -142,11 +145,21 @@ def saved_theme() -> str:
     return value if value in THEME_CHOICES else THEME_SYSTEM
 
 
+def saved_style() -> str:
+    """The persisted GUI style (``classic`` / ``material``).
+
+    An unset or unknown value reads as ``classic``, the look the app had
+    before styles were selectable.
+    """
+    value = settings_store().value(_STYLE_KEY, STYLE_CLASSIC, type=str)
+    return value if value in STYLE_CHOICES else STYLE_CLASSIC
+
+
 class SettingsPage(QWidget):
     """Form for API keys + cookies-file + UI language + theme."""
 
-    #: The theme saved by the user, emitted on every save so the window
-    #: repaints at once.
+    #: The theme saved by the user, emitted on every save (after the theme
+    #: and the style are stored) so the window repaints at once.
     theme_changed = Signal(str)
 
     def __init__(self, ui_language: str = "en", parent: QWidget | None = None) -> None:
@@ -188,6 +201,10 @@ class SettingsPage(QWidget):
         for choice in THEME_CHOICES:
             self._theme_combo.addItem(t(f"settings.theme_{choice}", language), choice)
         ui_form.addRow(t("settings.theme_label", language), self._theme_combo)
+        self._style_combo = QComboBox(self)
+        for choice in STYLE_CHOICES:
+            self._style_combo.addItem(t(f"settings.style_{choice}", language), choice)
+        ui_form.addRow(t("settings.style_label", language), self._style_combo)
         adapt_form_rows(ui_card, ui_form)
         left.addWidget(ui_card)
 
@@ -259,6 +276,9 @@ class SettingsPage(QWidget):
     def theme_combo(self) -> QComboBox:
         return self._theme_combo
 
+    def style_combo(self) -> QComboBox:
+        return self._style_combo
+
     def _on_browse_cookies(self) -> None:
         start = self._cookies_input.text() or str(Path.home())
         path, _ = QFileDialog.getOpenFileName(
@@ -305,6 +325,7 @@ class SettingsPage(QWidget):
         store.setValue(_UI_LANG_KEY, lang)
         theme = self._theme_combo.currentData() or THEME_SYSTEM
         store.setValue(_THEME_KEY, theme)
+        store.setValue(_STYLE_KEY, self._style_combo.currentData() or STYLE_CLASSIC)
         store.sync()
         self.theme_changed.emit(theme)
         self._status_label.setText(
@@ -326,6 +347,8 @@ class SettingsPage(QWidget):
                 break
         theme_index = self._theme_combo.findData(saved_theme())
         self._theme_combo.setCurrentIndex(max(0, theme_index))
+        style_index = self._style_combo.findData(saved_style())
+        self._style_combo.setCurrentIndex(max(0, style_index))
 
     # --- accessors used by tests ----------------------------------------
 

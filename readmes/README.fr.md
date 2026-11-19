@@ -604,7 +604,7 @@ formulaires passent au-dessus de leurs champs. La fenêtre se redimensionne
 jusqu'à 640×480, avec la mise à l'échelle HiDPI activée par défaut.
 **Settings → Theme** choisit clair, sombre ou suivre le système, s'applique
 immédiatement et reste indépendant du mode sombre propre à la présentation.
-`Ctrl+1` … `Ctrl+4` changent de page.
+**Settings → Style** bascule entre l'apparence classique bleu marine et Material 3. `Ctrl+1` … `Ctrl+4` changent de page.
 
 Référence complète : [`docs/gui.md`](../docs/gui.md).
 

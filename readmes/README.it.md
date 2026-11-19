@@ -593,7 +593,7 @@ una media sopra di essi, e sotto i 760 px la barra laterale si riduce a icone e
 le etichette dei form passano sopra i loro campi. La finestra si ridimensiona
 fino a 640×480, con lo scaling HiDPI attivo di default. **Settings → Theme**
 sceglie chiaro, scuro o segui il sistema, si applica subito ed è indipendente
-dalla modalità scura propria del deck. `Ctrl+1` … `Ctrl+4` cambiano pagina.
+dalla modalità scura propria del deck. **Settings → Style** passa dall'aspetto classico blu navy a Material 3 e viceversa. `Ctrl+1` … `Ctrl+4` cambiano pagina.
 
 Riferimento completo: [`docs/gui.md`](../docs/gui.md).
 

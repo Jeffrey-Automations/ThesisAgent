@@ -40,7 +40,12 @@ from thesisagents.gui.i18n import t
 from thesisagents.gui.pages.deck import DeckPage
 from thesisagents.gui.pages.enrich import EnrichPage
 from thesisagents.gui.pages.search import SearchPage
-from thesisagents.gui.pages.settings import SettingsPage, saved_theme, settings_store
+from thesisagents.gui.pages.settings import (
+    SettingsPage,
+    saved_style,
+    saved_theme,
+    settings_store,
+)
 from thesisagents.gui.theme import THEME_SYSTEM, apply_theme
 from thesisagents.gui.widgets.nav_rail import NavRail
 from thesisagents.gui.widgets.responsive import Breakpoint, breakpoint_for_width
@@ -244,7 +249,7 @@ class MainWindow(QMainWindow):
     def _on_theme_changed(self, choice: str) -> None:
         app = QApplication.instance()
         if isinstance(app, QApplication):
-            apply_theme(app, choice)
+            apply_theme(app, choice, saved_style())
         self._nav.refresh_icons()
 
     def _on_system_scheme(self, _scheme: object) -> None:

@@ -581,7 +581,7 @@ rộng vừa thì nằm phía trên kết quả, và dưới 760 px thanh bên t
 biểu tượng, nhãn của form chuyển lên trên ô nhập. Cửa sổ thu nhỏ xuống
 640×480, với HiDPI scaling bật theo mặc định. **Settings → Theme** chọn sáng,
 tối hoặc theo hệ thống, áp dụng ngay và độc lập với chế độ tối riêng của
-deck. `Ctrl+1` … `Ctrl+4` chuyển trang.
+deck. **Settings → Style** chuyển giữa giao diện cổ điển màu xanh navy và Material 3. `Ctrl+1` … `Ctrl+4` chuyển trang.
 
 Tham chiếu đầy đủ: [`docs/gui.md`](../docs/gui.md).
 

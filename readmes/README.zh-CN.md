@@ -474,7 +474,7 @@ Tiếng Việt、हिन्दी、Bahasa Indonesia)—— 首次运行会从
 结果旁边,中等宽度时放在结果上方,宽度低于 760 px 时侧边栏收起为图标,
 表单标签移到字段上方。窗口可以缩小到 640×480,并默认开启 HiDPI 缩放。
 **Settings → Theme** 可选浅色、深色或跟随系统,立即生效,且与幻灯片本身的
-深色模式无关。`Ctrl+1` … `Ctrl+4` 切换页面。
+深色模式无关。**Settings → Style** 可在经典海军蓝外观与 Material 3 之间切换。`Ctrl+1` … `Ctrl+4` 切换页面。
 
 完整参考:[`docs/gui.md`](../docs/gui.md)。
 

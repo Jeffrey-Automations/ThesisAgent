@@ -58,6 +58,7 @@ In the same commit: delete the item from `progress.md`, add a `#done` entry here
 
 | ID | Date | Title | Tags | Batch |
 |---|---|---|---|---|
+| U-20261119-02 | 2026-11-19 | Selectable GUI style: classic navy or Material 3 | #done #gui #i18n | [2026-11](2026-11.md) |
 | U-20261119-01 | 2026-11-19 | GUI rebuilt: sidebar, themes, layouts that adapt to the width | #done #gui #i18n #docs | [2026-11](2026-11.md) |
 | U-20261008-08 | 2026-10-08 | The GUI gets snowballing, the library and deck templates | #done #gui #snowball #library #templates | [2026-10](2026-10.md) |
 | U-20261008-07 | 2026-10-08 | A template contract for decks, with validation before the export | #done #pptx #templates #cli #mcp | [2026-10](2026-10.md) |
@@ -102,6 +103,6 @@ In the same commit: delete the item from `progress.md`, add a `#done` entry here
 
 | File | Period | Entries |
 |---|---|---:|
-| [2026-11.md](2026-11.md) | 2026-11 | 1 |
+| [2026-11.md](2026-11.md) | 2026-11 | 2 |
 | [2026-10.md](2026-10.md) | 2026-10 | 13 |
 | [2026-09.md](2026-09.md) | 2026-09 | 25 |

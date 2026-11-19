@@ -165,6 +165,7 @@ class ReflowGrid(QWidget):
 
     _H_SPACING: Final[int] = 12
     _V_SPACING: Final[int] = 6
+    _SLACK: Final[int] = 8
 
     def __init__(
         self,
@@ -194,7 +195,10 @@ class ReflowGrid(QWidget):
         for item in self._items:
             item.ensurePolished()
         widest = max((item.sizeHint().width() for item in self._items), default=1)
-        return widest + self._H_SPACING
+        # Slack for styles whose indicator border is drawn outside the size
+        # the check box reports (Material's 2 px outline clipped the last
+        # letters of "Markdown" without it).
+        return widest + self._H_SPACING + self._SLACK
 
     def _row_height(self) -> int:
         tallest = max((item.sizeHint().height() for item in self._items), default=1)

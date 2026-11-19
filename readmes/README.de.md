@@ -595,7 +595,7 @@ Seitenleiste auf Symbole zusammen und die Formularbeschriftungen rücken über
 ihre Felder. Das Fenster lässt sich bis auf 640×480 verkleinern, mit
 standardmäßig aktivierter HiDPI-Skalierung. **Settings → Theme** wählt hell,
 dunkel oder dem System folgend, wirkt sofort und ist unabhängig vom eigenen
-Dunkelmodus des Foliensatzes. `Ctrl+1` … `Ctrl+4` wechseln die Seiten.
+Dunkelmodus des Foliensatzes. **Settings → Style** wechselt zwischen dem klassischen Marineblau-Look und Material 3. `Ctrl+1` … `Ctrl+4` wechseln die Seiten.
 
 Vollständige Referenz: [`docs/gui.md`](../docs/gui.md).
 

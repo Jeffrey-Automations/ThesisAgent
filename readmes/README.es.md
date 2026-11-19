@@ -600,7 +600,7 @@ iconos y las etiquetas de los formularios pasan encima de sus campos. La
 ventana se redimensiona hasta 640×480, con escalado HiDPI activado por
 defecto. **Settings → Theme** elige claro, oscuro o seguir el sistema, se
 aplica al instante y es independiente del modo oscuro propio de la
-presentación. `Ctrl+1` … `Ctrl+4` cambian de página.
+presentación. **Settings → Style** alterna entre el aspecto clásico azul marino y Material 3. `Ctrl+1` … `Ctrl+4` cambian de página.
 
 Referencia completa: [`docs/gui.md`](../docs/gui.md).
 
