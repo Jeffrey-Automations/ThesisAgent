@@ -144,24 +144,39 @@ the one-command install path. Windows is the only platform where
 | `bump-version` | ~5 s | ~5 s |
 | `publish-pypi` | ~3-5 min | ~3-5 min |
 | `create-draft-release` | ~10 s | ~10 s |
-| `build-nuitka` | **~80-90 min** | ~5-10 min (expected) |
+| `build-nuitka` | **~80-100 min** with 2 jobs, 4 jobs not yet measured | ~5-10 min (expected) |
 | `publish-release` | ~5 s | ~5 s |
-| Total | ~85-95 min | ~10-15 min (expected) |
+| Total | ~85-105 min | ~10-15 min (expected) |
 
-The Nuitka cold build dominates because PySide6 + Qt are a huge
-amount of C++ to compile: about 2,700 C files, and the releases of
-2026-09-23 to 2026-09-25 each spent 82-88 min on it. Nuitka keeps a
-compiler cache (clcache with MSVC) under `NUITKA_CACHE_DIR`, and the
-workflow saves that directory with `actions/cache`, so a later build
-only recompiles the files that changed. The warm figures are what the
-cache is expected to give. Before 2026-09-25 the workflow cached
-directories Nuitka does not use on Windows, so no release has been
-measured warm yet.
+The Nuitka cold build dominates because it compiles about 2,700 C
+files, one per Python module in the bundle. About 2,200 of them come
+from the `anthropic` SDK, which keeps every API type in a module of
+its own (counted 2026-11-20: 2,228 modules, against 141 for
+`thesisagents` and 38 for PySide6, whose Qt libraries arrive
+prebuilt). The releases of 2026-09-23 to 2026-09-25 spent 82-88 min
+on the compile and those of 2026-10-08 and 2026-10-11 97-100 min.
 
-The timeout cap is 120 min, which leaves room for a cold build. A
-cold build still happens whenever the cache is missing, for example
-after a quiet week: GitHub evicts a cache that has not been used for
-7 days.
+The compile runs with `--jobs=4`, one job per core of the Windows
+runner, and runs again with `--jobs=2` if that fails. Two jobs was
+the setting from 2026-05-17, when `module.uvicorn._types.c` ran out
+of MSVC heap under parallel compilation. uvicorn has been left out of
+the build since then, so four jobs are expected to fit, and the
+retry keeps a heap failure from losing the release.
+
+Nuitka keeps a compiler cache (clcache with MSVC) under
+`NUITKA_CACHE_DIR`, and the workflow saves that directory with
+`actions/cache`, so a later build should only recompile the files
+that changed. The warm figures are what the cache is expected to
+give. Before 2026-09-25 the workflow cached directories Nuitka does
+not use on Windows. The 2026-10-11 release restored the cache saved
+three days earlier and still compiled for 100 min, so the cache gave
+few hits, and no warm build has been measured yet (see `progress.md`
+#5).
+
+The timeout cap is 180 min, which leaves room for a failed 4-job
+try followed by a full 2-job compile. A cold build still happens
+whenever the cache is missing, for example after a quiet week: GitHub
+evicts a cache that has not been used for 7 days.
 
 ## Build tooling of `publish-pypi`
 

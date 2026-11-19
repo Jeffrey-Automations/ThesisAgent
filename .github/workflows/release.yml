@@ -224,10 +224,13 @@ jobs:
     permissions:
       contents: write
     # A cold build (every C file compiled) took 82-88 min in the
-    # 2026-09-23..25 releases, against the old 90 min cap. The cap
-    # leaves room for a cold build, which still happens whenever the
-    # cache below is missing: GitHub evicts caches unused for 7 days.
-    timeout-minutes: 120
+    # 2026-09-23..25 releases and 97-100 min in 2026-10, with 2 jobs.
+    # The compile now runs with 4 jobs and falls back to 2 if that
+    # fails (see "Compile with Nuitka"). 180 min leaves room for a
+    # failed 4-job try followed by a full 2-job compile. A cold build
+    # still happens whenever the cache below is missing: GitHub
+    # evicts caches unused for 7 days.
+    timeout-minutes: 180
     env:
       ASSET_NAME: thesisagents-windows-x86_64.zip
       # Nuitka keeps its compiler cache (clcache on MSVC) and downloads
@@ -310,9 +313,23 @@ jobs:
         # used — it self-extracts to %TEMP% on every launch, which
         # adds startup latency and trips antivirus heuristics on
         # locked-down corporate machines.
+        #
+        # Parallel jobs: 4, the runner's core count, with 2 as a
+        # fallback. --jobs=2 was set on 2026-05-17 (06c0e80) when
+        # module.uvicorn._types.c ran out of MSVC heap (C1002) under
+        # parallel compilation. uvicorn has been left out of the build
+        # (--nofollow-import-to=uvicorn) since then, and with half the
+        # cores idle the compile took 97-100 min in the 2026-10
+        # releases. If a 4-job build fails, the same command runs again
+        # with 2 jobs, so a heap failure costs time but not the release.
+        # Objects the first try compiled are in the compiler cache and
+        # can be reused, but the 2026-10 builds show few cache hits, so
+        # the timeout above allows for a full second compile.
         shell: bash
         run: |
+          nuitka_build() {
           python -m nuitka \
+            "$@" \
             --standalone \
             --python-flag=-m \
             --output-filename=thesisagents.exe \
@@ -327,11 +344,15 @@ jobs:
             --nofollow-import-to=streamlit \
             --nofollow-import-to=tornado \
             --lto=no \
-            --jobs=2 \
             --include-package-data=pptx \
             --include-package-data=openpyxl \
             --assume-yes-for-downloads \
             thesisagents
+          }
+          nuitka_build --jobs=4 || {
+            echo "::warning::Nuitka build with 4 jobs failed, retrying with 2 jobs"
+            nuitka_build --jobs=2
+          }
 
       - name: Smoke-test the built executable
         # If the binary fails to load any of its bundled plugins, this
