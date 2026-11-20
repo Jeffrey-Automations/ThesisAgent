@@ -162,8 +162,12 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: "3.12"
+          # Keyed on the lock this job installs from, which changes only
+          # with a tool. Keyed on pyproject.toml, each version bump missed,
+          # restored CI's ~400 MB pip cache through the prefix fallback
+          # and saved it again under a new key (422 MB on 2026-11-20).
           cache: pip
-          cache-dependency-path: pyproject.toml
+          cache-dependency-path: .github/requirements/publish.txt
 
       # This job holds the PyPI token, so its tools are wheels only, at
       # locked hashes, and nothing else is installed: no pip upgrade and
@@ -260,8 +264,12 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: "3.12"
-          cache: pip
-          cache-dependency-path: pyproject.toml
+          # No pip cache here. Its entry was about 400 MB and keyed on
+          # pyproject.toml, so every release's version bump saved a new
+          # one, and with the CI ones they filled the repository's 10 GB
+          # cache store and evicted the Nuitka compiler cache below
+          # within hours (v0.1.26 found none). The install step took
+          # 1.1 min with the pip cache, so dropping it costs little.
 
       - name: Cache Nuitka build artefacts
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0

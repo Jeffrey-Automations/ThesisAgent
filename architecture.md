@@ -89,6 +89,9 @@ An exporter never imports a fetcher; it only consumes a `PaperCollection`.
   `python -m build --no-isolation`, so the backend is the locked one and not a fresh download.
   `tests/test_workflow_actions.py` fails when that job runs any other `pip install`, builds with
   isolation, or when the lock does not satisfy `[build-system] requires` of `pyproject.toml`.
+  The CI `test` job installs every dependency from `.github/requirements/ci.txt` (one
+  universal hash lock for the whole matrix, generated from `pyproject.toml` and `ci.in`)
+  and the project with `--no-deps --no-build-isolation`.
   Reference: `docs/releases.md`.
 
 ## 4. Main flows

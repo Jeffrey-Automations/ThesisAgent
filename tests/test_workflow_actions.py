@@ -8,7 +8,8 @@ from lingering unnoticed: GitHub removed Node 20 from its runners on 2026-09-23.
 
 The rest of the workflow supply chain is guarded here too: Dependabot's
 settings, checkout credentials, job timeouts, the Nuitka cache, and the
-hash-locked tooling and build backend of the job that holds the PyPI token.
+hash-locked tooling and build backend of the job that holds the PyPI token,
+and the hash-locked dependencies the CI test job installs.
 """
 from __future__ import annotations
 
@@ -324,3 +325,97 @@ def test_publish_lock_is_resolved_for_the_python_and_runner_of_the_job():
     assert set_up == {locked_python}
     assert locked_platform.startswith("x86_64-manylinux")
     assert runners == {"ubuntu-latest"}
+
+
+_CI_LOCK = "ci.txt"
+_CI_INSTALLS = [
+    "python -m pip install --require-hashes --only-binary :all: -r .github/requirements/ci.txt",
+    "python -m pip install --no-deps --no-build-isolation -e .",
+]
+
+
+def _ci_test_job() -> str:
+    """Return the ``test`` job of ``ci.yml`` with comment lines dropped.
+
+    A command quoted in a comment is not an install, e.g. the result holds
+    ``pip install --require-hashes ...`` once, from the run block.
+    """
+    body = dict(_jobs(_ROOT / ".github" / "workflows" / "ci.yml"))["test"]
+    return "\n".join(line for line in body.splitlines() if not line.lstrip().startswith("#"))
+
+
+def _ci_locked_versions() -> dict[str, str]:
+    """Return ``{distribution: version}`` for every pin in ``ci.txt``.
+
+    A pin that differs by platform carries an environment marker after the
+    version, which is not part of it, e.g. ``_ci_locked_versions()["pywin32"]``
+    is ``"312"`` from ``pywin32==312 ; sys_platform == 'win32'``.
+    """
+    text = (_REQUIREMENTS / _CI_LOCK).read_text(encoding="utf-8")
+    pins = re.findall(r"^([A-Za-z0-9][\w.-]*)==([^\s;]+)", text, re.MULTILINE)
+    return {_distribution(name): version for name, version in pins}
+
+
+def _project_requirements() -> list[Requirement]:
+    """Return what CI tests the project with: ``[project] dependencies`` and the ``dev`` extra.
+
+    Each has to be pinned in ``ci.txt`` at a version its specifier accepts,
+    e.g. ``httpx>=0.27`` is met by a locked ``httpx==0.28.1``.
+    """
+    project = tomllib.loads((_ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    entries = [*project["dependencies"], *project["optional-dependencies"]["dev"]]
+    return [Requirement(entry) for entry in entries]
+
+
+def test_ci_installs_only_the_hash_locked_dependencies():
+    # An unpinned `pip install -e ".[dev]"` takes the newest upload of that day
+    # into CI, the supply-chain risk SonarCloud text:S8565 names. The project
+    # itself comes in with --no-deps, so nothing unlocked rides along, and
+    # --no-build-isolation, so the locked setuptools builds it.
+    installs = [command.strip() for command in _PIP_INSTALL.findall(_ci_test_job())]
+    installs = [command.split("  #")[0].strip() for command in installs]
+    assert installs == _CI_INSTALLS
+
+
+def test_ci_lock_pins_every_project_and_dev_requirement_within_its_range():
+    # ci.txt is generated from pyproject.toml. A requirement added or a floor
+    # raised there without regenerating the lock has to fail here, on dev,
+    # not as a missing import in the middle of the test run.
+    locked = _ci_locked_versions()
+    unmet = [str(requirement) for requirement in _project_requirements()
+             if _distribution(requirement.name) not in locked
+             or not requirement.specifier.contains(locked[_distribution(requirement.name)])]
+    assert unmet == []
+
+
+def test_ci_lock_holds_a_build_backend_that_satisfies_build_system_requires():
+    # --no-build-isolation checks [build-system] requires instead of installing it.
+    locked = _ci_locked_versions()
+    backend = _build_requires()
+    assert {_distribution(requirement.name) for requirement in backend} <= _requirements("ci.in")
+    unmet = [str(requirement) for requirement in backend
+             if _distribution(requirement.name) not in locked
+             or not requirement.specifier.contains(locked[_distribution(requirement.name)])]
+    assert unmet == []
+
+
+def test_ci_lock_is_one_universal_file_for_the_whole_matrix():
+    # The test job runs on Linux and Windows and on every supported Python. A
+    # lock resolved for one of them can miss a platform-only package (pywin32,
+    # colorama) or a wheel another cell needs. --universal resolves for all of
+    # them, with environment markers where they differ.
+    header = (_REQUIREMENTS / _CI_LOCK).read_text(encoding="utf-8").splitlines()[1]
+    assert "--universal" in header.split()
+    assert "--generate-hashes" in header.split()
+    floor = tomllib.loads((_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    minimum = floor["project"]["requires-python"].removeprefix(">=")
+    assert re.search(r"--python-version (\S+)", header).group(1) == minimum
+
+def test_every_ci_pin_carries_a_hash():
+    # --require-hashes refuses the whole install when one pin has no hash, so a
+    # hand edit that drops one would break every CI run, caught here first.
+    text = (_REQUIREMENTS / _CI_LOCK).read_text(encoding="utf-8")
+    blocks = re.split(r"\n(?=[A-Za-z0-9])", text)
+    pins = [block for block in blocks if re.match(r"[A-Za-z0-9][\w.-]*==", block)]
+    assert pins
+    assert [block.split()[0] for block in pins if "--hash=sha256:" not in block] == []

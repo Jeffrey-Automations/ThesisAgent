@@ -37,13 +37,15 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: ${{ matrix.python-version }}
-          # Cache pip downloads keyed on requirements files so re-runs
-          # for the same dep set skip the wheel build.
+          # Cache pip downloads keyed on the lock only. Each entry is about
+          # 400 MB (PySide6, PyMuPDF). Keyed on pyproject.toml, every
+          # release's version bump made six new entries per branch, and
+          # by 2026-11-20 they filled the repository's 10 GB cache store
+          # and evicted the Nuitka compiler cache within hours. The lock
+          # changes only when a dependency does, and a branch with no
+          # entry of its own restores main's.
           cache: pip
-          cache-dependency-path: |
-            pyproject.toml
-            requirements.txt
-            requirements-dev.txt
+          cache-dependency-path: .github/requirements/ci.txt
 
       - name: Install Qt system libraries (Linux)
         # PySide6 wheels ship most native deps but link to a handful
@@ -80,16 +82,17 @@ jobs:
             libxcb-xkb1 \
             libfontconfig1
 
-      - name: Install dev extras
-        # This job exists to install and test the code under review, so
-        # running its build backend is the point, and the dev extras are
-        # left unpinned on purpose so CI meets new dependency releases
-        # before users do. The job holds no secret: the token is
-        # read-only (permissions above) and checkout keeps no
-        # credentials. The pip that setup-python ships is used as is,
-        # an unpinned self-upgrade added nothing the install needs.
+      - name: Install dev extras (hash-locked, from .github/requirements/ci.in)
+        # Every package comes from ci.txt at an exact version and hash:
+        # the runtime dependencies, the [dev] extra and the build backend.
+        # A new or compromised PyPI release reaches CI only through a
+        # reviewed Dependabot PR that updates ci.txt. The project itself
+        # is then installed with --no-deps (nothing unlocked comes in)
+        # and --no-build-isolation (the locked setuptools builds it).
+        # The command that regenerates ci.txt is in ci.in beside it.
         run: |
-          pip install -e ".[dev]"  # NOSONAR tests the checked-out code with current deps, read-only token, no secrets
+          python -m pip install --require-hashes --only-binary :all: -r .github/requirements/ci.txt
+          python -m pip install --no-deps --no-build-isolation -e .  # NOSONAR builds the checked-out project itself with the locked backend, every dependency comes hash-locked from ci.txt
 
       - name: ruff lint
         run: python -m ruff check .

@@ -58,6 +58,7 @@ In the same commit: delete the item from `progress.md`, add a `#done` entry here
 
 | ID | Date | Title | Tags | Batch |
 |---|---|---|---|---|
+| U-20261120-05 | 2026-11-20 | CI installs from a hash-locked lock, caches stop evicting the Nuitka cache | #done #ci #security | [2026-11](2026-11.md) |
 | U-20261120-04 | 2026-11-20 | SonarCloud new-code issues on main cleared | #done #quality #sonar | [2026-11](2026-11.md) |
 | U-20261120-03 | 2026-11-20 | The Nuitka release build compiles with 4 jobs | #done #ci #release | [2026-11](2026-11.md) |
 | U-20261120-02 | 2026-11-20 | Project agents run on the newest Opus | #done #agents | [2026-11](2026-11.md) |
@@ -118,6 +119,6 @@ In the same commit: delete the item from `progress.md`, add a `#done` entry here
 
 | File | Period | Entries |
 |---|---|---:|
-| [2026-11.md](2026-11.md) | 2026-11 | 17 |
+| [2026-11.md](2026-11.md) | 2026-11 | 18 |
 | [2026-10.md](2026-10.md) | 2026-10 | 13 |
 | [2026-09.md](2026-09.md) | 2026-09 | 25 |
