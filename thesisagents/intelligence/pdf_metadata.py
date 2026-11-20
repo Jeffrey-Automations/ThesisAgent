@@ -85,7 +85,10 @@ _ABSTRACT_END_RE = re.compile(
 #: the `` and `` branch only at the first space of a run and the possessive
 #: ``\s++`` never gives a space back, so a long run of spaces is scanned once.
 #: It splits exactly where ``,\s*|\s+and\s+|;\s*`` did.
-_AUTHOR_SEPARATOR_RE = re.compile(r",\s*|(?<!\s)\s++and\s+|;\s*", re.IGNORECASE)
+_AUTHOR_SEPARATOR_RE = re.compile(
+    r",\s*|(?<!\s)\s++and\s+|;\s*",  # NOSONAR linear, see above
+    re.IGNORECASE,
+)
 
 # Lines that page-1 boilerplate uses — never the title, never an author.
 _BOILERPLATE_PREFIXES = (
@@ -320,7 +323,9 @@ _FLAT_FOOTNOTE_SPLIT_RE = re.compile(r"(?<=[A-Za-z])[\d∗*†‡§⋆][\d,∗*�
 #: first space of a run (lookbehind) and never given back (possessive), so a
 #: long run of spaces with no iD after it is scanned once. It replaces
 #: exactly what ``\s*\biD\b\s*|\s*\d{4}-\d{4}-\d{4}-\d{3}[\dX]`` did.
-_ORCID_RE = re.compile(r"(?:(?<!\s)\s++)?(?:\biD\b\s*|\d{4}-\d{4}-\d{4}-\d{3}[\dX])")
+_ORCID_RE = re.compile(
+    r"(?:(?<!\s)\s++)?(?:\biD\b\s*|\d{4}-\d{4}-\d{4}-\d{3}[\dX])"  # NOSONAR linear, see above
+)
 
 
 def _extract_from_flat_text(head: str) -> tuple[str | None, tuple[str, ...]]:
