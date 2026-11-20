@@ -496,7 +496,7 @@ def _add_paper_slides(
     # credit, and the cover already carries its title / authors / venue. Skip
     # it so a defence deck doesn't open on a "來源 / BibTeX key" page.
     if not _is_own_thesis(paper):
-        _add_overview_slide(prs, layout, index, total, paper, ctx)
+        _add_overview_slide(prs, layout, paper, ctx)
     if not ctx.include_abstract:
         return
     summary = paper.summary
@@ -554,7 +554,7 @@ def _add_rich_summary_slides(
     for predicate, builder in _build_rich_plan(summary):
         if predicate:
             _run_slide_builder(builder, prs, layout, paper, summary, ctx)
-    rq_lookup = {rq_id: question for rq_id, question in summary.research_questions}
+    rq_lookup = dict(summary.research_questions)
     for rq in summary.rq_results:
         _add_rq_result_slide(prs, layout, paper, rq, ctx, rq_lookup=rq_lookup)
     for predicate, builder in _build_rich_plan_tail(summary):
@@ -738,7 +738,7 @@ def _add_section_divider(
 
 
 def _add_overview_slide(
-    prs: Presentation, layout, index: int, total: int, paper: Paper, ctx: _BuildContext
+    prs: Presentation, layout, paper: Paper, ctx: _BuildContext
 ) -> None:
     slide = _new_section_slide(
         prs, layout,
@@ -1092,10 +1092,8 @@ def _add_technique_table_slide(
     title = t(ctx.language, "section_technique_overview")
     slide = _new_section_slide(prs, layout, title, role=ROLE_TABLE)
     _add_paper_subtitle(slide, paper, ctx)
-    rows = [(t(ctx.language, "label_technique") if False else "Technique",
-             t(ctx.language, "label_role") if False else "Role")]
-    # Use the table header as supplied by the language pack key fallbacks.
-    # For now we just label per language.
+    # The header row is labelled here per language: i18n.py has no
+    # technique / role keys yet, so every other locale gets the English pair.
     if ctx.language.startswith("zh"):
         rows = [("技術", "於本研究之角色")]
     elif ctx.language == "ja":
@@ -1856,25 +1854,45 @@ def _math_tokens(span: str):
     while i < n:
         c = span[i]
         if c in "_^" and i + 1 < n:
-            j = i + 1
-            if span[j] == "{":
-                end = span.find("}", j)
-                if end == -1:
-                    content, i = span[j + 1:], n
-                else:
-                    content, i = span[j + 1:end], end + 1
-            else:
-                content, i = span[j], j + 1
+            content, i = _script_operand(span, i + 1)
             yield ("sub" if c == "_" else "sup"), content
         elif c.isalpha():
-            j = i
-            while j < n and span[j].isalpha():
-                j += 1
+            j = _letter_run_end(span, i)
             yield "word", span[i:j]
             i = j
         else:
             yield "char", c
             i += 1
+
+
+def _script_operand(span: str, start: int) -> tuple[str, int]:
+    """Read the sub/superscript operand that begins at ``span[start]``.
+
+    Returns ``(operand, next_index)``. A ``{...}`` group yields everything
+    inside the braces, a bare character yields just that character. Guards
+    the unclosed brace: ``_{ab`` with no ``}`` takes the rest of the span
+    instead of raising or looping. Examples: ``_script_operand("z_{ab}c", 2)
+    == ("ab", 6)``, ``_script_operand("z_a", 2) == ("a", 3)``.
+    """
+    if span[start] != "{":
+        return span[start], start + 1
+    end = span.find("}", start)
+    if end == -1:
+        return span[start + 1:], len(span)
+    return span[start + 1:end], end + 1
+
+
+def _letter_run_end(span: str, start: int) -> int:
+    """Index just past the run of letters that begins at ``span[start]``.
+
+    A letter run is one math token: a single letter is an italic variable,
+    a longer run (``min``, ``log``) an upright operator. Example:
+    ``_letter_run_end("min(x)", 0) == 3``.
+    """
+    end = start
+    while end < len(span) and span[end].isalpha():
+        end += 1
+    return end
 
 
 def _render_math_span(paragraph, span: str, *, size_pt: int, colour: RGBColor, bold: bool) -> None:
@@ -1925,7 +1943,7 @@ def _append_math_runs(
         _add_math_run(paragraph, text[pos:], size_pt=size_pt, colour=colour, bold=bold)
 
 
-def _add_textbox(
+def _add_textbox(  # NOSONAR keyword-only box properties, regen scripts call it by name
     slide, *, name: str, text: str, left, top, width, height,
     font_pt: int, bold: bool = False, colour: RGBColor | None = None,
     align: PP_ALIGN | None = None,
@@ -2612,15 +2630,49 @@ def _apply_typography(
     default_latin, default_east_asian = _FONT_FAMILIES.get(language, _DEFAULT_FONT_FAMILY)
     latin = latin or default_latin
     east_asian = east_asian or default_east_asian
+    for run in _deck_runs(prs):
+        run.font.name = latin
+        if east_asian:
+            _set_east_asian_typeface(run, east_asian)
+
+
+def _deck_runs(prs: Presentation):
+    """Yield every text run on every slide, skipping shapes with no text frame.
+
+    Pictures, connectors and tables have no ``text_frame``, so a deck-wide
+    pass that read it unguarded would raise on the first figure slide.
+    Example: ``sum(1 for _ in _deck_runs(prs))`` counts the deck's runs.
+    """
     for slide in prs.slides:
         for shape in slide.shapes:
-            if not shape.has_text_frame:
-                continue
-            for paragraph in shape.text_frame.paragraphs:
-                for run in paragraph.runs:
-                    run.font.name = latin
-                    if east_asian:
-                        _set_east_asian_typeface(run, east_asian)
+            if shape.has_text_frame:
+                yield from _frame_runs(shape.text_frame)
+
+
+def _frame_runs(text_frame):
+    """Yield every run of ``text_frame``, paragraph by paragraph.
+
+    Shared by the post-build passes (typography, colour swaps) so each walks
+    runs the same way instead of nesting its own paragraph loop. Example:
+    ``[r.text for r in _frame_runs(box.text_frame)]`` lists the box's runs.
+    """
+    for paragraph in text_frame.paragraphs:
+        yield from paragraph.runs
+
+
+def _explicit_run_rgb(run) -> RGBColor | None:
+    """The run's explicit RGB colour, ``None`` when it has none to read.
+
+    Guards the colour passes against runs whose colour is a theme colour or
+    unset: python-pptx raises ``AttributeError`` / ``ValueError`` /
+    ``TypeError`` on ``font.color.rgb`` there, and the passes treat such a
+    run as having no RGB instead of aborting the deck. Example: a run set
+    with ``run.font.color.rgb = _BRAND_DARK`` returns ``_BRAND_DARK``.
+    """
+    try:
+        return run.font.color.rgb
+    except (AttributeError, ValueError, TypeError):
+        return None
 
 
 def _set_east_asian_typeface(run, family: str) -> None:
@@ -2701,15 +2753,11 @@ def _swap_run_colours(slide, mapping: dict, *, only_named: str | None = None) ->
     for shape in slide.shapes:
         if not shape.has_text_frame or (only_named and shape.name != only_named):
             continue
-        for paragraph in shape.text_frame.paragraphs:
-            for run in paragraph.runs:
-                try:
-                    rgb = run.font.color.rgb
-                except (AttributeError, ValueError, TypeError):
-                    continue
-                new = mapping.get(_rgb_key(rgb)) if rgb is not None else None
-                if new is not None:
-                    run.font.color.rgb = new
+        for run in _frame_runs(shape.text_frame):
+            rgb = _explicit_run_rgb(run)
+            new = mapping.get(_rgb_key(rgb)) if rgb is not None else None
+            if new is not None:
+                run.font.color.rgb = new
 
 
 def _apply_template_palette(
@@ -2928,19 +2976,15 @@ def _swap_text_colors(
     text_frame = getattr(shape_or_cell, "text_frame", None)
     if text_frame is None:
         return
-    for paragraph in text_frame.paragraphs:
-        for run in paragraph.runs:
-            try:
-                rgb = run.font.color.rgb
-            except (AttributeError, ValueError, TypeError):
-                rgb = None
-            if rgb is None or _rgb_key(rgb) == (0, 0, 0):
-                if promote is not None:
-                    run.font.color.rgb = promote
-                continue
-            new = text_map.get(_rgb_key(rgb))
-            if new is not None:
-                run.font.color.rgb = RGBColor(*new)
+    for run in _frame_runs(text_frame):
+        rgb = _explicit_run_rgb(run)
+        if rgb is None or _rgb_key(rgb) == (0, 0, 0):
+            if promote is not None:
+                run.font.color.rgb = promote
+            continue
+        new = text_map.get(_rgb_key(rgb))
+        if new is not None:
+            run.font.color.rgb = RGBColor(*new)
 
 
 def _swap_cell_border_colors(cell, fill_map: dict | None = None) -> None:

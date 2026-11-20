@@ -9,6 +9,7 @@ instances with ``accessRight`` of ``OPEN`` or with a ``.pdf`` suffix.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterator
 from typing import Any
 
 from thesisagents.core.models import Paper
@@ -96,52 +97,73 @@ def _abstract(descriptions: list[dict[str, Any]]) -> str:
     return ""
 
 
-def _doi(pids: list[dict[str, Any]]) -> str | None:
+def _pid_value(pids: list[dict[str, Any]], scheme: str) -> str | None:
+    """Return the first non-empty ``value`` among ``pids`` whose scheme is ``scheme``.
+
+    Guards the identifier lookups against OpenAIRE's loose ``pids`` list: an
+    entry that is not a dict, has no scheme, or has a blank value is
+    skipped, and the scheme compares case-insensitively.
+
+    Example: ``_pid_value([{"scheme": "DOI", "value": " 10.1/x "}], "doi")``
+    returns ``"10.1/x"``.
+    """
     for entry in pids:
         if not isinstance(entry, dict):
             continue
-        scheme = (entry.get("scheme") or "").lower()
+        entry_scheme = (entry.get("scheme") or "").lower()
         value = (entry.get("value") or "").strip()
-        if scheme == "doi" and value:
+        if entry_scheme == scheme and value:
             return value
     return None
 
 
+def _instance_urls(instances: list[dict[str, Any]]) -> Iterator[tuple[str, bool]]:
+    """Yield each non-empty URL of ``instances`` with whether its instance is open access.
+
+    Guards the URL lookups against a ``None`` instance, a missing or null
+    ``urls`` list, and blank URLs, all of which OpenAIRE returns. URLs come
+    in record order, lazily, so a caller that returns on the first hit
+    never reads the rest.
+
+    Example: ``list(_instance_urls([{"accessRight": "OPEN", "urls": ["",
+    "https://a/x.pdf"]}, None]))`` is ``[("https://a/x.pdf", True)]``.
+    """
+    for instance in instances:
+        data = instance or {}
+        is_open = (data.get("accessRight") or "").upper() == "OPEN"
+        for url in data.get("urls") or []:
+            if url:
+                yield url, is_open
+
+
+def _doi(pids: list[dict[str, Any]]) -> str | None:
+    return _pid_value(pids, "doi")
+
+
 def _arxiv_id(record: dict[str, Any]) -> str | None:
-    for entry in record.get("pids") or []:
-        if isinstance(entry, dict):
-            scheme = (entry.get("scheme") or "").lower()
-            value = (entry.get("value") or "").strip()
-            if scheme == "arxiv" and value:
-                return value
-    for instance in record.get("instances") or []:
-        for url in (instance or {}).get("urls") or []:
-            match = _ARXIV_RE.search(url or "")
-            if match:
-                return match.group(1)
+    from_pid = _pid_value(record.get("pids") or [], "arxiv")
+    if from_pid:
+        return from_pid
+    for url, _ in _instance_urls(record.get("instances") or []):
+        match = _ARXIV_RE.search(url)
+        if match:
+            return match.group(1)
     return None
 
 
 def _landing_url(instances: list[dict[str, Any]]) -> str:
-    for instance in instances:
-        for url in (instance or {}).get("urls") or []:
-            if url:
-                return url
-    return ""
+    return next((url for url, _ in _instance_urls(instances)), "")
 
 
 def _pdf_url(instances: list[dict[str, Any]]) -> str | None:
-    open_pdf: str | None = None
+    open_url: str | None = None
     any_pdf: str | None = None
-    for instance in instances:
-        access = (instance.get("accessRight") or "").upper()
-        for url in instance.get("urls") or []:
-            if not url:
-                continue
-            if url.lower().endswith(".pdf"):
-                if access == "OPEN":
-                    return url
-                any_pdf = any_pdf or url
-            elif access == "OPEN":
-                open_pdf = open_pdf or url
-    return any_pdf or open_pdf
+    for url, is_open in _instance_urls(instances):
+        if not url.lower().endswith(".pdf"):
+            if is_open and open_url is None:
+                open_url = url
+            continue
+        if is_open:
+            return url
+        any_pdf = any_pdf or url
+    return any_pdf or open_url

@@ -236,7 +236,8 @@ def test_csljson_does_not_collide_with_json_dump(sample_papers, tmp_path):
     written = export_collection(collection, options)
     assert written["json"].name == "test.json"
     assert written["csl"].name == "test.csl.json"
-    assert written["json"].exists() and written["csl"].exists()
+    assert written["json"].exists()
+    assert written["csl"].exists()
 
 
 def test_csljson_single_token_author(tmp_path):
@@ -1782,7 +1783,8 @@ def test_table_cell_renders_math_subscript():
     assert any(_baseline(r) == "-25000" for r in math_runs)   # "$z_a$" subscript
     # A plain header cell stays upright with no baseline shift.
     hdr_runs = [r for p in table.cell(0, 0).text_frame.paragraphs for r in p.runs]
-    assert hdr_runs and all(_baseline(r) is None for r in hdr_runs)
+    assert hdr_runs
+    assert all(_baseline(r) is None for r in hdr_runs)
 
 
 def test_stacked_section_body_renders_math_subscript():
@@ -1913,13 +1915,12 @@ def test_export_collection_wraps_write_errors(sample_papers, tmp_path, monkeypat
         raise PermissionError(13, "file is open in another application")
 
     monkeypatch.setattr(bibtex_mod.Path, "write_text", _locked, raising=True)
+    collection = _collection(sample_papers)
+    options = ExportOptions(
+        formats=("bib",), out_dir=str(tmp_path), filename_stem="locked"
+    )
     with pytest.raises(ExportError, match="could not write the output file"):
-        export_collection(
-            _collection(sample_papers),
-            ExportOptions(
-                formats=("bib",), out_dir=str(tmp_path), filename_stem="locked"
-            ),
-        )
+        export_collection(collection, options)
 
 
 def test_pptx_shape_error_names_the_summary_field(tmp_path):

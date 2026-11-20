@@ -32,6 +32,11 @@ SUPPORTED_LANGUAGES: Final[tuple[str, ...]] = (
     "id",
 )
 
+# Display name of the Material 3 GUI style. It is a product name that stays
+# the same in every language, so the settings label for every locale reads
+# it from here instead of repeating the literal per language.
+_MATERIAL_3_STYLE_NAME: Final[str] = "Material 3"
+
 # Human-readable language name to display in the UI language dropdown.
 LANGUAGE_DISPLAY_NAMES: Final[dict[str, str]] = {
     "en": "English",
@@ -177,8 +182,8 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "pt": "Fontes",
         "ru": "Источники",
         "it": "Fonti",
-        "vi": "Nguồn",
-        "hi": "स्रोत",
+        "vi": "Nguồn",  # NOSONAR translation, matching words in other keys are not one constant
+        "hi": "स्रोत",  # NOSONAR translation, matching words in other keys are not one constant
         "id": "Sumber",
     },
     "search.language_label": {
@@ -274,7 +279,7 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "ru": "Искать",
         "it": "Cerca",
         "vi": "Tìm kiếm",
-        "hi": "खोजें",
+        "hi": "खोजें",  # NOSONAR translation, matching words in other keys are not one constant
         "id": "Cari",
     },
     "search.export_button": {
@@ -287,7 +292,7 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "de": "Exportieren…",
         "ko": "내보내기…",
         "pt": "Exportar…",
-        "ru": "Экспорт…",
+        "ru": "Экспорт…",  # NOSONAR translation, matching words in other keys are not one constant
         "it": "Esporta…",
         "vi": "Xuất…",
         "hi": "निर्यात…",
@@ -555,20 +560,24 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "id": "File pustaka (opsional), mis. thesis.db",
     },
     "search.library_browse": {
-        "en": "Browse…",
+        "en": "Browse…",  # NOSONAR translation, matching words in other keys are not one constant
         "zh-tw": "瀏覽…",
         "zh-cn": "浏览…",
         "ja": "参照…",
-        "es": "Examinar…",
-        "fr": "Parcourir…",
-        "de": "Durchsuchen…",
-        "ko": "찾아보기…",
-        "pt": "Procurar…",
-        "ru": "Обзор…",
-        "it": "Sfoglia…",
-        "vi": "Duyệt…",
+        "es": "Examinar…",  # NOSONAR translation, matching words in other keys are not one constant
+        "fr": (
+            "Parcourir…"  # NOSONAR translation, matching words in other keys are not one constant
+        ),
+        "de": (
+            "Durchsuchen…"  # NOSONAR translation, matching words in other keys are not one constant
+        ),
+        "ko": "찾아보기…",  # NOSONAR translation, matching words in other keys are not one constant
+        "pt": "Procurar…",  # NOSONAR translation, matching words in other keys are not one constant
+        "ru": "Обзор…",  # NOSONAR translation, matching words in other keys are not one constant
+        "it": "Sfoglia…",  # NOSONAR translation, matching words in other keys are not one constant
+        "vi": "Duyệt…",  # NOSONAR translation, matching words in other keys are not one constant
         "hi": "Browse…",
-        "id": "Telusuri…",
+        "id": "Telusuri…",  # NOSONAR translation, matching words in other keys are not one constant
     },
     "search.library_dialog_title": {
         "en": "Choose a library file",
@@ -671,7 +680,9 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "zh-tw": "正在匯出…",
         "zh-cn": "正在导出…",
         "ja": "エクスポート中…",
-        "es": "Exportando…",
+        "es": (
+            "Exportando…"  # NOSONAR translation, matching words in other keys are not one constant
+        ),
         "fr": "Exportation…",
         "de": "Exportiere…",
         "ko": "내보내는 중…",
@@ -752,7 +763,7 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "zh-tw": "標題",
         "zh-cn": "标题",
         "ja": "タイトル",
-        "es": "Título",
+        "es": "Título",  # NOSONAR translation, matching words in other keys are not one constant
         "fr": "Titre",
         "de": "Titel",
         "ko": "제목",
@@ -1593,7 +1604,9 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
     },
     "enrich.status_running": {
         "en": "Enriching… {done}/{total}",
-        "zh-tw": "Enrich 中… {done}/{total}",
+        "zh-tw": (
+            "Enrich 中… {done}/{total}"  # NOSONAR zh-tw zh-cn ja translations match, not a constant
+        ),
         "zh-cn": "Enrich 中… {done}/{total}",
         "ja": "Enrich 中… {done}/{total}",
         "es": "Enriqueciendo… {done}/{total}",
@@ -2637,22 +2650,9 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "hi": "क्लासिक (नेवी, स्लाइड जैसा)",
         "id": "Klasik (biru dongker, serasi dengan slide)",
     },
-    "settings.style_material": {
-        "en": "Material 3",
-        "zh-tw": "Material 3",
-        "zh-cn": "Material 3",
-        "ja": "Material 3",
-        "es": "Material 3",
-        "fr": "Material 3",
-        "de": "Material 3",
-        "ko": "Material 3",
-        "pt": "Material 3",
-        "ru": "Material 3",
-        "it": "Material 3",
-        "vi": "Material 3",
-        "hi": "Material 3",
-        "id": "Material 3",
-    },
+    # A style name, the same word in every language, so one constant
+    # fills every locale instead of fourteen copies of the literal.
+    "settings.style_material": dict.fromkeys(SUPPORTED_LANGUAGES, _MATERIAL_3_STYLE_NAME),
     # Stage A: cancel, snowball bounds, results filter / ticks / menu --
     "action.cancel": {
         "en": "Cancel",
@@ -3090,15 +3090,15 @@ _LABELS: Final[dict[str, dict[str, str]]] = {
         "zh-tw": "論文",
         "zh-cn": "论文",
         "ja": "論文",
-        "es": "Artículos",
+        "es": "Artículos",  # NOSONAR translation, matching words in other keys are not one constant
         "fr": "Articles",
         "de": "Artikel",
         "ko": "논문",
         "pt": "Artigos",
         "ru": "Статьи",
         "it": "Articoli",
-        "vi": "Bài báo",
-        "hi": "शोध-पत्र",
+        "vi": "Bài báo",  # NOSONAR translation, matching words in other keys are not one constant
+        "hi": "शोध-पत्र",  # NOSONAR translation, matching words in other keys are not one constant
         "id": "Makalah",
     },
     "library.stat_runs": {

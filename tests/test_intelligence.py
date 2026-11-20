@@ -227,8 +227,9 @@ def test_summariser_rejects_non_json(monkeypatch):
         __import__("sys").modules, "anthropic", fake_anthropic
     )
     pdf = pdf_module.ExtractedPdf(url="x", page_count=1, chars=10, text="t")
+    paper = _paper()
     with pytest.raises(ParseError):
-        summarise_module.summarise_paper(_paper(), pdf, language="en")
+        summarise_module.summarise_paper(paper, pdf, language="en")
 
 
 # ---------------------------------------------------------------------------

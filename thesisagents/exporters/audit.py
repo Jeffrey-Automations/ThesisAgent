@@ -96,26 +96,59 @@ def audit_prs(prs) -> list[Issue]:
     issues: list[Issue] = []
     for idx, slide in enumerate(prs.slides, start=1):
         for shape in slide.shapes:
-            name = getattr(shape, "name", "?") or "?"
-            fill_rgb = _shape_fill_rgb(shape)
-            fill_light = fill_rgb is not None and _luma(fill_rgb) > _LIGHT_LUMA
-            for run in _iter_runs(shape):
-                rgb = _rgb_tuple(run.font.color.rgb if run.font.color and run.font.color.type
-                                 else None)
-                if rgb is None or rgb == (0, 0, 0):
-                    issues.append(Issue(idx, name, "invisible",
-                                        f"rgb={rgb} renders near-black on dark bg", True))
-                    continue
-                if rgb == _RED_ACCENT:
-                    issues.append(Issue(idx, name, "red text", "#C0392B is banned", True))
-                    continue
-                if fill_light and _luma(rgb) > _LIGHT_LUMA:
-                    issues.append(Issue(idx, name, "light-on-light",
-                                        f"text {rgb} on fill {fill_rgb}", True))
-                    continue
-                if rgb not in _ACCEPTED_DARK_RUN_COLORS:
-                    issues.append(Issue(idx, name, "off-palette",
-                                        f"rgb={rgb} not a sanctioned dark-mode colour", False))
+            issues.extend(_shape_issues(idx, shape))
+    return issues
+
+
+def _run_rgb(run) -> tuple[int, int, int] | None:
+    """The run's explicit colour as an ``(r, g, b)`` tuple, ``None`` when it inherits.
+
+    Guards the theme-colour case: a run with no colour type (or a theme
+    colour) has no readable RGB, and the audit must see that as ``None`` so
+    it reports the run as invisible on the dark background instead of
+    raising on ``font.color.rgb``.
+    """
+    color = run.font.color
+    return _rgb_tuple(color.rgb if color and color.type else None)
+
+
+def _classify_run(
+    rgb: tuple[int, int, int] | None, fill_rgb: tuple[int, int, int] | None
+) -> tuple[str, str, bool] | None:
+    """Return ``(kind, detail, hard)`` for a run colour that breaks a contract.
+
+    Checks run in contract order, and the first broken one wins, so a run is
+    reported once: invisible, red text, light-on-light (light text on a
+    light fill), then the off-palette warning. Returns ``None`` for a run
+    that passes. Example: ``_classify_run((0xC0, 0x39, 0x2B), None)`` gives
+    ``("red text", "#C0392B is banned", True)``.
+    """
+    if rgb is None or rgb == (0, 0, 0):
+        return "invisible", f"rgb={rgb} renders near-black on dark bg", True
+    if rgb == _RED_ACCENT:
+        return "red text", "#C0392B is banned", True
+    fill_light = fill_rgb is not None and _luma(fill_rgb) > _LIGHT_LUMA
+    if fill_light and _luma(rgb) > _LIGHT_LUMA:
+        return "light-on-light", f"text {rgb} on fill {fill_rgb}", True
+    if rgb not in _ACCEPTED_DARK_RUN_COLORS:
+        return "off-palette", f"rgb={rgb} not a sanctioned dark-mode colour", False
+    return None
+
+
+def _shape_issues(slide_idx: int, shape) -> list[Issue]:
+    """Every colour-contract issue among one shape's non-empty text runs.
+
+    Split out of ``audit_prs`` so the per-run checks stay readable. The
+    shape's fill is read once and shared by every run inside it.
+    """
+    name = getattr(shape, "name", "?") or "?"
+    fill_rgb = _shape_fill_rgb(shape)
+    issues: list[Issue] = []
+    for run in _iter_runs(shape):
+        found = _classify_run(_run_rgb(run), fill_rgb)
+        if found is not None:
+            kind, detail, hard = found
+            issues.append(Issue(slide_idx, name, kind, detail, hard))
     return issues
 
 

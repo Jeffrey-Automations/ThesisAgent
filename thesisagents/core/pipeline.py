@@ -307,7 +307,7 @@ async def _safe_search(fetcher, query: Query, source: str) -> _SourceOutcome:
         except FetchError as err:
             _LOG.warning("Source %s failed: %s", source, err)
             return _SourceOutcome(source, status=SourceStatus.FAILED, detail=str(err))
-        except Exception as err:  # noqa: BLE001 — containment boundary, see docstring
+        except Exception as err:  # noqa: BLE001  # containment boundary, see docstring
             _LOG.warning(
                 "Source %s raised an unexpected error (%s: %s); "
                 "skipping it and keeping the other sources' results",
@@ -387,7 +387,9 @@ async def enrich_collection(
     )
     # ``replace`` keeps ``diagnostics``: a summary changes neither a paper's
     # identity key nor the score that ranked it.
-    return dataclasses.replace(collection, papers=tuple(enriched_papers))
+    return dataclasses.replace(  # NOSONAR dataclasses.replace returns the same dataclass type
+        collection, papers=tuple(enriched_papers)
+    )
 
 
 async def _enrich_one(
@@ -408,7 +410,7 @@ async def _enrich_one(
         ) from err
     try:
         pdf = await fetch_and_extract(paper.pdf_url, source=paper.source)
-    except (FetchError, ThesisAgentsError) as err:
+    except ThesisAgentsError as err:  # FetchError is a ThesisAgentsError subclass
         _LOG.warning("PDF fetch failed for %s: %s", paper.bibtex_key(), err)
         return paper
     try:
@@ -420,4 +422,6 @@ async def _enrich_one(
         return paper
     if summary.is_empty():
         return paper
-    return dataclasses.replace(paper, summary=summary)
+    return dataclasses.replace(  # NOSONAR dataclasses.replace returns the same dataclass type
+        paper, summary=summary
+    )

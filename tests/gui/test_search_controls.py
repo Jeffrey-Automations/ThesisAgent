@@ -85,7 +85,7 @@ def test_an_uncancelled_worker_still_finishes(qtbot):
     assert signal.args == [7]
 
 
-@pytest.fixture()
+@pytest.fixture
 def page(qtbot, monkeypatch):
     """A Search page whose search returns three papers (or blocks on demand)."""
     state = {"block": False}
@@ -267,7 +267,7 @@ def _summary(language, model) -> PaperSummary:
     return PaperSummary(language=language, model=model, raw_text_chars=1, core_observation="x")
 
 
-@pytest.fixture()
+@pytest.fixture
 def slow_enrichment(monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
 

@@ -164,6 +164,22 @@ def test_parse_product_pdf_url_priority():
     assert parse_product(record).pdf_url == "https://open.example/paper.pdf"
 
 
+def test_parse_product_skips_an_empty_instance_entry():
+    """A ``null`` in ``instances`` used to raise AttributeError in the PDF lookup
+    (the landing-URL lookup already skipped it). Both now pass over it."""
+    record = {
+        "id": "x",
+        "mainTitle": "T",
+        "instances": [
+            None,
+            {"accessRight": "OPEN", "urls": ["https://open.example/paper.pdf"]},
+        ],
+    }
+    paper = parse_product(record)
+    assert paper.pdf_url == "https://open.example/paper.pdf"
+    assert paper.url == "https://open.example/paper.pdf"
+
+
 def test_parse_product_year_from_partial_date():
     record = {"id": "x", "mainTitle": "T", "publicationDate": "2025"}
     assert parse_product(record).year == 2025

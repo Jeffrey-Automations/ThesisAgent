@@ -115,10 +115,12 @@ def test_growing_the_window_restores_the_full_sidebar(qtbot):
 def test_compact_window_hides_the_authors_and_doi_columns(qtbot):
     window = _window(qtbot, 680, 600)
     table = window.search_page().table()
-    assert table.isColumnHidden(1) and table.isColumnHidden(4)
+    assert table.isColumnHidden(1)
+    assert table.isColumnHidden(4)
     window.resize(1300, 800)
     qtbot.wait(20)
-    assert not table.isColumnHidden(1) and not table.isColumnHidden(4)
+    assert not table.isColumnHidden(1)
+    assert not table.isColumnHidden(4)
 
 
 def test_settings_columns_stack_only_on_a_compact_window(qtbot):

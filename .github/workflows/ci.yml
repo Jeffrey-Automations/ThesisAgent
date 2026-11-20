@@ -81,9 +81,15 @@ jobs:
             libfontconfig1
 
       - name: Install dev extras
+        # This job exists to install and test the code under review, so
+        # running its build backend is the point, and the dev extras are
+        # left unpinned on purpose so CI meets new dependency releases
+        # before users do. The job holds no secret: the token is
+        # read-only (permissions above) and checkout keeps no
+        # credentials. The pip that setup-python ships is used as is,
+        # an unpinned self-upgrade added nothing the install needs.
         run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          pip install -e ".[dev]"  # NOSONAR tests the checked-out code with current deps, read-only token, no secrets
 
       - name: ruff lint
         run: python -m ruff check .

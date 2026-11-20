@@ -72,7 +72,12 @@ def _parse_one(block) -> Paper | None:
     )
 
 
-_META_SPLIT_RE = re.compile(r"\s+-\s+")
+#: The " - " between the authors, venue and publisher segments. The
+#: lookbehind starts a match only at the first space of a run and the
+#: possessive ``\s++`` never gives a space back, so a long run of spaces
+#: with no dash is scanned once instead of once per starting position. It
+#: splits exactly where ``\s+-\s+`` did.
+_META_SPLIT_RE = re.compile(r"(?<!\s)\s++-\s+")
 _YEAR_RE = re.compile(r"\b(19|20)\d{2}\b")
 
 

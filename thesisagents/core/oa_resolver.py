@@ -66,6 +66,9 @@ _CORE_ENDPOINT = "https://api.core.ac.uk/v3/search/works"
 _CORE_SOURCE = "core_ac_uk"
 _LOOKUP_TIMEOUT_SECONDS = 10.0
 _CONCURRENCY = 5
+#: Scheme every resolved PDF URL must carry. The resolver drops a plain
+#: ``http://`` candidate so the download stage never fetches over cleartext.
+_HTTPS_PREFIX = "https://"
 
 # One-shot warnings so we don't spam logs for every paper in a large run.
 _email_warning_emitted = False
@@ -130,7 +133,9 @@ async def resolve_oa_pdfs(collection: PaperCollection) -> PaperCollection:
         )
     # ``replace`` keeps ``diagnostics``: filling ``pdf_url`` changes neither a
     # paper's identity key nor the score that ranked it.
-    return dataclasses.replace(collection, papers=tuple(resolved))
+    return dataclasses.replace(  # NOSONAR dataclasses.replace returns the same dataclass type
+        collection, papers=tuple(resolved)
+    )
 
 
 #: DOI-keyed OA lookup strategies, tried in order until one returns a URL.
@@ -147,7 +152,9 @@ async def _resolve_one(paper: Paper, semaphore: asyncio.Semaphore) -> Paper:
     async with semaphore:
         pdf = await _try_all_strategies(paper)
     if pdf:
-        return dataclasses.replace(paper, pdf_url=pdf)
+        return dataclasses.replace(  # NOSONAR dataclasses.replace returns the same dataclass type
+            paper, pdf_url=pdf
+        )
     return paper
 
 
@@ -224,7 +231,7 @@ async def _query_unpaywall(doi: str) -> str | None:
         return None
     best_oa = data.get("best_oa_location") or {}
     candidate = (best_oa.get("url_for_pdf") or "").strip()
-    if candidate.startswith("https://"):
+    if candidate.startswith(_HTTPS_PREFIX):
         return candidate
     return None
 
@@ -278,7 +285,7 @@ async def _query_semantic_scholar(doi: str) -> str | None:
         return None
     pdf_obj = data.get("openAccessPdf") or {}
     candidate = (pdf_obj.get("url") or "").strip() if isinstance(pdf_obj, dict) else ""
-    if candidate.startswith("https://"):
+    if candidate.startswith(_HTTPS_PREFIX):
         _S2_CACHE[doi] = candidate
         return candidate
     _S2_CACHE[doi] = None
@@ -321,11 +328,11 @@ async def _query_core(doi: str) -> str | None:
     # CORE's `downloadUrl` is the direct PDF; fall back to `fullTextLinks`
     # otherwise.
     candidate = (first.get("downloadUrl") or "").strip()
-    if candidate.startswith("https://"):
+    if candidate.startswith(_HTTPS_PREFIX):
         return candidate
     for link in first.get("fullTextLinks") or []:
         url = (link.get("url") or "").strip() if isinstance(link, dict) else ""
-        if url.startswith("https://"):
+        if url.startswith(_HTTPS_PREFIX):
             return url
     return None
 
@@ -372,7 +379,7 @@ async def _query_arxiv_title(paper: Paper) -> str | None:
         if (
             _normalise_title(candidate.title) == target
             and candidate.pdf_url
-            and candidate.pdf_url.startswith("https://")
+            and candidate.pdf_url.startswith(_HTTPS_PREFIX)
         ):
             return candidate.pdf_url
     return None

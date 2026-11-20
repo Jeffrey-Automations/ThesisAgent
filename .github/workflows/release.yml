@@ -150,7 +150,10 @@ jobs:
     # so the Deployment view is redundant noise on the repo home.
     steps:
       - name: Checkout the bumped commit
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        # Not fork code: bump-version runs only for a push to this
+        # repository (its if: checks event and head_repository), checks
+        # out main, and this sha is the bump commit it pushed to main.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1  NOSONAR sha is this repo's own bump commit on main, fork runs are gated out in bump-version
         with:
           ref: ${{ needs.bump-version.outputs.sha }}
           persist-credentials: false
@@ -194,7 +197,10 @@ jobs:
       contents: write
     steps:
       - name: Checkout the bumped commit
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        # Not fork code: bump-version runs only for a push to this
+        # repository (its if: checks event and head_repository), checks
+        # out main, and this sha is the bump commit it pushed to main.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1  NOSONAR sha is this repo's own bump commit on main, fork runs are gated out in bump-version
         with:
           ref: ${{ needs.bump-version.outputs.sha }}
           persist-credentials: false
@@ -242,7 +248,10 @@ jobs:
       NUITKA_CACHE_DIR: ~/nuitka-cache
     steps:
       - name: Checkout the bumped commit
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        # Not fork code: bump-version runs only for a push to this
+        # repository (its if: checks event and head_repository), checks
+        # out main, and this sha is the bump commit it pushed to main.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1  NOSONAR sha is this repo's own bump commit on main, fork runs are gated out in bump-version
         with:
           ref: ${{ needs.bump-version.outputs.sha }}
           persist-credentials: false

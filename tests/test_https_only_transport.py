@@ -48,7 +48,7 @@ async def test_scoped_client_refuses_plain_http_and_stays_out_of_the_registry():
 async def test_scoped_client_is_closed_when_the_block_raises():
     from thesisagents.fetchers import http as http_module
 
-    with pytest.raises(RuntimeError, match="boom"):
+    with pytest.raises(RuntimeError, match="boom"):  # NOSONAR the exit on a raise is under test
         async with http_module.scoped_client("identifier_preflight") as client:
             raise RuntimeError("boom")
     assert client.is_closed

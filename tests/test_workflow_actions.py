@@ -25,7 +25,10 @@ _WORKFLOWS = sorted((_ROOT / ".github" / "workflows").glob("*.yml"))
 _USES = re.compile(r"^\s*(?:-\s*)?uses:\s*(\S+)(.*)$")
 _PINNED = re.compile(r"^[\w.-]+/[\w./-]+@[0-9a-f]{40}$")
 _LOCAL = re.compile(r"^\./")
-_VERSION_COMMENT = re.compile(r"^\s+#\s*v\d+(\.\d+)*\s*$")
+#: The version comment, optionally followed by a SonarCloud suppression with
+#: its reason (``# v7.0.1  NOSONAR sha is this repo's own commit``): Sonar
+#: only honours NOSONAR on the flagged line, which is the ``uses:`` line.
+_VERSION_COMMENT = re.compile(r"^\s+#\s*v\d+(\.\d+)*(\s+NOSONAR\s+\S.*)?\s*$")
 
 
 def _uses(path: Path) -> list[tuple[int, str, str]]:
@@ -79,7 +82,8 @@ def test_dependabot_waits_a_week_before_proposing_a_release():
     text = (_ROOT / ".github" / "dependabot.yml").read_text(encoding="utf-8")
     blocks = re.split(r"^\s*-\s*package-ecosystem:", text, flags=re.MULTILINE)[1:]
     days = [re.search(r"^\s*default-days:\s*(\d+)", block, re.MULTILINE) for block in blocks]
-    assert blocks and all(match and int(match.group(1)) >= 7 for match in days)
+    assert blocks
+    assert all(match and int(match.group(1)) >= 7 for match in days)
 
 
 def test_dependabot_watches_the_hash_locked_requirements():

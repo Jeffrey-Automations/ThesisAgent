@@ -134,26 +134,27 @@ async def test_search_parses_serp(monkeypatch):
 async def test_search_captcha_raises_unavailable(monkeypatch):
     transport = MockTransport(200, _fixture("captcha.html"))
     install_mock(monkeypatch, "thesisagents.sources.scholar.fetcher", transport)
+    fetcher = _new_fetcher()
+    query = Query(keywords="x", sources=("scholar",), max_results=1)
     with pytest.raises(SourceUnavailableError):
-        await _new_fetcher().search(
-            Query(keywords="x", sources=("scholar",), max_results=1)
-        )
+        await fetcher.search(query)
 
 
 async def test_fetch_by_id_unsupported(monkeypatch):
     transport = MockTransport(200, "")
     install_mock(monkeypatch, "thesisagents.sources.scholar.fetcher", transport)
+    fetcher = _new_fetcher()
     with pytest.raises(ParseError):
-        await _new_fetcher().fetch_by_id("anything")
+        await fetcher.fetch_by_id("anything")
 
 
 async def test_search_403_surfaces_unavailable(monkeypatch):
     transport = MockTransport(403, "Forbidden")
     install_mock(monkeypatch, "thesisagents.sources.scholar.fetcher", transport)
+    fetcher = _new_fetcher()
+    query = Query(keywords="x", sources=("scholar",), max_results=1)
     with pytest.raises(SourceUnavailableError):
-        await _new_fetcher().search(
-            Query(keywords="x", sources=("scholar",), max_results=1)
-        )
+        await fetcher.search(query)
 
 
 async def test_webrunner_backend_used_when_available(monkeypatch):
@@ -174,7 +175,8 @@ async def test_webrunner_backend_used_when_available(monkeypatch):
         Query(keywords="attention", sources=("scholar",), max_results=10)
     )
     assert captured["query"].keywords == "attention"
-    assert papers and papers[0].title == "Attention Is All You Need"
+    assert papers
+    assert papers[0].title == "Attention Is All You Need"
 
 
 async def test_webrunner_failure_falls_back_to_httpx(monkeypatch):
@@ -194,7 +196,8 @@ async def test_webrunner_failure_falls_back_to_httpx(monkeypatch):
         Query(keywords="attention", sources=("scholar",), max_results=1)
     )
     # httpx fallback succeeded.
-    assert papers and papers[0].title
+    assert papers
+    assert papers[0].title
 
 
 def test_webrunner_is_available_respects_disable_env(monkeypatch):

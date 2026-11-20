@@ -145,7 +145,10 @@ def _persist_downloaded_pdf(source: Path, target: Path) -> bool:
         _LOG.warning("WebRunner PDF: cannot read %s: %s", source, err)
         return False
     if not head.startswith(b"%PDF"):
-        _LOG.warning("WebRunner PDF: %s is not a PDF (head=%r)", source, head)
+        # The first bytes are content the remote server chose, so they are
+        # not logged (a CR / LF among them could forge a log line). The
+        # missing magic number is all the reader needs.
+        _LOG.warning("WebRunner PDF: %s is not a PDF (no %%PDF header)", source)
         return False
     target.parent.mkdir(parents=True, exist_ok=True)
     try:
