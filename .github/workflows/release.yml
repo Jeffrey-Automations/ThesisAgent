@@ -246,9 +246,10 @@ jobs:
       # Nuitka keeps its compiler cache (clcache on MSVC) and downloads
       # under this directory. Unset, it defaults to
       # %LOCALAPPDATA%\Nuitka\Nuitka\Cache on Windows, a path the cache
-      # step did not save, so every release recompiled all ~2700 C
-      # files ("0 cache hits" in the Nuitka log). Nuitka expands `~`
-      # the same way actions/cache does, so both see one directory.
+      # step did not save, so every release recompiled every C file
+      # (4,191 on 2026-11-19, "0 cache hits" in the Nuitka log). Nuitka
+      # expands `~` the same way actions/cache does, so both see one
+      # directory.
       NUITKA_CACHE_DIR: ~/nuitka-cache
     steps:
       - name: Checkout the bumped commit

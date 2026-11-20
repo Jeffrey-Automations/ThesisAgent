@@ -210,6 +210,16 @@ python -m pip install --no-deps --no-build-isolation -e .
   the repository's 10 GB cache store and evicted the Nuitka compiler
   cache within hours. The Nuitka job keeps no pip cache for the same
   reason, and `publish-pypi` keys its cache on `publish.txt`.
+- Every ref restores the pip cache, but only a run on `main` saves it
+  (`actions/cache/restore` and `actions/cache/save` in place of
+  setup-python's `cache: pip`). A run can read the caches of its own
+  ref and of `main`, never a sibling branch's, so with `cache: pip`
+  `dev`, each PR merge ref and each Dependabot branch saved a full set
+  of six entries of about 450 MB. On 2026-11-21 the store held
+  17.3 GB, and the Nuitka cache had only 2 GB of less recently used
+  caches ahead of it. Check the store with
+  `gh api repos/Jeffrey-Automations/ThesisAgent/actions/cache/usage`
+  and `gh cache list -L 100`.
 
 ## Build tooling of `publish-pypi`
 

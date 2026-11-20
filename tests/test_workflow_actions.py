@@ -149,7 +149,7 @@ def test_every_checkout_decides_on_persisted_credentials(workflow):
 def test_nuitka_cache_step_saves_the_directory_nuitka_uses():
     # Nuitka's compiler cache lives under NUITKA_CACHE_DIR. The release
     # cached ~/.nuitka and ~/.cache/Nuitka instead, which Nuitka does not
-    # use on Windows, so every release compiled all ~2700 C files cold
+    # use on Windows, so every release compiled every C file cold
     # ("0 cache hits") and ran within minutes of its 90 min cap.
     text = (_ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
     env = re.search(r"^\s*NUITKA_CACHE_DIR:\s*(\S+)\s*$", text, re.MULTILINE)
@@ -410,6 +410,48 @@ def test_ci_lock_is_one_universal_file_for_the_whole_matrix():
     floor = tomllib.loads((_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     minimum = floor["project"]["requires-python"].removeprefix(">=")
     assert re.search(r"--python-version (\S+)", header).group(1) == minimum
+
+
+def _ci_step(action: str) -> str:
+    """Return the one step of the CI ``test`` job that uses ``action``, from its ``uses:`` line.
+
+    E.g. ``_ci_step("actions/cache/save")`` starts with
+    ``uses: actions/cache/save@<sha>`` and holds that step's ``if:`` and ``with:``.
+    """
+    steps = _steps_using(_ci_test_job(), action)
+    assert len(steps) == 1, f"the CI test job should use {action} exactly once"
+    return steps[0][1]
+
+
+def test_ci_pip_cache_is_saved_only_from_main():
+    # A run reads caches of its own ref and of main, never a sibling
+    # branch's. setup-python's `cache: pip` saved a full ~450 MB set of six
+    # on dev, every PR merge ref and every Dependabot branch: 17.3 GB on
+    # 2026-11-21 against the 10 GB store, with the 54 MB Nuitka cache next
+    # in line for eviction. main's set alone serves every ref.
+    setup = _ci_step("actions/setup-python")
+    assert not re.search(r"^\s*cache:", setup, re.MULTILINE)
+    restore = _ci_step("actions/cache/restore")
+    assert "hashFiles('.github/requirements/ci.txt')" in restore
+    assert "pyproject.toml" not in restore
+    save = _ci_step("actions/cache/save")
+    condition = re.search(r"^\s*if:\s*(.+)$", save, re.MULTILINE)
+    assert condition, "the save step needs an if: that limits it to main"
+    assert "github.ref == 'refs/heads/main'" in condition.group(1)
+    assert "||" not in condition.group(1)
+    assert re.search(r"^\s*key:\s*\$\{\{\s*steps\.pip-cache\.outputs\.cache-primary-key\s*\}\}\s*$",
+                     save, re.MULTILINE)
+    path = re.compile(r"^\s*path:\s*(.+?)\s*$", re.MULTILINE)
+    assert path.search(save).group(1) == path.search(restore).group(1)
+
+
+def test_no_ci_job_caches_pip_on_every_ref():
+    # The same eviction applies to any job ci.yml gains later, since ci.yml
+    # runs on every branch. release.yml is not checked: its jobs run on main
+    # alone, so setup-python's own cache saves only main's copy there.
+    text = (_ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    assert not re.search(r"^\s*cache:\s*pip\b", text, re.MULTILINE)
+
 
 def test_every_ci_pin_carries_a_hash():
     # --require-hashes refuses the whole install when one pin has no hash, so a
