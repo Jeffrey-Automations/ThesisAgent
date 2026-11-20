@@ -148,12 +148,13 @@ the one-command install path. Windows is the only platform where
 | `publish-release` | ~5 s | ~5 s |
 | Total | ~85-105 min | ~10-15 min (expected) |
 
-The Nuitka cold build dominates because it compiles about 2,700 C
-files, one per Python module in the bundle. About 2,200 of them come
-from the `anthropic` SDK, which keeps every API type in a module of
-its own (counted 2026-11-20: 2,228 modules, against 141 for
-`thesisagents` and 38 for PySide6, whose Qt libraries arrive
-prebuilt). The releases of 2026-09-23 to 2026-09-25 spent 82-88 min
+The Nuitka cold build dominates because it compiles one C file per
+Python module in the bundle, the standard library included: 4,191 C
+files in the 2026-11-19 release (`Compiled 4191 C files using clcache`
+in the job log). About 2,200 of them, roughly half, come from the
+`anthropic` SDK, which keeps every API type in a module of its own
+(counted 2026-11-20: 2,228 modules, against 141 for `thesisagents` and
+38 for PySide6, whose Qt libraries arrive prebuilt). The releases of 2026-09-23 to 2026-09-25 spent 82-88 min
 on the compile and those of 2026-10-08 and 2026-10-11 97-100 min.
 
 The compile runs with `--jobs=4`, one job per core of the Windows
