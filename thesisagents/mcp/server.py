@@ -349,6 +349,31 @@ def _register_pdf_download_tool(server: FastMCP) -> None:
         }
 
 
+def _search_sources(
+    sources: list[str] | None, exclude_sources: list[str] | None
+) -> tuple[str, ...]:
+    """Resolve the ``search`` tool's source mix: ``sources`` minus ``exclude_sources``.
+
+    ``sources`` falls back to the default mix when omitted, and the
+    exclusion is applied after that, so the no-VPN call
+    ``exclude_sources=["ieee"]`` keeps every other default source. Guards
+    against an empty mix: excluding every source raises
+    ``ThesisAgentsError`` instead of running a search over nothing.
+
+    Example: ``_search_sources(["arxiv", "ieee"], ["ieee"]) == ("arxiv",)``.
+    """
+    chosen = tuple(sources) if sources else DEFAULT_SOURCES
+    if not exclude_sources:
+        return chosen
+    excluded = set(exclude_sources)
+    chosen = tuple(s for s in chosen if s not in excluded)
+    if not chosen:
+        raise ThesisAgentsError(
+            "exclude_sources removed every source — nothing left to search"
+        )
+    return chosen
+
+
 def _register_search_tools(server: FastMCP) -> None:
     @_tool(server)
     async def search(
@@ -418,14 +443,7 @@ def _register_search_tools(server: FastMCP) -> None:
         because it broke, not because nothing matched.
         """
         normalised = normalize_query(keywords)
-        chosen = tuple(sources) if sources else DEFAULT_SOURCES
-        if exclude_sources:
-            excluded = set(exclude_sources)
-            chosen = tuple(s for s in chosen if s not in excluded)
-            if not chosen:
-                raise ThesisAgentsError(
-                    "exclude_sources removed every source — nothing left to search"
-                )
+        chosen = _search_sources(sources, exclude_sources)
         query = Query(
             keywords=normalised,
             sources=chosen,

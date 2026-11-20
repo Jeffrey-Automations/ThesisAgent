@@ -179,6 +179,48 @@ try followed by a full 2-job compile. A cold build still happens
 whenever the cache is missing, for example after a quiet week: GitHub
 evicts a cache that has not been used for 7 days.
 
+## Dependencies of the CI test job
+
+The `test` job of `ci.yml` installs every package from one hash-locked
+file, then the project itself without its dependencies:
+
+```
+python -m pip install --require-hashes --only-binary :all: -r .github/requirements/ci.txt
+python -m pip install --no-deps --no-build-isolation -e .
+```
+
+- `.github/requirements/ci.txt` pins the runtime dependencies, the
+  `dev` extra of `pyproject.toml` and the build backend (`setuptools`,
+  `wheel`, named in `ci.in`) to exact versions with the SHA-256 hash of
+  every wheel. A new or compromised release on PyPI reaches CI only
+  through a Dependabot PR on `dev` that updates the file, after its
+  7-day wait.
+- It is generated with `uv pip compile ... --universal`, so one file
+  serves every cell of the matrix (Linux and Windows, Python 3.12 to
+  3.14), with environment markers for the platform-only packages. The
+  command is in the header of `ci.in` and `ci.txt`.
+- A requirement added to `pyproject.toml`, or a floor raised there,
+  needs `ci.txt` regenerated in the same change.
+  `tests/test_workflow_actions.py` fails when a requirement is missing
+  from the lock or locked outside its range, when the job runs any
+  other `pip install`, or when the lock is not universal.
+- The pip cache of the job is keyed on `ci.txt` alone. Keyed on
+  `pyproject.toml`, every release's version bump saved six new
+  entries of about 400 MB per branch, and by 2026-11-20 they filled
+  the repository's 10 GB cache store and evicted the Nuitka compiler
+  cache within hours. The Nuitka job keeps no pip cache for the same
+  reason, and `publish-pypi` keys its cache on `publish.txt`.
+- Every ref restores the pip cache, but only a run on `main` saves it
+  (`actions/cache/restore` and `actions/cache/save` in place of
+  setup-python's `cache: pip`). A run can read the caches of its own
+  ref and of `main`, never a sibling branch's, so with `cache: pip`
+  `dev`, each PR merge ref and each Dependabot branch saved a full set
+  of six entries of about 450 MB. On 2026-11-21 the store held
+  17.3 GB, and the Nuitka cache had only 2 GB of less recently used
+  caches ahead of it. Check the store with
+  `gh api repos/Jeffrey-Automations/ThesisAgent/actions/cache/usage`
+  and `gh cache list -L 100`.
+
 ## Build tooling of `publish-pypi`
 
 `publish-pypi` is the only job that receives `PYPI_API_TOKEN`, so

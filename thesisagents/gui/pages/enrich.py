@@ -64,6 +64,9 @@ _API_KEY_ENV = "ANTHROPIC_API_KEY"
 #: QSettings group the form is saved under when the window closes.
 _FORM_GROUP = "form/enrich"
 _DEFAULT_MODEL = "claude-opus-4-7"
+#: i18n key of the status shown when an action needs papers and the page
+#: has none yet (the export, import and enrich buttons all check it).
+_NO_COLLECTION_KEY = "enrich.error_no_collection"
 
 
 class EnrichPage(QWidget):
@@ -213,7 +216,9 @@ class EnrichPage(QWidget):
         when no enrichment has run yet. Used by tests + the Deck tab."""
         if self._enriched_papers:
             assert self._collection is not None  # noqa: S101 # nosec B101  # state-machine invariant, not runtime validation  # invariant
-            return replace(self._collection, papers=tuple(self._enriched_papers))
+            return replace(  # NOSONAR dataclasses.replace returns the same dataclass type
+                self._collection, papers=tuple(self._enriched_papers)
+            )
         return self._collection
 
     def status_text(self) -> str:
@@ -263,7 +268,7 @@ class EnrichPage(QWidget):
         """Write the current papers (enriched ones keep their summary) for an agent."""
         collection = self.collection()
         if collection is None or not collection.papers:
-            self._status_label.setText(t("enrich.error_no_collection", self._ui_language))
+            self._status_label.setText(t(_NO_COLLECTION_KEY, self._ui_language))
             return
         language = self._language_combo.currentData() or "en"
         try:
@@ -287,7 +292,7 @@ class EnrichPage(QWidget):
         """Attach an agent's summaries and send the result on to the Deck page."""
         collection = self.collection()
         if collection is None or not collection.papers:
-            self._status_label.setText(t("enrich.error_no_collection", self._ui_language))
+            self._status_label.setText(t(_NO_COLLECTION_KEY, self._ui_language))
             return
         try:
             result = read_handoff(path, collection)
@@ -342,7 +347,7 @@ class EnrichPage(QWidget):
     def _on_enrich_clicked(self) -> None:
         if self._collection is None or not self._collection.papers:
             self._status_label.setText(
-                t("enrich.error_no_collection", self._ui_language),
+                t(_NO_COLLECTION_KEY, self._ui_language),
             )
             return
         if not os.environ.get(_API_KEY_ENV):

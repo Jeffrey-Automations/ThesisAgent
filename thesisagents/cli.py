@@ -771,7 +771,8 @@ def _emit_per_paper(
     if aggregate_formats:
         agg_options = dataclasses.replace(options, formats=aggregate_formats)
         written_aggregate = export_collection(
-            accessible_collection, agg_options,
+            accessible_collection,  # NOSONAR dataclasses.replace returns the same dataclass type
+            agg_options,  # NOSONAR dataclasses.replace returns the same dataclass type
             verification_cache=verification_cache,
         )
 
@@ -784,7 +785,9 @@ def _emit_per_paper(
             filename_stem=paper.bibtex_key(),
         )
         emitted = export_collection(
-            single, per_options, verification_cache=verification_cache
+            single,
+            per_options,  # NOSONAR dataclasses.replace returns the same dataclass type
+            verification_cache=verification_cache,
         )
         per_paper_written.append((paper, emitted[EXPORT_PPTX]))
 
@@ -962,7 +965,9 @@ async def _enrich_local_pdf_collection(
             enriched.append(paper)
         else:
             enriched.append(dataclasses.replace(paper, summary=summary))
-    return dataclasses.replace(collection, papers=tuple(enriched))
+    return dataclasses.replace(  # NOSONAR dataclasses.replace returns the same dataclass type
+        collection, papers=tuple(enriched)
+    )
 
 
 def _configure_stdio_for_unicode() -> None:

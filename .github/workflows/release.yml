@@ -150,7 +150,10 @@ jobs:
     # so the Deployment view is redundant noise on the repo home.
     steps:
       - name: Checkout the bumped commit
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        # Not fork code: bump-version runs only for a push to this
+        # repository (its if: checks event and head_repository), checks
+        # out main, and this sha is the bump commit it pushed to main.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1  NOSONAR sha is this repo's own bump commit on main, fork runs are gated out in bump-version
         with:
           ref: ${{ needs.bump-version.outputs.sha }}
           persist-credentials: false
@@ -159,8 +162,12 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: "3.12"
+          # Keyed on the lock this job installs from, which changes only
+          # with a tool. Keyed on pyproject.toml, each version bump missed,
+          # restored CI's ~400 MB pip cache through the prefix fallback
+          # and saved it again under a new key (422 MB on 2026-11-20).
           cache: pip
-          cache-dependency-path: pyproject.toml
+          cache-dependency-path: .github/requirements/publish.txt
 
       # This job holds the PyPI token, so its tools are wheels only, at
       # locked hashes, and nothing else is installed: no pip upgrade and
@@ -194,7 +201,10 @@ jobs:
       contents: write
     steps:
       - name: Checkout the bumped commit
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        # Not fork code: bump-version runs only for a push to this
+        # repository (its if: checks event and head_repository), checks
+        # out main, and this sha is the bump commit it pushed to main.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1  NOSONAR sha is this repo's own bump commit on main, fork runs are gated out in bump-version
         with:
           ref: ${{ needs.bump-version.outputs.sha }}
           persist-credentials: false
@@ -236,13 +246,17 @@ jobs:
       # Nuitka keeps its compiler cache (clcache on MSVC) and downloads
       # under this directory. Unset, it defaults to
       # %LOCALAPPDATA%\Nuitka\Nuitka\Cache on Windows, a path the cache
-      # step did not save, so every release recompiled all ~2700 C
-      # files ("0 cache hits" in the Nuitka log). Nuitka expands `~`
-      # the same way actions/cache does, so both see one directory.
+      # step did not save, so every release recompiled every C file
+      # (4,191 on 2026-11-19, "0 cache hits" in the Nuitka log). Nuitka
+      # expands `~` the same way actions/cache does, so both see one
+      # directory.
       NUITKA_CACHE_DIR: ~/nuitka-cache
     steps:
       - name: Checkout the bumped commit
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        # Not fork code: bump-version runs only for a push to this
+        # repository (its if: checks event and head_repository), checks
+        # out main, and this sha is the bump commit it pushed to main.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1  NOSONAR sha is this repo's own bump commit on main, fork runs are gated out in bump-version
         with:
           ref: ${{ needs.bump-version.outputs.sha }}
           persist-credentials: false
@@ -251,8 +265,12 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: "3.12"
-          cache: pip
-          cache-dependency-path: pyproject.toml
+          # No pip cache here. Its entry was about 400 MB and keyed on
+          # pyproject.toml, so every release's version bump saved a new
+          # one, and with the CI ones they filled the repository's 10 GB
+          # cache store and evicted the Nuitka compiler cache below
+          # within hours (v0.1.26 found none). The install step took
+          # 1.1 min with the pip cache, so dropping it costs little.
 
       - name: Cache Nuitka build artefacts
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0

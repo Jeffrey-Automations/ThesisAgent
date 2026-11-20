@@ -391,7 +391,8 @@ async def test_download_pdfs_isolates_a_hard_failure(tmp_path: Path, monkeypatch
 
     assert len(results) == 2
     saved, failed = results
-    assert saved.path is not None and saved.path.exists()
+    assert saved.path is not None
+    assert saved.path.exists()
     assert failed.path is None
     assert failed.skipped_reason == "error_OSError"
 

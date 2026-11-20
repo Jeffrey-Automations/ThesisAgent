@@ -39,7 +39,7 @@ def _collection(*papers: Paper) -> PaperCollection:
     return PaperCollection(Query("attention", ("arxiv",)), papers or (SEED,))
 
 
-@pytest.fixture()
+@pytest.fixture
 def page(qtbot, monkeypatch):
     """A Search page whose search returns ``SEED`` and counts its calls."""
     calls: list[str] = []

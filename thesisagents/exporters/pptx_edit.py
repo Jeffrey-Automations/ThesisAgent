@@ -236,7 +236,10 @@ def _move_slide(presentation: Presentation, src_index: int, dst_index: int) -> N
     children = list(sld_id_lst)
     moving = children.pop(src_index)
     children.insert(dst_index, moving)
-    for child in list(sld_id_lst):
+    # ``children`` holds the same elements as ``sld_id_lst``, only reordered,
+    # so it doubles as the snapshot to remove from (removing while iterating
+    # ``sld_id_lst`` itself would skip every other element).
+    for child in children:
         sld_id_lst.remove(child)
     for child in children:
         sld_id_lst.append(child)

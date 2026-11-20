@@ -27,7 +27,7 @@ from thesisagents.core.models import ExportOptions, PaperCollection, Query
 from thesisagents.exporters import export_collection, pptx_edit
 
 
-@pytest.fixture()
+@pytest.fixture
 def deck(tmp_path: Path, sample_papers) -> Path:
     collection = PaperCollection(
         query=Query(keywords="attention", sources=("arxiv",), max_results=10),

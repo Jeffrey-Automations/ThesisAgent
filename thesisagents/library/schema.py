@@ -63,12 +63,15 @@ def transaction(conn: sqlite3.Connection) -> Iterator[sqlite3.Connection]:
             conn.execute("INSERT INTO observations ...")
     """
     conn.execute("BEGIN IMMEDIATE")
+    body_finished = False
     try:
         yield conn
-    except BaseException:
-        conn.execute("ROLLBACK")
-        raise
-    conn.execute("COMMIT")
+        body_finished = True
+    finally:
+        # ``finally`` also runs when the caller leaves early (an exception in
+        # the ``with`` body, or the generator being closed), so no exit path
+        # leaves the write lock held.
+        conn.execute("COMMIT" if body_finished else "ROLLBACK")
 
 
 _VERSION_1: tuple[str, ...] = (

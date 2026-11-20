@@ -418,61 +418,87 @@ def _summary_to_dict(summary: PaperSummary | None) -> dict[str, Any] | None:
     }
 
 
+def _strings(data: dict[str, Any], key: str) -> tuple[Any, ...]:
+    """Read one flat list field of a serialised summary as a tuple.
+
+    Guards the JSON round trip: a field that is missing or stored as
+    ``null`` reads as an empty tuple instead of raising ``TypeError``.
+    Example: ``_strings({"method": ["a"]}, "method") == ("a",)``.
+    """
+    return tuple(data.get(key) or ())
+
+
+def _rows(data: dict[str, Any], key: str) -> tuple[tuple[Any, ...], ...]:
+    """Read a list-of-lists field (pairs, triples, table rows) as nested tuples.
+
+    JSON has no tuples, so each row comes back as a list, and the frozen
+    ``PaperSummary`` needs hashable tuples. A missing or ``null`` field
+    reads as no rows. Example: ``_rows({"t": [["a", "b"]]}, "t") == (("a", "b"),)``.
+    """
+    return tuple(tuple(row) for row in data.get(key) or ())
+
+
+def _sections(data: dict[str, Any], key: str) -> tuple[tuple[Any, tuple[Any, ...]], ...]:
+    """Read a ``[heading, [bullet, ...]]`` section list as nested tuples.
+
+    Used by ``pain_points``, ``method_sections`` and ``evaluation_sections``.
+    A missing or ``null`` field reads as no sections. Example:
+    ``_sections({"s": [["H", ["b"]]]}, "s") == (("H", ("b",)),)``.
+    """
+    return tuple((heading, tuple(bullets)) for heading, bullets in data.get(key) or ())
+
+
+def _rq_result_from_dict(raw: dict[str, Any]) -> RqResult:
+    """Rebuild one ``RqResult`` from its JSON object.
+
+    Missing keys fall back to the dataclass's empty defaults, so an
+    older export without ``table`` or ``analysis`` still loads. Example:
+    ``_rq_result_from_dict({"rq_id": "RQ1"}).question == ""``.
+    """
+    return RqResult(
+        rq_id=raw.get("rq_id", ""),
+        question=raw.get("question", ""),
+        table=_rows(raw, "table"),
+        analysis=_strings(raw, "analysis"),
+    )
+
+
 def _summary_from_dict(data: dict[str, Any] | None) -> PaperSummary | None:
+    """Inverse of ``_summary_to_dict``: rebuild a ``PaperSummary`` from JSON.
+
+    Returns ``None`` for a missing or empty summary object, so a paper
+    exported without enrichment round-trips back to ``summary=None``.
+    """
     if not data:
         return None
     return PaperSummary(
         language=data.get("language", "en"),
-        motivation=tuple(data.get("motivation") or ()),
-        contributions=tuple(data.get("contributions") or ()),
-        method=tuple(data.get("method") or ()),
-        results=tuple(data.get("results") or ()),
-        limitations=tuple(data.get("limitations") or ()),
-        takeaways=tuple(data.get("takeaways") or ()),
-        pain_points=tuple(
-            (h, tuple(b)) for h, b in (data.get("pain_points") or ())
-        ),
+        motivation=_strings(data, "motivation"),
+        contributions=_strings(data, "contributions"),
+        method=_strings(data, "method"),
+        results=_strings(data, "results"),
+        limitations=_strings(data, "limitations"),
+        takeaways=_strings(data, "takeaways"),
+        pain_points=_sections(data, "pain_points"),
         research_question=data.get("research_question") or "",
-        contributions_detailed=tuple(
-            tuple(pair) for pair in (data.get("contributions_detailed") or ())
-        ),
-        headline_metrics=tuple(
-            tuple(triple) for triple in (data.get("headline_metrics") or ())
-        ),
-        technique_table=tuple(
-            tuple(pair) for pair in (data.get("technique_table") or ())
-        ),
-        literature_table=tuple(
-            tuple(row) for row in (data.get("literature_table") or ())
-        ),
-        method_sections=tuple(
-            (h, tuple(b)) for h, b in (data.get("method_sections") or ())
-        ),
-        evaluation_sections=tuple(
-            (h, tuple(b)) for h, b in (data.get("evaluation_sections") or ())
-        ),
-        system_flow=tuple(data.get("system_flow") or ()),
-        research_questions=tuple(
-            tuple(pair) for pair in (data.get("research_questions") or ())
-        ),
-        rq_results=tuple(
-            RqResult(
-                rq_id=r.get("rq_id", ""),
-                question=r.get("question", ""),
-                table=tuple(tuple(row) for row in r.get("table") or ()),
-                analysis=tuple(r.get("analysis") or ()),
-            )
-            for r in (data.get("rq_results") or ())
-        ),
+        contributions_detailed=_rows(data, "contributions_detailed"),
+        headline_metrics=_rows(data, "headline_metrics"),
+        technique_table=_rows(data, "technique_table"),
+        literature_table=_rows(data, "literature_table"),
+        method_sections=_sections(data, "method_sections"),
+        evaluation_sections=_sections(data, "evaluation_sections"),
+        system_flow=_strings(data, "system_flow"),
+        research_questions=_rows(data, "research_questions"),
+        rq_results=tuple(_rq_result_from_dict(r) for r in data.get("rq_results") or ()),
         core_observation=data.get("core_observation") or "",
-        future_work=tuple(data.get("future_work") or ()),
+        future_work=_strings(data, "future_work"),
         figures=tuple(
             (cap, path, tuple(bullets))
-            for cap, path, bullets in (data.get("figures") or ())
+            for cap, path, bullets in data.get("figures") or ()
         ),
         paper_tables=tuple(
             (cap, tuple(tuple(row) for row in rows), tuple(analysis))
-            for cap, rows, analysis in (data.get("paper_tables") or ())
+            for cap, rows, analysis in data.get("paper_tables") or ()
         ),
         raw_text_chars=data.get("raw_text_chars") or 0,
         model=data.get("model") or "",
@@ -512,7 +538,9 @@ class Query:
             raise ValueError("year_from must be <= year_to")
 
     def with_max(self, max_results: int) -> Query:
-        return replace(self, max_results=max_results)
+        return replace(  # NOSONAR dataclasses.replace returns the same dataclass type
+            self, max_results=max_results
+        )
 
     @staticmethod
     def clamp_max_results(count: int) -> int:

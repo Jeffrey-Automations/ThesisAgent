@@ -463,7 +463,9 @@ class SearchPage(QWidget):
         """The current result narrowed to the ticked papers, or ``None``."""
         if self._collection is None:
             return None
-        return replace(self._collection, papers=self._papers_model.checked_papers())
+        return replace(  # NOSONAR dataclasses.replace returns the same dataclass type
+            self._collection, papers=self._papers_model.checked_papers()
+        )
 
     def _on_checks_changed(self) -> None:
         total = len(self._papers_model.papers())

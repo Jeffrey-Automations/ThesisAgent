@@ -41,7 +41,6 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
-import json
 import logging
 from collections.abc import AsyncIterator, Iterable, Mapping
 from dataclasses import dataclass
@@ -639,7 +638,7 @@ def _verdict_for_doi_http_error(status: int) -> Verdict:
 def _json_object(response: httpx.Response) -> dict[str, Any]:
     try:
         payload = response.json()
-    except (json.JSONDecodeError, UnicodeDecodeError, ValueError):
+    except ValueError:  # covers json.JSONDecodeError and UnicodeDecodeError
         return {}
     return payload if isinstance(payload, dict) else {}
 

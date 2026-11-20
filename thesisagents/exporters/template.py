@@ -436,7 +436,9 @@ class LayoutSet:
         """
         slide = prs.slides.add_slide(self._layouts[role])
         keep = _title_placeholder(slide) if role in self._title_roles else None
-        for placeholder in list(slide.placeholders):
+        # The loop removes placeholders from the slide, so it walks a copy.
+        inherited = list(slide.placeholders)
+        for placeholder in inherited:
             if keep is not None and placeholder._element is keep._element:
                 continue
             placeholder._element.getparent().remove(placeholder._element)
@@ -509,6 +511,30 @@ def _resolve_layouts(
     warnings: list[TemplateIssue] = []
     available = ", ".join(f"'{layout.name}'" for layout in prs.slide_layouts) or "none"
     found = _layouts_by_name(prs, config, errors, available)
+    _fill_from_content_layout(prs, config, found, errors, available)
+    for role in sorted(config.title_placeholder_roles):
+        layout = found.get(role)
+        if layout is not None:
+            _check_title_placeholder(role, layout, errors)
+    return found, errors, warnings
+
+
+def _fill_from_content_layout(
+    prs: Presentation,
+    config: TemplateConfig,
+    found: dict[str, Any],
+    errors: list[TemplateIssue],
+    available: str,
+) -> None:
+    """Give every role the config left unnamed the content layout, in place.
+
+    Guards the fallback chain: when no layout is named or found for
+    ``content``, the template's blank layout stands in, and when there is
+    none either a ``no-content-layout`` error is recorded. A role the config
+    names explicitly is never filled in, so a misspelt name stays reported
+    as missing instead of silently getting the content layout. Example: a
+    template with only a ``Blank`` layout ends with every role mapped to it.
+    """
     if ROLE_CONTENT not in found and ROLE_CONTENT not in config.layouts:
         blank = _blank_layout(prs)
         if blank is None:
@@ -518,17 +544,13 @@ def _resolve_layouts(
                 "'content' or 'Blank' (PowerPoint: View > Slide Master), or name one "
                 f"in the config with [layouts] content = \"...\". Its layouts are: {available}.",
             ))
-        else:
-            found[ROLE_CONTENT] = blank
-    if ROLE_CONTENT in found:
-        for role in ROLES:
-            if role not in found and role not in config.layouts:
-                found[role] = found[ROLE_CONTENT]
-    for role in sorted(config.title_placeholder_roles):
-        layout = found.get(role)
-        if layout is not None:
-            _check_title_placeholder(role, layout, errors)
-    return found, errors, warnings
+            return
+        found[ROLE_CONTENT] = blank
+    if ROLE_CONTENT not in found:
+        return
+    for role in ROLES:
+        if role not in found and role not in config.layouts:
+            found[role] = found[ROLE_CONTENT]
 
 
 def _layouts_by_name(
@@ -645,6 +667,20 @@ def open_template(
     )
 
 
+def _config_source(config: TemplateConfig | str | Path | None) -> str | None:
+    """Where the template config came from, as the validation report names it.
+
+    A parsed ``TemplateConfig`` carries its own ``source``, a path is
+    reported as given, and no config reports ``None`` (the built-in
+    defaults). Example: ``_config_source(Path("deck.toml")) == "deck.toml"``.
+    """
+    if isinstance(config, TemplateConfig):
+        return config.source
+    if config is None:
+        return None
+    return str(config)
+
+
 def _inspect(
     path: str | Path,
     config: TemplateConfig | str | Path | None,
@@ -652,9 +688,7 @@ def _inspect(
     dark_mode: bool,
 ) -> tuple[TemplateValidationReport, Any | None, dict[str, Any], TemplateConfig | None]:
     template = str(path)
-    config_source = config.source if isinstance(config, TemplateConfig) else (
-        str(config) if config is not None else None
-    )
+    config_source = _config_source(config)
     errors: list[TemplateIssue] = []
     warnings: list[TemplateIssue] = []
     parsed: TemplateConfig | None

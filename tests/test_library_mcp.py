@@ -13,12 +13,12 @@ from thesisagents.library import Library
 from thesisagents.mcp.server import ToolError
 
 
-@pytest.fixture()
+@pytest.fixture
 def server():
     return mcp_pkg.build_server()
 
 
-@pytest.fixture()
+@pytest.fixture
 def library_path(tmp_path) -> str:
     return str(tmp_path / "thesis.db")
 
@@ -160,7 +160,8 @@ def test_export_remembers_verdicts_in_the_library(
     first = _call(server, "export", **arguments)
     second = _call(server, "export", **arguments)
 
-    assert first["verification"]["ok"] is True and second["verification"]["ok"] is True
+    assert first["verification"]["ok"] is True
+    assert second["verification"]["ok"] is True
     assert asked[0] == 3
     assert sum(asked[1:]) == 0                         # the second call asked nothing
     with Library(library_path) as library:

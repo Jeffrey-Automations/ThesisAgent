@@ -862,7 +862,9 @@ def _with_better_summary(stored: Paper, incoming: Paper) -> Paper:
     provenance = tuple(entry for entry in stored.provenance if entry.field != _SUMMARY_FIELD)
     if (incoming.source, incoming.source_id) != (stored.source, stored.source_id):
         provenance += (FieldProvenance(_SUMMARY_FIELD, incoming.source, incoming.source_id),)
-    return replace(stored, summary=incoming.summary, provenance=provenance)
+    return replace(  # NOSONAR dataclasses.replace returns the same dataclass type
+        stored, summary=incoming.summary, provenance=provenance
+    )
 
 
 def _with_latest_citations(stored: Paper, incoming: Paper) -> Paper:
@@ -892,4 +894,6 @@ def _with_latest_citations(stored: Paper, incoming: Paper) -> Paper:
         provenance += (
             FieldProvenance(_CITATION_FIELD, incoming.source, incoming.source_id),
         )
-    return replace(stored, citation_count=incoming.citation_count, provenance=provenance)
+    return replace(  # NOSONAR dataclasses.replace returns the same dataclass type
+        stored, citation_count=incoming.citation_count, provenance=provenance
+    )

@@ -190,7 +190,9 @@ async def _download_one(paper: Paper, pdf_dir: Path) -> PdfDownloadResult:
             )
             route = ROUTE_DIRECT_NO_BROWSER
     result = await _fetch_and_validate(paper, target, key)
-    return replace(result, route=route)
+    return replace(  # NOSONAR dataclasses.replace returns the same dataclass type
+        result, route=route
+    )
 
 
 async def _fetch_and_validate(
@@ -281,14 +283,94 @@ def _looks_like_pdf(body: bytes, content_type: str) -> bool:
     return body.startswith(b"%PDF")
 
 
-_CITATION_PDF_URL_RE = re.compile(
-    rb'<meta\s+[^>]*?name=["\']citation_pdf_url["\'][^>]*?content=["\']([^"\']+)["\']',
-    re.IGNORECASE,
-)
-_CITATION_PDF_URL_REV_RE = re.compile(
-    rb'<meta\s+[^>]*?content=["\']([^"\']+)["\'][^>]*?name=["\']citation_pdf_url["\']',
-    re.IGNORECASE,
-)
+#: One ``<meta ...`` tag, from ``<meta`` to just before its closing ``>``
+#: (or the end of the scanned head when the tag is cut off). Nothing follows
+#: ``[^>]*``, so the scan never backtracks. The attribute patterns below then
+#: run once per tag. The earlier single pattern per attribute order
+#: (``<meta\s+[^>]*?name=...[^>]*?content=...``) backtracked polynomially on a
+#: long tag that lacks the attribute: a 20 kB tag took seconds to reject.
+_META_TAG_RE = re.compile(rb"<meta\s[^>]*", re.IGNORECASE)
+_CITATION_NAME_RE = re.compile(rb'name=["\']citation_pdf_url["\']', re.IGNORECASE)
+_CONTENT_OPEN_RE = re.compile(rb'content=["\']', re.IGNORECASE)
+#: A non-empty attribute value up to its closing quote. Like the old pattern
+#: it may run past a ``>``, which is legal inside a quoted HTML value.
+_QUOTED_VALUE_RE = re.compile(rb'([^"\']+)["\']')
+
+
+def _content_values(head: bytes, start: int, end: int) -> list[re.Match[bytes]]:
+    """Every non-empty quoted ``content=`` value whose attribute opens in ``[start, end)``.
+
+    Guards the attribute boundary: the ``content=`` opener must sit inside
+    the tag (before its ``>``), while the value may run on past it. An empty
+    value (``content=""``) is skipped, as the old pattern's ``[^"']+`` did.
+    Example: ``[v.group(1) for v in _content_values(b'content="" content="/a"',
+    0, 23)] == [b"/a"]``.
+    """
+    values = []
+    for opener in _CONTENT_OPEN_RE.finditer(head, start, end):
+        value = _QUOTED_VALUE_RE.match(head, opener.end())
+        if value is not None:
+            values.append(value)
+    return values
+
+
+def _name_then_content(head: bytes, start: int, end: int) -> bytes | None:
+    """The ``content`` value of a tag written ``name="citation_pdf_url" content="..."``.
+
+    ``start`` / ``end`` bound one ``<meta`` tag in ``head`` (a match of
+    ``_META_TAG_RE``). Returns ``None`` when the tag names something else or
+    has no ``content`` after the ``name``. Example: for the tag
+    ``<meta name="citation_pdf_url" content="/a.pdf">`` it returns ``b"/a.pdf"``.
+    """
+    name = _CITATION_NAME_RE.search(head, start, end)
+    if name is None:
+        return None
+    values = _content_values(head, name.end(), end)
+    return values[0].group(1) if values else None
+
+
+def _content_then_name(head: bytes, start: int, end: int) -> bytes | None:
+    """The ``content`` value of a tag written ``content="..." name="citation_pdf_url"``.
+
+    ``start`` / ``end`` bound one ``<meta`` tag in ``head``. The ``name``
+    attribute must follow the value before the next ``>``. Candidates are
+    tried in order. A value that ends inside the tag searches up to the
+    tag's own ``>``, the same range a failed earlier candidate already
+    searched, so that search is skipped and the scan stays linear. Example:
+    for the tag ``<meta content="/a.pdf" name="citation_pdf_url">`` it
+    returns ``b"/a.pdf"``.
+    """
+    searched_until = -1
+    for value in _content_values(head, start, end):
+        tail_start = value.end()
+        if tail_start <= end:
+            tail_end = end
+        else:
+            tail_end = head.find(b">", tail_start)
+            tail_end = len(head) if tail_end == -1 else tail_end
+        if tail_end == searched_until:
+            continue
+        if _CITATION_NAME_RE.search(head, tail_start, tail_end) is not None:
+            return value.group(1)
+        searched_until = tail_end
+    return None
+
+
+def _find_citation_pdf_url(head: bytes) -> bytes | None:
+    """The first ``citation_pdf_url`` value in ``head``, as raw bytes.
+
+    A tag with ``name`` before ``content`` anywhere in ``head`` wins over a
+    tag with the reverse order, the precedence the extractor has always had.
+    Example: ``_find_citation_pdf_url(b'<meta content="/a.pdf"
+    name="citation_pdf_url">') == b"/a.pdf"``.
+    """
+    tags = [(tag.start(), tag.end()) for tag in _META_TAG_RE.finditer(head)]
+    for finder in (_name_then_content, _content_then_name):
+        for start, end in tags:
+            value = finder(head, start, end)
+            if value is not None:
+                return value
+    return None
 
 
 def _extract_citation_pdf_url(body: bytes, *, base_url: str) -> str | None:
@@ -302,10 +384,10 @@ def _extract_citation_pdf_url(body: bytes, *, base_url: str) -> str | None:
     if not body:
         return None
     head = body[:32_768]  # the tag always sits in the document <head>
-    match = _CITATION_PDF_URL_RE.search(head) or _CITATION_PDF_URL_REV_RE.search(head)
-    if not match:
+    value = _find_citation_pdf_url(head)
+    if value is None:
         return None
-    candidate = match.group(1).decode("utf-8", errors="replace").strip()
+    candidate = value.decode("utf-8", errors="replace").strip()
     if not candidate:
         return None
     return urljoin(base_url, candidate)

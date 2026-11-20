@@ -223,7 +223,8 @@ def test_nav_rail_toggle_collapses_by_hand(qtbot):
     qtbot.addWidget(rail)
     rail.add_item("search", "Search")
     rail.set_compact(True)
-    assert rail.is_compact() and rail.button_text(0) == ""
+    assert rail.is_compact()
+    assert rail.button_text(0) == ""
     rail.set_compact(False)
     assert rail.button_text(0).strip() == "Search"
 
